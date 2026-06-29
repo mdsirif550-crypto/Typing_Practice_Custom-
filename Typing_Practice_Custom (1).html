@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Rayhan's English Academy - Strict Typing Mastery</title>
+  <style>
+    :root {
+      --bg-color: #041e12; 
+      --panel-bg: #111e16; 
+      --primary: #c026d3;
+      --primary-hover: #a21caf;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-accent: #143a23;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --key-bg: #22372a;
+      --key-active: #c026d3;
+      --key-border: #111d15;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 45% 50%, rgba(244, 42, 65, 0.18) 0%, rgba(244, 42, 65, 0) 42%), var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* সুন্দর লোডিং সিস্টেম (Pre-loader Overlay) */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-color);
+      z-index: 300000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .loader-sun {
+      width: 80px;
+      height: 80px;
+      background-color: #f42a41;
+      border-radius: 50%;
+      box-shadow: 0 0 30px #f42a41;
+      animation: pulseAndGlow 1.5s infinite alternate ease-in-out;
+      margin-bottom: 25px;
+    }
+    @keyframes pulseAndGlow {
+      0% { transform: scale(0.9); box-shadow: 0 0 20px rgba(244, 42, 65, 0.5); }
+      100% { transform: scale(1.1); box-shadow: 0 0 45px rgba(244, 42, 65, 0.9); }
+    }
+    .loader-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 12px;
+    }
+    .loader-bar {
+      width: 220px;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loader-progress {
+      width: 0%;
+      height: 100%;
+      background-color: var(--success);
+      border-radius: 10px;
+      transition: width 0.1s linear;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    /* Header Branding */
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .academy-tag {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    header h1 {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      background: linear-gradient(to right, #ffffff, #f472b6, #c026d3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    /* ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার */
+    .flag-landscape-banner {
+      width: 100%;
+      height: 120px;
+      background-color: #006a4e; 
+      border-radius: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      margin-bottom: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+    .flag-red-circle {
+      width: 80px;
+      height: 80px;
+      background-color: #f42a41; 
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(244, 42, 65, 0.6);
+      position: absolute;
+      left: 45%; 
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .flag-banner-text {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ffffff;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+      z-index: 1;
+    }
+
+    /* Language Mode Selector */
+    .mode-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+    .lang-btn {
+      background-color: var(--panel-bg);
+      color: var(--text-muted);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .lang-btn.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
+    }
+
+    /* Dashboard Stats Card */
+    .dashboard {
+      background-color: var(--panel-bg);
+      border-radius: 12px;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .stat-box {
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .stat-val {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+    .stat-val.highlight {
+      color: var(--success);
+    }
+
+    /* Controls Panel */
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    select {
+      background-color: var(--key-bg);
+      color: var(--text-main);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      max-width: 250px;
+    }
+    .btn-reset {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-reset:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Real-time Warning & Helper Box */
+    .status-feedback {
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main Typing Box */
+    .typing-panel {
+      background-color: var(--panel-bg);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .text-display {
+      font-size: 24px;
+      line-height: 1.7;
+      letter-spacing: 1px;
+      min-height: 120px;
+      color: var(--text-muted);
+      font-family: 'Courier New', Courier, monospace;
+      outline: none;
+      word-break: break-word;
+    }
+    
+    /* Character Highlighting Styles */
+    .char-correct {
+      color: var(--success) !important;
+      background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    .char-wrong {
+      color: var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.25) !important;
+      border-bottom: 3px solid var(--danger) !important;
+    }
+    .char-current {
+      color: var(--text-main);
+      background-color: rgba(192, 38, 211, 0.25);
+      border-bottom: 3px solid var(--primary);
+    }
+
+    /* 3D Virtual Keyboard Styling */
+    .keyboard-container {
+      background-color: var(--panel-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .keyboard-row:last-child {
+      margin-bottom: 0;
+    }
+    .key {
+      background-color: var(--key-bg);
+      color: var(--text-main);
+      padding: 10px;
+      min-width: 44px;
+      height: 46px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+      font-weight: bold;
+      user-select: none;
+      position: relative;
+      border-bottom: 4px solid var(--key-border);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.05s ease;
+    }
+    .key.backspace { min-width: 80px; }
+    .key.tab { min-width: 65px; }
+    .key.caps { min-width: 75px; }
+    .key.enter { min-width: 85px; }
+    .key.shift { min-width: 100px; }
+    .key.space { min-width: 320px; }
+    
+    /* 3D Highlight Target Key */
+    .key.target-highlight {
+      background-color: var(--key-active) !important;
+      border-bottom-color: #701a75 !important;
+      box-shadow: 0 0 15px var(--key-active);
+      transform: translateY(-2px);
+    }
+    
+    /* Key Pressed Down 3D Effect */
+    .key.pressed, .key:active {
+      transform: translateY(3px);
+      border-bottom-width: 1px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Modern Glassmorphic Welcome/Guidelines Screen */
+    .trainer-intro-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(4, 30, 18, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 200000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .trainer-card {
+      background: linear-gradient(135deg, #111e16, #0c2514);
+      border-radius: 24px;
+      max-width: 600px;
+      width: 100%;
+      border: 2px solid var(--primary);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 38, 211, 0.2);
+      overflow: hidden;
+      animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardSlideIn {
+      0% { transform: translateY(30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .trainer-header {
+      background: linear-gradient(135deg, #006a4e, #0c2514);
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 2px solid rgba(244, 42, 65, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    .trainer-header::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: rgba(244, 42, 65, 0.15);
+      filter: blur(25px);
+      border-radius: 50%;
+      top: 10%;
+      left: 45%;
+    }
+    .trainer-intro-text {
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 1;
+    }
+    .trainer-body {
+      padding: 25px;
+    }
+    .guideline-item-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .guideline-item-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(4px);
+    }
+    .guideline-icon {
+      font-size: 22px;
+      background-color: rgba(192, 38, 211, 0.15);
+      border: 1px solid var(--primary);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .guideline-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .guideline-info h5 {
+      color: #facc15;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .guideline-info p {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+    .btn-start-training {
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-start-training:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(192, 38, 211, 0.7);
+    }
+
+    /* Summary Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100000;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: var(--panel-bg);
+      padding: 35px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: var(--success);
+    }
+    .modal-stats {
+      margin: 20px 0;
+      background-color: var(--bg-color);
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .modal-stat-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+    }
+    .modal-stat-line strong {
+      color: var(--primary);
+    }
+    .modal-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .modal-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    .trainer-tip {
+      font-size: 13px;
+      color: #fbcfe8;
+      background-color: var(--bg-accent);
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* রেসপন্সিভ ল্যান্ডস্কেপ ব্যানার সাইজিং */
+    @media (max-width: 600px) {
+      .flag-landscape-banner {
+        height: 90px;
+        padding: 0 20px;
+        margin-bottom: 15px;
+      }
+      .flag-banner-text {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+      }
+      .flag-red-circle {
+        width: 55px;
+        height: 55px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- জাতীয় পতাকার ব্যাকগ্রাউন্ড অ্যানিমেশনসহ প্রি-লোডার -->
+  <div id="loadingScreen" class="loader-overlay">
+    <div class="loader-sun"></div>
+    <div class="loader-text">Rayhan's English Academy</div>
+    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; letter-spacing: 1px;">বিজয় ৫২ টাইপিং মাস্টার লোড হচ্ছে...</div>
+    <div class="loader-bar">
+      <div id="loaderProgress" class="loader-progress"></div>
+    </div>
+  </div>
+
+  <!-- কম্পিউটার প্রশিক্ষণে আপনাকে স্বাগতম স্ক্রিন (লোডিং সম্পন্ন হওয়ার পর দৃশ্যমান হবে) -->
+  <div id="trainerWelcomeScreen" class="trainer-intro-overlay" style="display: none;">
+    <div class="trainer-card">
+      <div class="trainer-header">
+        <div class="academy-welcome-tag">Welcome to Rayhan's English Academy</div>
+        <div class="trainer-avatar">
+          <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#ffffff"/>
+            <path d="M12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="trainer-title">কম্পিউটার ট্রেইনার প্যানেল</div>
+        <p class="trainer-intro-text">🖥️ কম্পিউটার প্রশিক্ষণে ট্রেইনার আপনাকে সম্পূর্ণ গাইড করবে।</p>
+      </div>
+      <div class="trainer-body">
+        
+        <!-- সুদৃশ্য আইকনিক দিকনির্দেশনা ফিচার কার্ডসমূহ -->
+        <div class="guideline-item-card">
+          <div class="guideline-icon">⌨️</div>
+          <div class="guideline-info">
+            <h5>ইংরেজি কীবোর্ড ইনপুট</h5>
+            <p>কীবোর্ড মোড পরিবর্তন না করে সরাসরি সাধারণ ইংরেজি কীবোর্ড বাটনেই বাংলা টাইপ করতে পারবেন।</p>
+          </div>
+        </div>
+
+        <div class="guideline-item-card">
+          <div class="guideline-icon">💡</div>
+          <div class="guideline-info">
+            <h5>লাইভ গাইডেন্স</h5>
+            <p>স্ক্রিনের গাইড বক্সে প্রতি বর্ণমালার জন্য কোন বাটন চাপতে হবে তা স্পষ্ট দেখা যাবে।</p>
+          </div>
+        </div>
+
+        <div class="guideline-item-card">
+          <div class="guideline-icon">⚡</div>
+          <div class="guideline-info">
+            <h5>নির্ভুলতা প্রথম</h5>
+            <p>এখানে কঠোর টাইপিং মোড সক্রিয় রয়েছে। ভুল করলে কার্সার সামনে যাবে না, সঠিক বিজয় বাটনটি চেপেই সামনে এগোতে হবে।</p>
+          </div>
+        </div>
+
+        <button class="btn-start-training" onclick="startTrainerSession()">
+          <span>অনুশীলন শুরু করুন</span> ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="academy-tag">Rayhan's English Academy</div>
+      <h1>Strict Typing Master</h1>
+    </header>
+
+    <!-- ওপরে ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার -->
+    <div class="flag-landscape-banner">
+      <div class="flag-banner-text">RAYHAN'S ENGLISH ACADEMY</div>
+      <div class="flag-red-circle"></div>
+      <div class="flag-banner-text">BANGLADESH</div>
+    </div>
+
+    <!-- Language Mode Toggle Button -->
+    <div class="mode-container">
+      <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
+      <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বিজয় ৫২ টাইপিং মোড</button>
+    </div>
+
+    <!-- Dashboard Panel -->
+    <div class="dashboard">
+      <div class="stat-box">
+        <div class="stat-label">Lesson Select</div>
+        <div class="controls">
+          <select id="lessonSelect" onchange="loadLesson()">
+            <!-- Dynamic Content Load via JS depending on Selected Language -->
+          </select>
+          <button class="btn-reset" onclick="resetExercise()">Reset</button>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Progress (অগ্রগতি)</div>
+        <div id="progressVal" class="stat-val highlight">0 / 0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">WPM (Speed)</div>
+        <div id="wpmVal" class="stat-val highlight">00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Accuracy</div>
+        <div id="accuracyVal" class="stat-val">100%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Time</div>
+        <div id="timeVal" class="stat-val">00:00</div>
+      </div>
+    </div>
+
+    <!-- রিয়েল-টাইম লাইভ গাইড ও কিবোর্ড সতর্কবার্তা বক্স -->
+    <div id="statusFeedback" class="status-feedback">
+      <span style="color: var(--text-muted)">টাইপিং শুরু করতে কীবোর্ডের যেকোনো কী চাপুন...</span>
+    </div>
+
+    <!-- Typing Interactive Area -->
+    <div class="typing-panel">
+      <div id="textDisplay" class="text-display"></div>
+    </div>
+
+    <!-- Virtual Keyboard Area -->
+    <div class="keyboard-container">
+      <!-- Row 1 -->
+      <div class="keyboard-row">
+        <div class="key" id="key-`" data-key="`">`</div>
+        <div class="key" id="key-1" data-key="1">1</div>
+        <div class="key" id="key-2" data-key="2">2</div>
+        <div class="key" id="key-3" data-key="3">3</div>
+        <div class="key" id="key-4" data-key="4">4</div>
+        <div class="key" id="key-5" data-key="5">5</div>
+        <div class="key" id="key-6" data-key="6">6</div>
+        <div class="key" id="key-7" data-key="7">7</div>
+        <div class="key" id="key-8" data-key="8">8</div>
+        <div class="key" id="key-9" data-key="9">9</div>
+        <div class="key" id="key-0" data-key="10">10</div>
+        <div class="key" id="key--" data-key="11">11</div>
+        <div class="key" id="key-=" data-key="12">12</div>
+        <div class="key backspace" id="key-backspace" data-key="Backspace">Backspace</div>
+      </div>
+      <!-- Row 2 -->
+      <div class="keyboard-row">
+        <div class="key tab" id="key-tab" data-key="Tab">Tab</div>
+        <div class="key" id="key-q" data-key="q">Q</div>
+        <div class="key" id="key-w" data-key="w">W</div>
+        <div class="key" id="key-e" data-key="e">E</div>
+        <div class="key" id="key-r" data-key="r">R</div>
+        <div class="key" id="key-t" data-key="t">T</div>
+        <div class="key" id="key-y" data-key="y">Y</div>
+        <div class="key" id="key-u" data-key="u">U</div>
+        <div class="key" id="key-i" data-key="i">I</div>
+        <div class="key" id="key-o" data-key="o">O</div>
+        <div class="key" id="key-p" data-key="p">P</div>
+        <div class="key" id="key-[" data-key="[">[</div>
+        <div class="key" id="key-]" data-key="]">]</div>
+        <div class="key" id="key-\" data-key="\">\</div>
+      </div>
+      <!-- Row 3 -->
+      <div class="keyboard-row">
+        <div class="key caps" id="key-capslock" data-key="CapsLock">Caps Lock</div>
+        <div class="key" id="key-a" data-key="a">A</div>
+        <div class="key" id="key-s" data-key="s">S</div>
+        <div class="key" id="key-d" data-key="d">D</div>
+        <div class="key" id="key-f" data-key="f">F</div>
+        <div class="key" id="key-g" data-key="g">G</div>
+        <div class="key" id="key-h" data-key="h">H</div>
+        <div class="key" id="key-j" data-key="j">J</div>
+        <div class="key" id="key-k" data-key="k">K</div>
+        <div class="key" id="key-l" data-key="l">L</div>
+        <div class="key" id="key-;" data-key=";">;</div>
+        <div class="key" id="key-'" data-key="'">'</div>
+	<div class="key" id="key-'" data-key=":">'</div>
+        <div class="key enter" id="key-enter" data-key="Enter">Enter</div>
+      </div>
+      <!-- Row 4 -->
+      <div class="keyboard-row">
+        <div class="key shift" id="key-shift" data-key="Shift">Shift</div>
+        <div class="key" id="key-z" data-key="z">Z</div>
+        <div class="key" id="key-x" data-key="x">X</div>
+        <div class="key" id="key-c" data-key="c">C</div>
+        <div class="key" id="key-v" data-key="v">V</div>
+        <div class="key" id="key-b" data-key="b">B</div>
+        <div class="key" id="key-n" data-key="n">N</div>
+        <div class="key" id="key-m" data-key="m">M</div>
+        <div class="key" id="key-," data-key=",">,</div>
+        <div class="key" id="key-." data-key=".">.</div>
+        <div class="key" id="key-/" data-key="/">/</div>
+        <div class="key shift" id="key-shiftright" data-key="Shift">Shift</div>
+      </div>
+      <!-- Row 5 -->
+      <div class="keyboard-row">
+        <div class="key" id="key-control" style="min-width: 60px;">Ctrl</div>
+        <div class="key" id="key-meta" style="min-width: 60px;">Win</div>
+        <div class="key" id="key-alt" style="min-width: 60px;">Alt</div>
+        <div class="key space" id="key- " data-key=" ">Space</div>
+        <div class="key" id="key-altright" style="min-width: 60px;">Alt</div>
+        <div class="key" id="key-metaright" style="min-width: 60px;">Win</div>
+        <div class="key" id="key-controlright" style="min-width: 60px;">Ctrl</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Modal Popup -->
+  <div id="summaryModal" class="modal">
+    <div class="modal-content">
+      <h2>Exercise Complete!</h2>
+      <div class="modal-stats">
+        <div class="modal-stat-line">
+          <span>Typing Speed:</span>
+          <strong><span id="modalWpm">0</span> WPM</strong>
+        </div>
+        <div class="modal-stat-line" style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 10px;">
+          <span>Accuracy Rate:</span>
+          <strong><span id="modalAccuracy">100</span>%</strong>
+        </div>
+        <div class="modal-stat-line">
+          <span>Time Taken:</span>
+          <strong><span id="modalTime">00:00</span></strong>
+        </div>
+        <div class="modal-stat-line">
+          <span>Wrong Key Presses:</span>
+          <strong><span id="modalErrors" style="color:var(--danger)">0</span></strong>
+        </div>
+      </div>
+      <div class="trainer-tip">💡 না পারলে ট্রেইনারকে নক করো, ট্রেইনার তোমাকে দেখিয়ে দিবে!</div>
+      
+      <!-- পরবর্তী লেসনে যাওয়ার নেক্সট বাটন -->
+      <button class="modal-btn" onclick="loadNextLesson()" style="margin-top: 15px; background-color: var(--success);">পরবর্তী লেসন শুরু করুন (Next Lesson) ➔</button>
+      <button class="modal-btn" onclick="closeSummary()" style="margin-top: 10px; background-color: var(--key-bg);">আবার চেষ্টা করুন (Try Again)</button>
+    </div>
+  </div>
+
+  <script>
+    // English & Bengali Dynamic Lessons
+    const englishLessons = [
+      "asdfghjkl;asdfghjkl;ffff;jjjjjkkkkklllll;;;;;;'asdfghjkl;asdfghjk;'aaaaasssssdddddfffff;jjjjjkkkkklllll;;;;;;'aaaaasssssdddddfffff;jjjjjkkkkklllll;;;;;;",
+      ";;;;;llllkkkkjjjjhhhhhgggggfffffddddsssssaaaaa;;;;;llllkkkkjjjjhhhhhgggggfffffddddsssssaaaaasdfghjkl; ;lkjhgfdsahk;slkslflhkhfkgslkhfakf;",
+      "fsljfksjAfl;j l;hfhSjksh'sa'fh;lh fla;Dfjhk fl;jsfhkjf hklhFlkshkf jlkfhjlfgj kfj;ajhl;Ga jflfhl;jfjfhfj';lfj l;",
+      "lkjhgfdSa; hgFdsaLkj; gfdSaHlk;lkjhgfdSa; hgFdsaLkj; gfdSaHlklkjhgfdSa; hgFdsaLkj; gfdSaHlk;lkjhgfdSa; hgFdsaLkj;",
+      "fghjkdSaL; jhGfdsaKlfghjkdSaL; jhGfdsaKl fghjkdSaL; jhGfdsaKl fghjkdSaL; jhGfdsaKl'''fghjkdSaL; jhGfdsaKl'''fgh",
+      "zxcvbnm,./ zxCvbnm,./ nmbVczx,./zxcvbnm,./zxcvbnm,./zxvcbnm,.//.,mnbvcxzbbnnmm,,vvccxxzzzxcvbnm,./zxcvbnm,./zxcvbnm,./",
+      "/.,mnbvcxz /.,mNbvcxz mN,./bvcxz /.,mnbvcxz /.,mNbvcxz mN,./bvcxz? /.,mnbvcxz /.,mNbvcxz? mN,./bvcxz /.,mnbvcxz  ",
+      "zvxcm,.b/ zvXcm?,.b/ cbzVx,.mn?/ zvxcm,.b/ zvXcm,.b/ cbzVx,.mn/ zvxcm,.b/ zvXcm,.b/ cbzVx,.mn/ zvxcm,.b/ zvXcm,.b/ ",
+      ",./mnbvcxz ,./mNbvcxz vnmBzcx ,./mnbvcxz ,./mNbvcxz vnmBzcx ,./mnbvcxz? ,./mNbvcxz vnmBzcx ,./mnbvcxz ,./mNbvcxz vnmBzcx ,.",
+      "bvcxz,./mn bvCxz,./mn? mn,./bVcxz? bvcxz,./mn bvCxz,./mn mn,./bVcxz bvcxz,./mn bvCxz,./mn mn,./bVcxz bvcxz,./mn bvCxz,./mn ",
+      "qwertyuiop[]\ qwertyuiop poiuytrewq qetuo[ wryip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw ",
+      "WE wertyuiop[]\ qwertyuiop poiuyER trewq qetuo[ wrTYyip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      "WE wer ty u iop[ ]\ qwert yuiop poi uy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      " PQ ty uIIU iop[ ]\ qTYwert yuiop poi uQQy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      " wTeOr ty uEE ioQp[ ]\ qUwert yuiop poi uy ER t reIIO wq[ q etuo[ wrTYyi]p] qweqw rtyrO\tt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      " Learning English typing is a very useful skill in today's world. It helps us work faster and communicate more effectively. By practicing every day, we can improve our typing speed and accuracy. Good typing skills are important for students, office workers, and anyone who uses a computer. The more we practice, the more confident we become. Therefore, learning English typing is a great way to increase productivity and save time."
+    ];
+
+    const bengaliLessons = [
+      "কখগঘঙ চছজঝঞ টঠডঢণ তথদধন পফবভম যরলশ ষসহ",
+      "আমার সোনার বাংলা আমি তোমায় ভালোবাসি চিরদিন তোমার আকাশ তোমার বাতাস তোমার মুখে মধুর বাণী।",
+      "সততা ও পরিশ্রম সাফল্যের মূল চাবিকাঠি। নিয়মিত কীবোর্ড টাইপিং গতি বৃদ্ধি করতে সাহায্য করে।",
+      "কম্পিউটার টাইপিং শেখা এখন অত্যন্ত সহজ। নিয়মিত অনুশীলন আপনাকে দ্রুত টাইপ করতে সাহায্য করবে।",
+      "শিক্ষা আলো ছড়ায় এবং অন্ধকার দূর করে। নিয়মিত টাইপ অনুশীলন করলে হাতের পেশী সক্রিয় হয়।"
+    ];
+
+    // কীবোর্ড বাটনগুলোতে বিজয় ৫২ লেআউটের বাংলা বর্ণমালা ম্যাপিং
+    const bengaliKeyLabelMap = {
+      "q": "ঙ", "w": "য", "e": "ড", "r": "প", "t": "ট", "y": "চ", "u": "জ", "i": "হ", "o": "গ", "p": "ড়",
+      "a": "ৃ", "s": "ু", "d": "ি", "f": "া", "g": "্", "h": "অ", "j": "ক", "k": "ত", "l": "দ",
+      "z": "্র", "x": "ও", "c": "এ", "v": "র", "b": "ন", "n": "স", "m": "ম"
+    };
+
+    // বিজয় ৫২ বাংলা ক্যারেক্টারকে ফিজিক্যাল ইংরেজি কীবোর্ডের কি (Key) দিয়ে রিভার্স ট্র্যাকিং করা
+    const reverseBengaliKeyHighlightMap = {
+      "ঙ": "q", "সং": "q", "ং": "q",
+      "য": "w", "্য": "w",
+      "ড": "e", "ঢ": "e",
+      "প": "r", "ফ": "r",
+      "ট": "t", "ঠ": "t",
+      "চ": "y", "ছ": "y",
+      "জ": "u", "ঝ": "u",
+      "হ": "i", "ঞ": "i",
+      "গ": "o", "ঘ": "o",
+      "ড়": "p", "ঢ়": "p",
+      "ৃ": "a", "ঋ": "a",
+      "ু": "s", "ূ": "s",
+      "ি": "d", "ী": "d",
+      "া": "f", "অ": "f",
+      "্": "g", "।": "g",
+      "ব": "h", "ভ": "h",
+      "ক": "j", "খ": "j",
+      "ত": "k", "থ": "k",
+      "দ": "l", "ধ": "l",
+      "্র": "z", "্য": "z",
+      "ও": "x", "ৌ": "x",
+      "এ": "c", "ৈ": "c",
+      "র": "v", "ল": "v",
+      "ন": "b", "ণ": "b",
+      "স": "n", "ষ": "n",
+      "ম": "m", "শ": "m",
+      "আ": "h"
+    };
+
+    // বিজয় ৫২ অনুযায়ী প্রতিটি বর্ণমালার ইংরেজি কীবোর্ড ম্যাপিং এবং গাইড লেবেল
+    const bijoyToEnglishGuide = {
+      "ক": { key: "j", label: "j" },
+      "খ": { key: "J", label: "Shift + j" },
+      "গ": { key: "o", label: "o" },
+      "ঘ": { key: "O", label: "Shift + o" },
+      "ঙ": { key: "q", label: "q" },
+      "চ": { key: "y", label: "y" },
+      "ছ": { key: "Y", label: "Shift + y" },
+      "জ": { key: "u", label: "u" },
+      "ঝ": { key: "U", label: "Shift + u" },
+      "ঞ": { key: "I", label: "Shift + i" },
+      "ট": { key: "t", label: "t" },
+      "ঠ": { key: "T", label: "Shift + t" },
+      "ড": { key: "e", label: "e" },
+      "ঢ": { key: "E", label: "Shift + e" },
+      "ত": { key: "k", label: "k" },
+      "থ": { key: "K", label: "Shift + k" },
+      "দ": { key: "l", label: "l" },
+      "ধ": { key: "L", label: "Shift + l" },
+      "ন": { key: "b", label: "b" },
+      "ণ": { key: "B", label: "Shift + b" },
+      "প": { key: "r", label: "r" },
+      "ফ": { key: "R", label: "Shift + r" },
+      "ব": { key: "h", label: "h" },
+      "ভ": { key: "H", label: "Shift + h" },
+      "ম": { key: "m", label: "m" },
+      "য": { key: "w", label: "w" },
+      "র": { key: "v", label: "v" },
+      "ল": { key: "V", label: "Shift + v" },
+      "শ": { key: "M", label: "Shift + m" },
+      "ষ": { key: "N", label: "Shift + n" },
+      "স": { key: "n", label: "n" },
+      "হ": { key: "i", label: "i" },
+      "ড়": { key: "p", label: "p" },
+      "ঢ়": { key: "P", label: "Shift + p" },
+      "য়": { key: "Y", label: "Shift + ;" },
+      
+      // স্বরবর্ণ ও কার চিহ্নসমূহ
+      "অ": { key: "F", label: "Shift + f" },
+      "আ": { key: "H", label: "Shift + h" },
+      "ই": { key: "D", label: "Shift + d" },
+      "উ": { key: "S", label: "Shift + s" },
+      "ঋ": { key: "A", label: "Shift + a" },
+      "এ": { key: "c", label: "c" },
+      "ঐ": { key: "C", label: "Shift + c" },
+      "ও": { key: "x", label: "x" },
+      "ঔ": { key: "X", label: "Shift + x" },
+      
+      "া": { key: "f", label: "f" },
+      "ি": { key: "d", label: "d" },
+      "ী": { key: "D", label: "Shift + d" },
+      "ু": { key: "s", label: "s" },
+      "ূ": { key: "S", label: "Shift + s" },
+      "ে": { key: "c", label: "c" },
+      "ৈ": { key: "C", label: "Shift + c" },
+      "ো": { key: "x", label: "x" },
+      "ৌ": { key: "X", label: "Shift + x" },
+      "ৃ": { key: "a", label: "a" },
+      "্": { key: "g", label: "g" }, 
+      "ং": { key: "Q", label: "Shift + q" },
+      "ঃ": { key: "S", label: "Shift + s" },
+      "ঁ": { key: "^", label: "Shift + 6" },
+      "্য": { key: "W", label: "Shift + w" },
+      "্র": { key: "z", label: "z" },
+      "র্": { key: "A", label: "Shift + a" },
+      "।": { key: "G", label: "Shift + g" }
+    };
+
+    let currentLanguage = 'en'; 
+    let targetText = "";
+    let userInputs = [];
+    let currentIndex = 0;
+    
+    let startTime = null;
+    let timerInterval = null;
+    let totalSeconds = 0;
+    isStarted = false;
+    let totalKeystrokes = 0;
+    let totalErrors = 0;
+    let hasErrorAtCurrent = false;
+
+    let completedLessonsInSession = [];
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playKeySound(isCorrect) {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        if (isCorrect) {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.05);
+        } else {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+        }
+      } catch (e) {
+        console.warn("Audio Context playback failed safely.", e);
+      }
+    }
+
+    function startTrainerSession() {
+      document.getElementById("trainerWelcomeScreen").style.display = "none";
+    }
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      
+      document.getElementById("langEnBtn").classList.remove("active");
+      document.getElementById("langBnBtn").classList.remove("active");
+      if (lang === 'en') {
+        document.getElementById("langEnBtn").classList.add("active");
+      } else {
+        document.getElementById("langBnBtn").classList.add("active");
+      }
+
+      completedLessonsInSession = []; 
+      populateLessonsDropdown();
+      updateKeyboardLayoutDisplay();
+      loadLesson();
+    }
+
+    function populateLessonsDropdown() {
+      const select = document.getElementById("lessonSelect");
+      select.innerHTML = "";
+
+      if (currentLanguage === 'en') {
+        const grp1 = document.createElement("optgroup"); grp1.label = "Home Row Drills (A-L)";
+        const grp2 = document.createElement("optgroup"); grp2.label = "Bottom Row Drills (Z-?)";
+        const grp3 = document.createElement("optgroup"); grp3.label = "Top Row Drills (Q-P)";
+        const grp4 = document.createElement("optgroup"); grp4.label = "Word Practice Pages";
+
+        for (let i = 0; i < englishLessons.length; i++) {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.text = `Lesson ${i+1}: English Exercise`;
+          if (i < 5) grp1.appendChild(opt);
+          else if (i < 10) grp2.appendChild(opt);
+          else if (i < 15) grp3.appendChild(opt);
+          else grp4.appendChild(opt);
+        }
+        select.appendChild(grp1); select.appendChild(grp2); select.appendChild(grp3); select.appendChild(grp4);
+      } else {
+        const grp = document.createElement("optgroup"); grp.label = "বিজয় ৫২ টাইপিং অনুশীলন";
+        for (let i = 0; i < bengaliLessons.length; i++) {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.text = `লেসন ${i+1}: বিজয় বাংলা`;
+          grp.appendChild(opt);
+        }
+        select.appendChild(grp);
+      }
+    }
+
+    // ভার্চুয়াল কীবোর্ড লেবেল আপডেট (ইংরেজি অক্ষরগুলো বড় এবং স্পষ্ট আকারে প্রদর্শন)
+    function updateKeyboardLayoutDisplay() {
+      document.querySelectorAll(".key").forEach(keyEl => {
+        const keyChar = keyEl.getAttribute("data-key");
+        if (keyChar && keyChar.length === 1) {
+          if (currentLanguage === 'bn') {
+            const bnChar = bengaliKeyLabelMap[keyChar.toLowerCase()];
+            if (bnChar) {
+              // ইংরেজি অক্ষরটি বড় এবং স্পষ্ট কীবোর্ডের মাঝখানে, বাংলা বর্ণটি ওপরে ছোট ও রঙিন কোণে থাকবে
+              keyEl.innerHTML = `
+                <span style="font-size: 14px; font-weight: bold; color: var(--text-main);">${keyChar.toUpperCase()}</span>
+                <span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px; font-weight: bold;">${bnChar}</span>
+              `;
+            } else {
+              keyEl.innerHTML = keyChar.toUpperCase();
+            }
+          } else {
+            keyEl.innerHTML = keyChar.toUpperCase();
+          }
+        }
+      });
+    }
+
+    function loadLesson() {
+      const select = document.getElementById("lessonSelect");
+      const lessonIdx = parseInt(select.value) || 0;
+      
+      if (currentLanguage === 'en') {
+        targetText = englishLessons[lessonIdx];
+      } else {
+        targetText = bengaliLessons[lessonIdx];
+      }
+      
+      resetExercise();
+    }
+
+    function resetExercise() {
+      if (timerInterval) clearInterval(timerInterval);
+      
+      userInputs = new Array(targetText.length).fill(null);
+      currentIndex = 0;
+      totalSeconds = 0;
+      isStarted = false;
+      totalKeystrokes = 0;
+      totalErrors = 0;
+      startTime = null;
+      hasErrorAtCurrent = false;
+
+      document.getElementById("wpmVal").innerText = "00";
+      document.getElementById("accuracyVal").innerText = "100%";
+      document.getElementById("timeVal").innerText = "00:00";
+      document.getElementById("progressVal").innerText = `0 / ${targetText.length} (0%)`;
+      
+      const feedbackEl = document.getElementById("statusFeedback");
+      if (currentLanguage === 'bn') {
+        feedbackEl.innerHTML = `<span style="color: var(--warning)">⌨️ বিজয় ৫২ লেআউট সক্রিয় রয়েছে! আপনি চাইলে কীবোর্ড থেকে সরাসরি বিজয় ৫২ বাটন দিয়েও টাইপ করতে পারবেন (যেমন: ক = j, ত = k)।</span>`;
+      } else {
+        feedbackEl.innerHTML = `<span style="color: var(--text-muted)">টাইপিং শুরু করতে কীবোর্ডের যেকোনো কী চাপুন...</span>`;
+      }
+
+      updateLessonSelectorUI();
+      renderText();
+      highlightKeyboardKey();
+      updateFeedbackPrompt();
+    }
+
+    function updateLessonSelectorUI() {
+      const select = document.getElementById("lessonSelect");
+      const options = select.querySelectorAll("option");
+      
+      options.forEach((opt, idx) => {
+        let cleanText = opt.text.replace(" ✓", "");
+        if (completedLessonsInSession.includes(idx)) {
+          opt.text = cleanText + " ✓";
+        } else {
+          opt.text = cleanText;
+        }
+      });
+    }
+
+    function renderText() {
+      const container = document.getElementById("textDisplay");
+      container.innerHTML = "";
+
+      for (let i = 0; i < targetText.length; i++) {
+        const charSpan = document.createElement("span");
+        charSpan.innerText = targetText[i];
+        
+        if (i < currentIndex) {
+          charSpan.className = "char-correct";
+        } else if (i === currentIndex) {
+          if (hasErrorAtCurrent) {
+            charSpan.className = "char-current char-wrong";
+          } else {
+            charSpan.className = "char-current";
+          }
+        }
+        
+        container.appendChild(charSpan);
+      }
+    }
+
+    function highlightKeyboardKey() {
+      document.querySelectorAll(".key").forEach(k => k.classList.remove("target-highlight"));
+
+      if (currentIndex >= targetText.length) return;
+
+      const targetChar = targetText[currentIndex];
+      
+      if (currentLanguage === 'en') {
+        const isUppercase = (targetChar !== targetChar.toLowerCase() && targetChar === targetChar.toUpperCase());
+        if (isUppercase) {
+          const shiftLeft = document.getElementById("key-shift");
+          const shiftRight = document.getElementById("key-shiftright");
+          if (shiftLeft) shiftLeft.classList.add("target-highlight");
+          if (shiftRight) shiftRight.classList.add("target-highlight");
+        }
+
+        const targetCharLower = targetChar.toLowerCase();
+        let keyElement = (targetCharLower === " ") ? document.getElementById("key- ") : document.getElementById(`key-${targetCharLower}`);
+        if (keyElement) keyElement.classList.add("target-highlight");
+      } else {
+        // বিজয় ৫২ গাইড অনুযায়ী ভার্চুয়াল কী হাইলাইট ট্র্যাকিং
+        const guide = bijoyToEnglishGuide[targetChar];
+        if (guide) {
+          const requiresShift = guide.label.includes("Shift");
+          if (requiresShift) {
+            const shiftLeft = document.getElementById("key-shift");
+            const shiftRight = document.getElementById("key-shiftright");
+            if (shiftLeft) shiftLeft.classList.add("target-highlight");
+            if (shiftRight) shiftRight.classList.add("target-highlight");
+          }
+
+          let physicalKey = guide.key.toLowerCase();
+          let keyElement = (physicalKey === " ") ? document.getElementById("key- ") : document.getElementById(`key-${physicalKey}`);
+          if (keyElement) keyElement.classList.add("target-highlight");
+        }
+      }
+    }
+
+    // প্রতি মুহূর্তে রিয়েল-টাইম ইংরেজি টাইপিং-টু-বাংলা গাইড নির্দেশিকা আপডেট
+    function updateFeedbackPrompt() {
+      const feedbackEl = document.getElementById("statusFeedback");
+      if (currentIndex >= targetText.length) return;
+      
+      const targetChar = targetText[currentIndex];
+      
+      if (currentLanguage === 'bn') {
+        const guide = bijoyToEnglishGuide[targetChar];
+        if (guide) {
+          feedbackEl.innerHTML = `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ আপনার ইংরেজি কীবোর্ডের <strong style="color: #facc15; font-size: 18px;">[ ${guide.label.toUpperCase()} ]</strong> বাটনটি চাপুন।`;
+        } else {
+          feedbackEl.innerHTML = `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+        }
+      } else {
+        feedbackEl.innerHTML = `👉 Press key: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+      }
+    }
+
+    function startTimer() {
+      startTime = new Date();
+      timerInterval = setInterval(() => {
+        totalSeconds++;
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        document.getElementById("timeVal").innerText = 
+          (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
+        
+        calculateMetrics();
+      }, 1000);
+    }
+
+    function getCurrentWpm() {
+      if (totalSeconds === 0) return 0;
+      return Math.round((currentIndex / 5) / (totalSeconds / 60));
+    }
+
+    function calculateMetrics() {
+      if (totalSeconds === 0) return;
+
+      const wpm = getCurrentWpm();
+      document.getElementById("wpmVal").innerText = wpm < 10 ? "0" + wpm : wpm;
+
+      if (totalKeystrokes > 0) {
+        const accuracy = Math.round((currentIndex / totalKeystrokes) * 100);
+        document.getElementById("accuracyVal").innerText = accuracy + "%";
+      }
+
+      const progressPercent = Math.round((currentIndex / targetText.length) * 100);
+      document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${progressPercent}%)`;
+    }
+
+    function loadNextLesson() {
+      const select = document.getElementById("lessonSelect");
+      let currentIdx = parseInt(select.value);
+      let nextIdx = currentIdx + 1;
+      
+      const totalOptions = select.options.length;
+      if (nextIdx < totalOptions) {
+        select.value = nextIdx;
+        loadLesson();
+      } else {
+        alert("অভিনন্দন! আপনি বিজয় লেআউটের সব লেসন সম্পন্ন করেছেন।");
+        select.value = 0;
+        loadLesson();
+      }
+      document.getElementById("summaryModal").style.display = "none";
+    }
+
+    document.addEventListener("keydown", function(event) {
+      if (event.ctrlKey || event.altKey || event.metaKey) return;
+      if (event.key === "Shift" || event.key === "CapsLock" || event.key === "Tab" || event.key === "Control") {
+        visualKeyPress(event.key);
+        return;
+      }
+
+      initAudio();
+
+      if (event.key === "Escape") {
+        resetExercise();
+        return;
+      }
+
+      if (!isStarted && event.key !== "Backspace") {
+        isStarted = true;
+        startTimer();
+      }
+
+      visualKeyPress(event.key);
+
+      if (event.key === "Backspace" || event.keyCode === 8) {
+        event.preventDefault();
+        if (hasErrorAtCurrent) {
+          hasErrorAtCurrent = false;
+          renderText();
+          updateFeedbackPrompt();
+        }
+        return;
+      }
+
+      if (event.key.length === 1 && currentIndex < targetText.length) {
+        event.preventDefault();
+        
+        const typedChar = event.key;
+        const targetChar = targetText[currentIndex];
+
+        totalKeystrokes++;
+
+        // উন্নত ডুয়াল মোড কীবোর্ড রিকগনিশন (সরাসরি ইংরেজি কী ইনপুট দিয়ে স্বয়ংক্রিয় বাংলা টাইপ)
+        let isMatch = (typedChar === targetChar);
+        if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
+          const guide = bijoyToEnglishGuide[targetChar];
+          if (guide.key.toLowerCase() === typedChar.toLowerCase()) {
+            const requiresShift = guide.label.includes("Shift");
+            if (requiresShift) {
+              if (event.shiftKey) isMatch = true;
+            } else {
+              if (!event.shiftKey) isMatch = true;
+            }
+          }
+        }
+
+        if (isMatch) {
+          userInputs[currentIndex] = typedChar;
+          playKeySound(true);
+          hasErrorAtCurrent = false;
+          currentIndex++;
+          const feedbackEl = document.getElementById("statusFeedback");
+          feedbackEl.innerHTML = `<span style="color: var(--success)">✓ চমৎকার হচ্ছে! টাইপ করতে থাকুন।</span>`;
+
+        } else {
+          playKeySound(false);
+          hasErrorAtCurrent = true;
+          totalErrors++;
+          
+          const expectedDisplay = targetChar === " " ? "Spacebar" : `"${targetChar}"`;
+          const typedDisplay = typedChar === " " ? "Spacebar" : `"${typedChar}"`;
+          
+          let caseAlertMsg = "";
+          
+          if (currentLanguage === 'en') {
+            if (typedChar.toLowerCase() === targetChar.toLowerCase() && typedChar !== targetChar) {
+              if (targetChar === targetChar.toUpperCase()) {
+                caseAlertMsg = `বড় হাতের (UPPERCASE) <strong>${expectedDisplay}</strong> টাইপ করো! (কীবোর্ডের Shift চেপে ধরুন)`;
+              } else {
+                caseAlertMsg = `ছোট হাতের (lowercase) <strong>${expectedDisplay}</strong> টাইপ করো! (কীবোর্ডের Caps Lock বন্ধ রাখুন)`;
+              }
+            } else {
+              caseAlertMsg = `ভুল বাটন! আপনার টাইপ করার কথা ছিল <strong>${expectedDisplay}</strong>, কিন্তু আপনি চেপেছেন <strong>${typedDisplay}</strong>।`;
+            }
+          } else {
+            // বিজয় ৫২ নির্দিষ্ট কীবোর্ড গাইড এবং শিফট নির্দেশনা সতর্কতা
+            const guide = bijoyToEnglishGuide[targetChar];
+            if (guide) {
+              caseAlertMsg = `ভুল বাটন! <strong>"${targetChar}"</strong> টাইপ করার জন্য আপনাকে ইংরেজি কীবোর্ডের <strong>[ ${guide.label.toUpperCase()} ]</strong> বাটনটি চাপতে হবে।`;
+            } else {
+              caseAlertMsg = `ভুল বাটন! বিজয় ৫২ লেআউটে <strong>"${targetChar}"</strong> বাটনটি টাইপ করুন।`;
+            }
+          }
+
+          const feedbackEl = document.getElementById("statusFeedback");
+          feedbackEl.innerHTML = `<span style="color: var(--danger)">⚠️ ${caseAlertMsg}</span>`;
+          
+          setTimeout(() => {
+            const cleanMessage = caseAlertMsg.replace(/<\/?[^>]+(>|$)/g, "");
+            alert(`❌ ট্রেইনারের পরামর্শ:\n\n${cleanMessage}\n\n💡 না পারলে ট্রেইনারকে নক করো, ট্রেইনার তোমাকে দেখিয়ে দিবে!`);
+          }, 50);
+        }
+
+        renderText();
+        highlightKeyboardKey();
+        calculateMetrics();
+        if (!hasErrorAtCurrent) {
+          updateFeedbackPrompt();
+        }
+
+        if (currentIndex === targetText.length) {
+          clearInterval(timerInterval);
+          
+          const select = document.getElementById("lessonSelect");
+          const lessonIdx = parseInt(select.value);
+          
+          if (!completedLessonsInSession.includes(lessonIdx)) {
+            completedLessonsInSession.push(lessonIdx);
+          }
+
+          updateLessonSelectorUI();
+          showSummary();
+        }
+      }
+    });
+
+    function visualKeyPress(key) {
+      let keyId = key;
+      if (key === " ") keyId = " ";
+      
+      const keyEl = document.getElementById(`key-${keyId.toLowerCase()}`);
+      if (keyEl) {
+        keyEl.classList.add("pressed");
+        setTimeout(() => keyEl.classList.remove("pressed"), 100);
+      }
+    }
+
+    function showSummary() {
+      const finalWpm = getCurrentWpm();
+      const finalAccuracy = Math.round((currentIndex / totalKeystrokes) * 100) || 100;
+      
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const finalTime = (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
+
+      document.getElementById("modalWpm").innerText = finalWpm;
+      document.getElementById("modalAccuracy").innerText = finalAccuracy;
+      document.getElementById("modalTime").innerText = finalTime;
+      document.getElementById("modalErrors").innerText = totalErrors;
+
+      document.getElementById("summaryModal").style.display = "flex";
+    }
+
+    function closeSummary() {
+      document.getElementById("summaryModal").style.display = "none";
+      resetExercise();
+    }
+
+    // ডোমেস্টিক ট্র্যাকিং প্রি-লোডার ইনিশিয়ালাইজেশন
+    window.addEventListener('DOMContentLoaded', () => {
+      const progressEl = document.getElementById("loaderProgress");
+      const loadingScreen = document.getElementById("loadingScreen");
+      let width = 0;
+      
+      const interval = setInterval(() => {
+        width += 5;
+        if (progressEl) progressEl.style.width = width + "%";
+        
+        if (width >= 100) {
+          clearInterval(interval);
+          loadingScreen.style.opacity = "0";
+          loadingScreen.style.visibility = "hidden";
+          
+          // লোডিং শেষে স্বাগতম উইন্ডো পপআপ ট্রিগার
+          setTimeout(() => {
+            document.getElementById("trainerWelcomeScreen").style.display = "flex";
+          }, 400);
+        }
+      }, 100); 
+    });
+
+    populateLessonsDropdown();
+    updateKeyboardLayoutDisplay();
+    targetText = englishLessons[0];
+    resetExercise();
+  </script>
+</body>
+</html>
