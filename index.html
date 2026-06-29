@@ -38,6 +38,22 @@
       padding: 20px;
     }
 
+    /* নতুন গোল্ডেন বাটন স্টাইল */
+    .btn-pro-version {
+      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important;
+      color: #000 !important;
+      border: 2px solid #fff !important;
+      box-shadow: 0 4px 15px rgba(184, 134, 11, 0.6) !important;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-pro-version:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+
     /* সুন্দর লোডিং সিস্টেম (Pre-loader Overlay) */
     .loader-overlay {
       position: fixed;
@@ -159,6 +175,7 @@
       justify-content: center;
       gap: 12px;
       margin-bottom: 25px;
+      flex-wrap: wrap;
     }
     .lang-btn {
       background-color: var(--panel-bg);
@@ -536,6 +553,31 @@
       font-weight: bold;
     }
 
+    /* Custom Text Modal Specific Styles */
+    #customTextModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 250000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #customTextArea {
+      width: 100%;
+      height: 150px;
+      background: var(--bg-color);
+      color: white;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px 0;
+      outline: none;
+      font-family: inherit;
+    }
+
     /* রেসপন্সিভ ল্যান্ডস্কেপ ব্যানার সাইজিং */
     @media (max-width: 600px) {
       .flag-landscape-banner {
@@ -631,6 +673,11 @@
     <div class="mode-container">
       <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
       <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বিজয় ৫২ টাইপিং মোড</button>
+      
+      <!-- নতুন TYPING MASTER PRO বাটন -->
+      <a href="typing_pro.html" class="lang-btn btn-pro-version">
+        <span>👑</span> TYPING MASTER PRO
+      </a>
     </div>
 
     <!-- Dashboard Panel -->
@@ -641,6 +688,7 @@
           <select id="lessonSelect" onchange="loadLesson()">
             <!-- Dynamic Content Load via JS depending on Selected Language -->
           </select>
+          <button class="btn-reset" onclick="openCustomModal()" style="background-color: #3b82f6; margin-right: 5px;">Custom Text</button>
           <button class="btn-reset" onclick="resetExercise()">Reset</button>
         </div>
       </div>
@@ -753,6 +801,19 @@
     </div>
   </div>
 
+  <!-- Custom Text Input Modal -->
+  <div id="customTextModal">
+    <div class="modal-content" style="border: 2px solid var(--primary);">
+      <h3 style="color: var(--primary);">Custom Lesson</h3>
+      <p style="color: var(--text-muted); font-size: 13px;">এখানে আপনার টেক্সট পেস্ট করুন:</p>
+      <textarea id="customTextArea" placeholder="আপনার টাইপিং টেক্সট এখানে দিন..."></textarea>
+      <div style="display: flex; gap: 10px;">
+        <button class="modal-btn" style="background-color: var(--success);" onclick="setCustomText()">Start Typing</button>
+        <button class="modal-btn" style="background-color: var(--danger);" onclick="closeCustomModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Summary Modal Popup -->
   <div id="summaryModal" class="modal">
     <div class="modal-content">
@@ -799,55 +860,24 @@
       "qwertyuiop[]\ qwertyuiop poiuytrewq qetuo[ wryip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw ",
       "WE wertyuiop[]\ qwertyuiop poiuyER trewq qetuo[ wrTYyip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
       "WE wer ty u iop[ ]\ qwert yuiop poi uy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      " PQ ty uIIU iop[ ]\ qTYwert yuiop poi uQQy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      " wTeOr ty uEE ioQp[ ]\ qUwert yuiop poi uy ER t reIIO wq[ q etuo[ wrTYyi]p] qweqw rtyrO\tt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      " Learning English typing is a very useful skill in today's world. It helps us work faster and communicate more effectively. By practicing every day, we can improve our typing speed and accuracy. Good typing skills are important for students, office workers, and anyone who uses a computer. The more we practice, the more confident we become. Therefore, learning English typing is a great way to increase productivity and save time."
+      "PQ ty uIIU iop[ ]\ qTYwert yuiop poi uQQy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      "wTeOr ty uEE ioQp[ ]\ qUwert yuiop poi uy ER t reIIO wq[ q etuo[ wrTYyi]p] qweqw rtyrO\tt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      "Computers have become an important part of our daily lives. People use computers in schools, offices, hospitals, banks, and homes. They help us perform many tasks quickly and accurately. Students use computers to study, complete assignments, and attend online classes. Teachers use them to prepare lessons and communicate with students."
     ];
 
     const bengaliLessons = [
-      "কখগঘঙ চছজঝঞ টঠডঢণ তথদধন পফবভম যরলশ ষসহ",
-      "আমার সোনার বাংলা আমি তোমায় ভালোবাসি চিরদিন তোমার আকাশ তোমার বাতাস তোমার মুখে মধুর বাণী।",
-      "সততা ও পরিশ্রম সাফল্যের মূল চাবিকাঠি। নিয়মিত কীবোর্ড টাইপিং গতি বৃদ্ধি করতে সাহায্য করে।",
-      "কম্পিউটার টাইপিং শেখা এখন অত্যন্ত সহজ। নিয়মিত অনুশীলন আপনাকে দ্রুত টাইপ করতে সাহায্য করবে।",
-      "শিক্ষা আলো ছড়ায় এবং অন্ধকার দূর করে। নিয়মিত টাইপ অনুশীলন করলে হাতের পেশী সক্রিয় হয়।"
+      "বকতদবক তদবকতদ জচটডজ ঙযডপট চজহগড় বকতদ রনসসম",
+      "কতদচজ হগড়টপড যঙডযঙ হগচটযড়দ দহকতমস নরসমর টপটপহগগ।",
+      "য়যঢডপটচ জহগগছ ঢ়হজজকত ভসমত শতকধগহ বজকচখত ঘতকজচটপড সশরনহতম।",
+      "কড়গহজ খতগহদটপ জটজহগত ষতহমক হচকতণত গচপটযযডঘ তকদচব ঝসমরনর ধঘহতককব।",
+      "ঢ়হজককবক টঠচজপজকস থকবহপযড হগতকম ঞসজচপটচপচ ষতজহহতজ ফহপডচহড় তকদহমস গজহশহজ।"
     ];
 
-    // কীবোর্ড বাটনগুলোতে বিজয় ৫২ লেআউটের বাংলা বর্ণমালা ম্যাপিং
+    // কীবোর্ড বাটনগুলোতে বাংলা বর্ণমালা ম্যাপিং
     const bengaliKeyLabelMap = {
       "q": "ঙ", "w": "য", "e": "ড", "r": "প", "t": "ট", "y": "চ", "u": "জ", "i": "হ", "o": "গ", "p": "ড়",
       "a": "ৃ", "s": "ু", "d": "ি", "f": "া", "g": "্", "h": "অ", "j": "ক", "k": "ত", "l": "দ",
       "z": "্র", "x": "ও", "c": "এ", "v": "র", "b": "ন", "n": "স", "m": "ম"
-    };
-
-    // বিজয় ৫২ বাংলা ক্যারেক্টারকে ফিজিক্যাল ইংরেজি কীবোর্ডের কি (Key) দিয়ে রিভার্স ট্র্যাকিং করা
-    const reverseBengaliKeyHighlightMap = {
-      "ঙ": "q", "সং": "q", "ং": "q",
-      "য": "w", "্য": "w",
-      "ড": "e", "ঢ": "e",
-      "প": "r", "ফ": "r",
-      "ট": "t", "ঠ": "t",
-      "চ": "y", "ছ": "y",
-      "জ": "u", "ঝ": "u",
-      "হ": "i", "ঞ": "i",
-      "গ": "o", "ঘ": "o",
-      "ড়": "p", "ঢ়": "p",
-      "ৃ": "a", "ঋ": "a",
-      "ু": "s", "ূ": "s",
-      "ি": "d", "ী": "d",
-      "া": "f", "অ": "f",
-      "্": "g", "।": "g",
-      "ব": "h", "ভ": "h",
-      "ক": "j", "খ": "j",
-      "ত": "k", "থ": "k",
-      "দ": "l", "ধ": "l",
-      "্র": "z", "্য": "z",
-      "ও": "x", "ৌ": "x",
-      "এ": "c", "ৈ": "c",
-      "র": "v", "ল": "v",
-      "ন": "b", "ণ": "b",
-      "স": "n", "ষ": "n",
-      "ম": "m", "শ": "m",
-      "আ": "h"
     };
 
     // বিজয় ৫২ অনুযায়ী প্রতিটি বর্ণমালার ইংরেজি কীবোর্ড ম্যাপিং এবং গাইড লেবেল
@@ -888,7 +918,6 @@
       "ঢ়": { key: "P", label: "Shift + p" },
       "য়": { key: "Y", label: "Shift + ;" },
       
-      // স্বরবর্ণ ও কার চিহ্নসমূহ
       "অ": { key: "F", label: "Shift + f" },
       "আ": { key: "H", label: "Shift + h" },
       "ই": { key: "D", label: "Shift + d" },
@@ -923,73 +952,45 @@
     let targetText = "";
     let userInputs = [];
     let currentIndex = 0;
-    
     let startTime = null;
     let timerInterval = null;
     let totalSeconds = 0;
-    isStarted = false;
+    let isStarted = false;
     let totalKeystrokes = 0;
     let totalErrors = 0;
     let hasErrorAtCurrent = false;
-
     let completedLessonsInSession = [];
     let audioCtx = null;
 
     function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
     function playKeySound(isCorrect) {
       try {
         initAudio();
-        if (!audioCtx) return;
-
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-
+        osc.connect(gain); gain.connect(audioCtx.destination);
         if (isCorrect) {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+          osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
           gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.05);
         } else {
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
           gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.15);
         }
-      } catch (e) {
-        console.warn("Audio Context playback failed safely.", e);
-      }
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
     }
 
-    function startTrainerSession() {
-      document.getElementById("trainerWelcomeScreen").style.display = "none";
-    }
+    function startTrainerSession() { document.getElementById("trainerWelcomeScreen").style.display = "none"; }
 
     function setLanguage(lang) {
       currentLanguage = lang;
-      
-      document.getElementById("langEnBtn").classList.remove("active");
-      document.getElementById("langBnBtn").classList.remove("active");
-      if (lang === 'en') {
-        document.getElementById("langEnBtn").classList.add("active");
-      } else {
-        document.getElementById("langBnBtn").classList.add("active");
-      }
-
-      completedLessonsInSession = []; 
+      document.getElementById("langEnBtn").classList.toggle("active", lang === 'en');
+      document.getElementById("langBnBtn").classList.toggle("active", lang === 'bn');
       populateLessonsDropdown();
       updateKeyboardLayoutDisplay();
       loadLesson();
@@ -998,426 +999,125 @@
     function populateLessonsDropdown() {
       const select = document.getElementById("lessonSelect");
       select.innerHTML = "";
-
-      if (currentLanguage === 'en') {
-        const grp1 = document.createElement("optgroup"); grp1.label = "Home Row Drills (A-L)";
-        const grp2 = document.createElement("optgroup"); grp2.label = "Bottom Row Drills (Z-?)";
-        const grp3 = document.createElement("optgroup"); grp3.label = "Top Row Drills (Q-P)";
-        const grp4 = document.createElement("optgroup"); grp4.label = "Word Practice Pages";
-
-        for (let i = 0; i < englishLessons.length; i++) {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.text = `Lesson ${i+1}: English Exercise`;
-          if (i < 5) grp1.appendChild(opt);
-          else if (i < 10) grp2.appendChild(opt);
-          else if (i < 15) grp3.appendChild(opt);
-          else grp4.appendChild(opt);
-        }
-        select.appendChild(grp1); select.appendChild(grp2); select.appendChild(grp3); select.appendChild(grp4);
-      } else {
-        const grp = document.createElement("optgroup"); grp.label = "বিজয় ৫২ টাইপিং অনুশীলন";
-        for (let i = 0; i < bengaliLessons.length; i++) {
-          const opt = document.createElement("option");
-          opt.value = i;
-          opt.text = `লেসন ${i+1}: বিজয় বাংলা`;
-          grp.appendChild(opt);
-        }
-        select.appendChild(grp);
-      }
+      const grp = document.createElement("optgroup");
+      grp.label = currentLanguage === 'en' ? "English Lessons" : "বিজয় বাংলা লেসন";
+      const lessons = currentLanguage === 'en' ? englishLessons : bengaliLessons;
+      lessons.forEach((l, i) => {
+        const opt = document.createElement("option");
+        opt.value = i; opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i+1);
+        grp.appendChild(opt);
+      });
+      select.appendChild(grp);
     }
 
-    // ভার্চুয়াল কীবোর্ড লেবেল আপডেট (ইংরেজি অক্ষরগুলো বড় এবং স্পষ্ট আকারে প্রদর্শন)
     function updateKeyboardLayoutDisplay() {
       document.querySelectorAll(".key").forEach(keyEl => {
         const keyChar = keyEl.getAttribute("data-key");
         if (keyChar && keyChar.length === 1) {
           if (currentLanguage === 'bn') {
             const bnChar = bengaliKeyLabelMap[keyChar.toLowerCase()];
-            if (bnChar) {
-              // ইংরেজি অক্ষরটি বড় এবং স্পষ্ট কীবোর্ডের মাঝখানে, বাংলা বর্ণটি ওপরে ছোট ও রঙিন কোণে থাকবে
-              keyEl.innerHTML = `
-                <span style="font-size: 14px; font-weight: bold; color: var(--text-main);">${keyChar.toUpperCase()}</span>
-                <span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px; font-weight: bold;">${bnChar}</span>
-              `;
-            } else {
-              keyEl.innerHTML = keyChar.toUpperCase();
-            }
-          } else {
-            keyEl.innerHTML = keyChar.toUpperCase();
-          }
+            keyEl.innerHTML = bnChar ? `<span style="font-size: 14px;">${keyChar.toUpperCase()}</span><span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px;">${bnChar}</span>` : keyChar.toUpperCase();
+          } else keyEl.innerHTML = keyChar.toUpperCase();
         }
       });
     }
 
     function loadLesson() {
       const select = document.getElementById("lessonSelect");
-      const lessonIdx = parseInt(select.value) || 0;
-      
-      if (currentLanguage === 'en') {
-        targetText = englishLessons[lessonIdx];
-      } else {
-        targetText = bengaliLessons[lessonIdx];
-      }
-      
+      targetText = currentLanguage === 'en' ? englishLessons[select.value] : bengaliLessons[select.value];
       resetExercise();
     }
 
     function resetExercise() {
       if (timerInterval) clearInterval(timerInterval);
-      
-      userInputs = new Array(targetText.length).fill(null);
-      currentIndex = 0;
-      totalSeconds = 0;
-      isStarted = false;
-      totalKeystrokes = 0;
-      totalErrors = 0;
-      startTime = null;
-      hasErrorAtCurrent = false;
-
+      currentIndex = 0; isStarted = false; totalSeconds = 0; totalKeystrokes = 0; totalErrors = 0; hasErrorAtCurrent = false;
+      document.getElementById("progressVal").innerText = `0 / ${targetText.length} (0%)`;
       document.getElementById("wpmVal").innerText = "00";
       document.getElementById("accuracyVal").innerText = "100%";
       document.getElementById("timeVal").innerText = "00:00";
-      document.getElementById("progressVal").innerText = `0 / ${targetText.length} (0%)`;
-      
-      const feedbackEl = document.getElementById("statusFeedback");
-      if (currentLanguage === 'bn') {
-        feedbackEl.innerHTML = `<span style="color: var(--warning)">⌨️ বিজয় ৫২ লেআউট সক্রিয় রয়েছে! আপনি চাইলে কীবোর্ড থেকে সরাসরি বিজয় ৫২ বাটন দিয়েও টাইপ করতে পারবেন (যেমন: ক = j, ত = k)।</span>`;
-      } else {
-        feedbackEl.innerHTML = `<span style="color: var(--text-muted)">টাইপিং শুরু করতে কীবোর্ডের যেকোনো কী চাপুন...</span>`;
-      }
-
-      updateLessonSelectorUI();
-      renderText();
-      highlightKeyboardKey();
-      updateFeedbackPrompt();
-    }
-
-    function updateLessonSelectorUI() {
-      const select = document.getElementById("lessonSelect");
-      const options = select.querySelectorAll("option");
-      
-      options.forEach((opt, idx) => {
-        let cleanText = opt.text.replace(" ✓", "");
-        if (completedLessonsInSession.includes(idx)) {
-          opt.text = cleanText + " ✓";
-        } else {
-          opt.text = cleanText;
-        }
-      });
+      renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
     }
 
     function renderText() {
       const container = document.getElementById("textDisplay");
       container.innerHTML = "";
-
-      for (let i = 0; i < targetText.length; i++) {
-        const charSpan = document.createElement("span");
-        charSpan.innerText = targetText[i];
-        
-        if (i < currentIndex) {
-          charSpan.className = "char-correct";
-        } else if (i === currentIndex) {
-          if (hasErrorAtCurrent) {
-            charSpan.className = "char-current char-wrong";
-          } else {
-            charSpan.className = "char-current";
-          }
-        }
-        
-        container.appendChild(charSpan);
-      }
+      targetText.split("").forEach((char, i) => {
+        const span = document.createElement("span");
+        span.innerText = char;
+        if (i < currentIndex) span.className = "char-correct";
+        else if (i === currentIndex) span.className = hasErrorAtCurrent ? "char-current char-wrong" : "char-current";
+        container.appendChild(span);
+      });
     }
 
     function highlightKeyboardKey() {
       document.querySelectorAll(".key").forEach(k => k.classList.remove("target-highlight"));
-
       if (currentIndex >= targetText.length) return;
-
       const targetChar = targetText[currentIndex];
-      
-      if (currentLanguage === 'en') {
-        const isUppercase = (targetChar !== targetChar.toLowerCase() && targetChar === targetChar.toUpperCase());
-        if (isUppercase) {
-          const shiftLeft = document.getElementById("key-shift");
-          const shiftRight = document.getElementById("key-shiftright");
-          if (shiftLeft) shiftLeft.classList.add("target-highlight");
-          if (shiftRight) shiftRight.classList.add("target-highlight");
-        }
-
-        const targetCharLower = targetChar.toLowerCase();
-        let keyElement = (targetCharLower === " ") ? document.getElementById("key- ") : document.getElementById(`key-${targetCharLower}`);
-        if (keyElement) keyElement.classList.add("target-highlight");
-      } else {
-        // বিজয় ৫২ গাইড অনুযায়ী ভার্চুয়াল কী হাইলাইট ট্র্যাকিং
+      let keyId = "";
+      if (currentLanguage === 'en') keyId = targetChar.toLowerCase() === " " ? " " : targetChar.toLowerCase();
+      else {
         const guide = bijoyToEnglishGuide[targetChar];
-        if (guide) {
-          const requiresShift = guide.label.includes("Shift");
-          if (requiresShift) {
-            const shiftLeft = document.getElementById("key-shift");
-            const shiftRight = document.getElementById("key-shiftright");
-            if (shiftLeft) shiftLeft.classList.add("target-highlight");
-            if (shiftRight) shiftRight.classList.add("target-highlight");
-          }
-
-          let physicalKey = guide.key.toLowerCase();
-          let keyElement = (physicalKey === " ") ? document.getElementById("key- ") : document.getElementById(`key-${physicalKey}`);
-          if (keyElement) keyElement.classList.add("target-highlight");
-        }
+        if (guide) keyId = guide.key.toLowerCase();
       }
+      const el = document.getElementById(`key-${keyId}`);
+      if (el) el.classList.add("target-highlight");
     }
 
-    // প্রতি মুহূর্তে রিয়েল-টাইম ইংরেজি টাইপিং-টু-বাংলা গাইড নির্দেশিকা আপডেট
     function updateFeedbackPrompt() {
       const feedbackEl = document.getElementById("statusFeedback");
       if (currentIndex >= targetText.length) return;
-      
       const targetChar = targetText[currentIndex];
-      
       if (currentLanguage === 'bn') {
         const guide = bijoyToEnglishGuide[targetChar];
-        if (guide) {
-          feedbackEl.innerHTML = `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ আপনার ইংরেজি কীবোর্ডের <strong style="color: #facc15; font-size: 18px;">[ ${guide.label.toUpperCase()} ]</strong> বাটনটি চাপুন।`;
-        } else {
-          feedbackEl.innerHTML = `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
-        }
-      } else {
-        feedbackEl.innerHTML = `👉 Press key: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
-      }
+        feedbackEl.innerHTML = guide ? `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ ইংরেজি কীবোর্ডের [ <strong style="color: #facc15;">${guide.label.toUpperCase()}</strong> ] চাপুন।` : "";
+      } else feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
     }
 
     function startTimer() {
-      startTime = new Date();
       timerInterval = setInterval(() => {
         totalSeconds++;
-        const mins = Math.floor(totalSeconds / 60);
-        const secs = totalSeconds % 60;
-        document.getElementById("timeVal").innerText = 
-          (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
-        
-        calculateMetrics();
+        const mins = Math.floor(totalSeconds / 60); const secs = totalSeconds % 60;
+        document.getElementById("timeVal").innerText = `${mins < 10 ? "0":""}${mins}:${secs < 10 ? "0":""}${secs}`;
+        const wpm = Math.round((currentIndex / 5) / (totalSeconds / 60)) || 0;
+        document.getElementById("wpmVal").innerText = wpm < 10 ? "0" + wpm : wpm;
       }, 1000);
     }
 
-    function getCurrentWpm() {
-      if (totalSeconds === 0) return 0;
-      return Math.round((currentIndex / 5) / (totalSeconds / 60));
-    }
-
-    function calculateMetrics() {
-      if (totalSeconds === 0) return;
-
-      const wpm = getCurrentWpm();
-      document.getElementById("wpmVal").innerText = wpm < 10 ? "0" + wpm : wpm;
-
-      if (totalKeystrokes > 0) {
-        const accuracy = Math.round((currentIndex / totalKeystrokes) * 100);
-        document.getElementById("accuracyVal").innerText = accuracy + "%";
-      }
-
-      const progressPercent = Math.round((currentIndex / targetText.length) * 100);
-      document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${progressPercent}%)`;
-    }
-
-    function loadNextLesson() {
-      const select = document.getElementById("lessonSelect");
-      let currentIdx = parseInt(select.value);
-      let nextIdx = currentIdx + 1;
-      
-      const totalOptions = select.options.length;
-      if (nextIdx < totalOptions) {
-        select.value = nextIdx;
-        loadLesson();
-      } else {
-        alert("অভিনন্দন! আপনি বিজয় লেআউটের সব লেসন সম্পন্ন করেছেন।");
-        select.value = 0;
-        loadLesson();
-      }
-      document.getElementById("summaryModal").style.display = "none";
-    }
-
     document.addEventListener("keydown", function(event) {
-      if (event.ctrlKey || event.altKey || event.metaKey) return;
-      if (event.key === "Shift" || event.key === "CapsLock" || event.key === "Tab" || event.key === "Control") {
-        visualKeyPress(event.key);
-        return;
+      if (event.ctrlKey || event.altKey) return;
+      if (["Shift", "CapsLock", "Tab", "Control"].includes(event.key)) return;
+      if (!isStarted) { isStarted = true; startTimer(); }
+      const typedChar = event.key;
+      const targetChar = targetText[currentIndex];
+      totalKeystrokes++;
+      let isMatch = (typedChar === targetChar);
+      if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
+        if (bijoyToEnglishGuide[targetChar].key === typedChar) isMatch = true;
       }
-
-      initAudio();
-
-      if (event.key === "Escape") {
-        resetExercise();
-        return;
-      }
-
-      if (!isStarted && event.key !== "Backspace") {
-        isStarted = true;
-        startTimer();
-      }
-
-      visualKeyPress(event.key);
-
-      if (event.key === "Backspace" || event.keyCode === 8) {
-        event.preventDefault();
-        if (hasErrorAtCurrent) {
-          hasErrorAtCurrent = false;
-          renderText();
-          updateFeedbackPrompt();
-        }
-        return;
-      }
-
-      if (event.key.length === 1 && currentIndex < targetText.length) {
-        event.preventDefault();
-        
-        const typedChar = event.key;
-        const targetChar = targetText[currentIndex];
-
-        totalKeystrokes++;
-
-        // উন্নত ডুয়াল মোড কীবোর্ড রিকগনিশন (সরাসরি ইংরেজি কী ইনপুট দিয়ে স্বয়ংক্রিয় বাংলা টাইপ)
-        let isMatch = (typedChar === targetChar);
-        if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
-          const guide = bijoyToEnglishGuide[targetChar];
-          if (guide.key.toLowerCase() === typedChar.toLowerCase()) {
-            const requiresShift = guide.label.includes("Shift");
-            if (requiresShift) {
-              if (event.shiftKey) isMatch = true;
-            } else {
-              if (!event.shiftKey) isMatch = true;
-            }
-          }
-        }
-
-        if (isMatch) {
-          userInputs[currentIndex] = typedChar;
-          playKeySound(true);
-          hasErrorAtCurrent = false;
-          currentIndex++;
-          const feedbackEl = document.getElementById("statusFeedback");
-          feedbackEl.innerHTML = `<span style="color: var(--success)">✓ চমৎকার হচ্ছে! টাইপ করতে থাকুন।</span>`;
-
-        } else {
-          playKeySound(false);
-          hasErrorAtCurrent = true;
-          totalErrors++;
-          
-          const expectedDisplay = targetChar === " " ? "Spacebar" : `"${targetChar}"`;
-          const typedDisplay = typedChar === " " ? "Spacebar" : `"${typedChar}"`;
-          
-          let caseAlertMsg = "";
-          
-          if (currentLanguage === 'en') {
-            if (typedChar.toLowerCase() === targetChar.toLowerCase() && typedChar !== targetChar) {
-              if (targetChar === targetChar.toUpperCase()) {
-                caseAlertMsg = `বড় হাতের (UPPERCASE) <strong>${expectedDisplay}</strong> টাইপ করো! (কীবোর্ডের Shift চেপে ধরুন)`;
-              } else {
-                caseAlertMsg = `ছোট হাতের (lowercase) <strong>${expectedDisplay}</strong> টাইপ করো! (কীবোর্ডের Caps Lock বন্ধ রাখুন)`;
-              }
-            } else {
-              caseAlertMsg = `ভুল বাটন! আপনার টাইপ করার কথা ছিল <strong>${expectedDisplay}</strong>, কিন্তু আপনি চেপেছেন <strong>${typedDisplay}</strong>।`;
-            }
-          } else {
-            // বিজয় ৫২ নির্দিষ্ট কীবোর্ড গাইড এবং শিফট নির্দেশনা সতর্কতা
-            const guide = bijoyToEnglishGuide[targetChar];
-            if (guide) {
-              caseAlertMsg = `ভুল বাটন! <strong>"${targetChar}"</strong> টাইপ করার জন্য আপনাকে ইংরেজি কীবোর্ডের <strong>[ ${guide.label.toUpperCase()} ]</strong> বাটনটি চাপতে হবে।`;
-            } else {
-              caseAlertMsg = `ভুল বাটন! বিজয় ৫২ লেআউটে <strong>"${targetChar}"</strong> বাটনটি টাইপ করুন।`;
-            }
-          }
-
-          const feedbackEl = document.getElementById("statusFeedback");
-          feedbackEl.innerHTML = `<span style="color: var(--danger)">⚠️ ${caseAlertMsg}</span>`;
-          
-          setTimeout(() => {
-            const cleanMessage = caseAlertMsg.replace(/<\/?[^>]+(>|$)/g, "");
-            alert(`❌ ট্রেইনারের পরামর্শ:\n\n${cleanMessage}\n\n💡 না পারলে ট্রেইনারকে নক করো, ট্রেইনার তোমাকে দেখিয়ে দিবে!`);
-          }, 50);
-        }
-
-        renderText();
-        highlightKeyboardKey();
-        calculateMetrics();
-        if (!hasErrorAtCurrent) {
-          updateFeedbackPrompt();
-        }
-
-        if (currentIndex === targetText.length) {
-          clearInterval(timerInterval);
-          
-          const select = document.getElementById("lessonSelect");
-          const lessonIdx = parseInt(select.value);
-          
-          if (!completedLessonsInSession.includes(lessonIdx)) {
-            completedLessonsInSession.push(lessonIdx);
-          }
-
-          updateLessonSelectorUI();
-          showSummary();
-        }
-      }
+      if (isMatch) { playKeySound(true); currentIndex++; hasErrorAtCurrent = false; }
+      else { playKeySound(false); hasErrorAtCurrent = true; totalErrors++; }
+      renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
+      document.getElementById("accuracyVal").innerText = Math.round(((totalKeystrokes - totalErrors) / totalKeystrokes) * 100) + "%";
+      document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${Math.round((currentIndex / targetText.length) * 100)}%)`;
+      if (currentIndex === targetText.length) { clearInterval(timerInterval); document.getElementById("summaryModal").style.display = "flex"; }
     });
 
-    function visualKeyPress(key) {
-      let keyId = key;
-      if (key === " ") keyId = " ";
-      
-      const keyEl = document.getElementById(`key-${keyId.toLowerCase()}`);
-      if (keyEl) {
-        keyEl.classList.add("pressed");
-        setTimeout(() => keyEl.classList.remove("pressed"), 100);
-      }
+    function openCustomModal() { document.getElementById("customTextModal").style.display = "flex"; }
+    function closeCustomModal() { document.getElementById("customTextModal").style.display = "none"; }
+    function setCustomText() {
+      const txt = document.getElementById("customTextArea").value.trim();
+      if (txt) { targetText = txt; resetExercise(); closeCustomModal(); }
     }
+    function closeSummary() { document.getElementById("summaryModal").style.display = "none"; resetExercise(); }
 
-    function showSummary() {
-      const finalWpm = getCurrentWpm();
-      const finalAccuracy = Math.round((currentIndex / totalKeystrokes) * 100) || 100;
-      
-      const mins = Math.floor(totalSeconds / 60);
-      const secs = totalSeconds % 60;
-      const finalTime = (mins < 10 ? "0" : "") + mins + ":" + (secs < 10 ? "0" : "") + secs;
-
-      document.getElementById("modalWpm").innerText = finalWpm;
-      document.getElementById("modalAccuracy").innerText = finalAccuracy;
-      document.getElementById("modalTime").innerText = finalTime;
-      document.getElementById("modalErrors").innerText = totalErrors;
-
-      document.getElementById("summaryModal").style.display = "flex";
-    }
-
-    function closeSummary() {
-      document.getElementById("summaryModal").style.display = "none";
-      resetExercise();
-    }
-
-    // ডোমেস্টিক ট্র্যাকিং প্রি-লোডার ইনিশিয়ালাইজেশন
-    window.addEventListener('DOMContentLoaded', () => {
-      const progressEl = document.getElementById("loaderProgress");
-      const loadingScreen = document.getElementById("loadingScreen");
-      let width = 0;
-      
-      const interval = setInterval(() => {
-        width += 5;
-        if (progressEl) progressEl.style.width = width + "%";
-        
-        if (width >= 100) {
-          clearInterval(interval);
-          loadingScreen.style.opacity = "0";
-          loadingScreen.style.visibility = "hidden";
-          
-          // লোডিং শেষে স্বাগতম উইন্ডো পপআপ ট্রিগার
-          setTimeout(() => {
-            document.getElementById("trainerWelcomeScreen").style.display = "flex";
-          }, 400);
-        }
-      }, 100); 
-    });
-
-    populateLessonsDropdown();
-    updateKeyboardLayoutDisplay();
-    targetText = englishLessons[0];
-    resetExercise();
+    window.onload = () => {
+      let w = 0; const int = setInterval(() => {
+        w += 5; document.getElementById("loaderProgress").style.width = w + "%";
+        if (w >= 100) { clearInterval(int); document.getElementById("loadingScreen").style.display = "none"; document.getElementById("trainerWelcomeScreen").style.display = "flex"; }
+      }, 100);
+      setLanguage('en');
+    };
   </script>
 </body>
 </html>
