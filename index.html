@@ -272,6 +272,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background-color 0.2s;
     }
 
     /* Main Typing Box */
@@ -282,7 +283,23 @@
       margin-bottom: 25px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.25);
       position: relative;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
     }
+
+    /* ভুল টাইপ করলে কাঁপানো এনিমেশন */
+    @keyframes shakeError {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-8px); }
+      100% { transform: translateX(0); }
+    }
+    .panel-shake {
+      animation: shakeError 0.2s ease-in-out;
+      border-color: var(--danger) !important;
+    }
+    
     .text-display {
       font-size: 24px;
       line-height: 1.7;
@@ -716,7 +733,7 @@
     </div>
 
     <!-- Typing Interactive Area -->
-    <div class="typing-panel">
+    <div id="typingPanel" class="typing-panel">
       <div id="textDisplay" class="text-display"></div>
     </div>
 
@@ -770,7 +787,6 @@
         <div class="key" id="key-l" data-key="l">L</div>
         <div class="key" id="key-;" data-key=";">;</div>
         <div class="key" id="key-'" data-key="'">'</div>
-	<div class="key" id="key-'" data-key=":">'</div>
         <div class="key enter" id="key-enter" data-key="Enter">Enter</div>
       </div>
       <!-- Row 4 -->
@@ -861,7 +877,7 @@
       "WE wertyuiop[]\ qwertyuiop poiuyER trewq qetuo[ wrTYyip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
       "WE wer ty u iop[ ]\ qwert yuiop poi uy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
       "PQ ty uIIU iop[ ]\ qTYwert yuiop poi uQQy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      "wTeOr ty uEE ioQp[ ]\ qUwert yuiop poi uy ER t reIIO wq[ q etuo[ wrTYyi]p] qweqw rtyrO\tt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
+      "The internet has made computers even more useful. People can send emails, watch videos, read books, and search for information online. Many businesses use computers to keep records, manage accounts, and communicate with customers. Technology has changed the way people work, learn, and share information.",
       "Computers have become an important part of our daily lives. People use computers in schools, offices, hospitals, banks, and homes. They help us perform many tasks quickly and accurately. Students use computers to study, complete assignments, and attend online classes. Teachers use them to prepare lessons and communicate with students."
     ];
 
@@ -1036,6 +1052,8 @@
       document.getElementById("accuracyVal").innerText = "100%";
       document.getElementById("timeVal").innerText = "00:00";
       renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
+      const feedbackEl = document.getElementById("statusFeedback");
+      feedbackEl.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
     }
 
     function renderText() {
@@ -1074,6 +1092,24 @@
       } else feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
     }
 
+    function triggerErrorEffect() {
+        const panel = document.getElementById('typingPanel');
+        const feedback = document.getElementById('statusFeedback');
+        
+        // Shake Panel
+        panel.classList.add('panel-shake');
+        
+        // Highlight Feedback box red temporarily
+        feedback.style.backgroundColor = "rgba(239, 68, 68, 0.4)";
+        feedback.innerHTML = `<span style="color: #fff; font-size: 18px;">❌ ভুল হয়েছে! সঠিক কী (Key) টি চাপুন।</span>`;
+        
+        setTimeout(() => {
+            panel.classList.remove('panel-shake');
+            feedback.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
+            updateFeedbackPrompt();
+        }, 400);
+    }
+
     function startTimer() {
       timerInterval = setInterval(() => {
         totalSeconds++;
@@ -1087,20 +1123,47 @@
     document.addEventListener("keydown", function(event) {
       if (event.ctrlKey || event.altKey) return;
       if (["Shift", "CapsLock", "Tab", "Control"].includes(event.key)) return;
+      
+      // Prevent space scroll
+      if (event.key === " ") event.preventDefault();
+
       if (!isStarted) { isStarted = true; startTimer(); }
+      
       const typedChar = event.key;
       const targetChar = targetText[currentIndex];
       totalKeystrokes++;
+      
       let isMatch = (typedChar === targetChar);
       if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
         if (bijoyToEnglishGuide[targetChar].key === typedChar) isMatch = true;
       }
-      if (isMatch) { playKeySound(true); currentIndex++; hasErrorAtCurrent = false; }
-      else { playKeySound(false); hasErrorAtCurrent = true; totalErrors++; }
-      renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
+      
+      if (isMatch) { 
+          playKeySound(true); 
+          currentIndex++; 
+          hasErrorAtCurrent = false; 
+      } else { 
+          playKeySound(false); 
+          hasErrorAtCurrent = true; 
+          totalErrors++; 
+          triggerErrorEffect();
+      }
+      
+      renderText(); 
+      highlightKeyboardKey(); 
+      updateFeedbackPrompt();
+      
       document.getElementById("accuracyVal").innerText = Math.round(((totalKeystrokes - totalErrors) / totalKeystrokes) * 100) + "%";
       document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${Math.round((currentIndex / targetText.length) * 100)}%)`;
-      if (currentIndex === targetText.length) { clearInterval(timerInterval); document.getElementById("summaryModal").style.display = "flex"; }
+      
+      if (currentIndex === targetText.length) { 
+          clearInterval(timerInterval); 
+          document.getElementById("modalWpm").innerText = document.getElementById("wpmVal").innerText;
+          document.getElementById("modalAccuracy").innerText = document.getElementById("accuracyVal").innerText;
+          document.getElementById("modalTime").innerText = document.getElementById("timeVal").innerText;
+          document.getElementById("modalErrors").innerText = totalErrors;
+          document.getElementById("summaryModal").style.display = "flex"; 
+      }
     });
 
     function openCustomModal() { document.getElementById("customTextModal").style.display = "flex"; }
@@ -1109,6 +1172,19 @@
       const txt = document.getElementById("customTextArea").value.trim();
       if (txt) { targetText = txt; resetExercise(); closeCustomModal(); }
     }
+    
+    function loadNextLesson() {
+        const select = document.getElementById("lessonSelect");
+        if (select.selectedIndex < select.options.length - 1) {
+            select.selectedIndex++;
+            loadLesson();
+            document.getElementById("summaryModal").style.display = "none";
+        } else {
+            alert("Congratulations! You have completed all lessons.");
+            closeSummary();
+        }
+    }
+
     function closeSummary() { document.getElementById("summaryModal").style.display = "none"; resetExercise(); }
 
     window.onload = () => {
