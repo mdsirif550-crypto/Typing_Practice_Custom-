@@ -3,69 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TYPING MASTER PRO - ULTIMATE EDITION</title>
+    <title>TYPING MASTER PRO - FULL VERSION</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* টপ স্ক্রলিং ব্যনার */
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .scrolling-content { display: inline-block; white-space: nowrap; animation: marquee 25s linear infinite; }
-        
-        /* গোল্ডেন জিলিক এনিমেশন */
         @keyframes jilik { 0%, 85%, 100% { filter: brightness(1); } 92% { filter: brightness(1.3) contrast(1.1); transform: scale(1.01); } }
-        .golden-banner {
-            background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            border: 3px solid #fff;
-            animation: jilik 5s infinite;
-        }
-
+        .golden-banner { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); border: 3px solid #fff; animation: jilik 5s infinite; }
+        
         /* রয়্যাল ফ্রেম ও মুকুট */
         .royal-container { position: relative; display: inline-block; }
         .royal-frame {
-            width: 90px; height: 90px;
-            border-radius: 50%; padding: 4px;
+            width: 85px; height: 85px; border-radius: 50%; padding: 4px;
             background: linear-gradient(to bottom, #ffd700, #b8860b);
             display: flex; align-items: center; justify-content: center;
             border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .royal-frame img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #fff; }
-        .royal-crown {
-            position: absolute; top: -25px; left: 50%;
-            transform: translateX(-50%); font-size: 32px; z-index: 20;
-            filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5));
-        }
+        .royal-crown { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 32px; z-index: 20; filter: drop-shadow(0 3px 3px rgba(0,0,0,0.5)); }
+        
+        /* লিডারবোর্ড ফ্রেম ও কালার */
+        .rank-1 { background-color: #fef3c7 !important; border-left: 6px solid #fbbf24; } /* Gold */
+        .rank-2 { background-color: #f1f5f9 !important; border-left: 6px solid #94a3b8; } /* Silver */
+        .rank-3 { background-color: #ffedd5 !important; border-left: 6px solid #ea580c; } /* Bronze */
+        
+        .lb-frame { width: 45px; height: 45px; padding: 2px; }
+        .lb-crown { top: -15px; font-size: 18px; }
 
-        /* লিডারবোর্ড ছোট ফ্রেম */
-        .lb-frame { width: 50px; height: 50px; padding: 2px; }
-        .lb-crown { top: -18px; font-size: 20px; }
-
-        /* টাইপিং টেক্সট কালার */
         .eng-correct { color: #10b981; font-weight: bold; }
         .eng-incorrect { background-color: #f87171; color: white; border-radius: 2px; }
-        #display-box { height: 200px; overflow-y: auto; scroll-behavior: smooth; font-size: 1.4rem; line-height: 1.7; padding: 20px; background: white; border-radius: 20px; border: 2px solid #e2e8f0; user-select: none; }
+        #display-box { height: 180px; overflow-y: auto; scroll-behavior: smooth; font-size: 1.4rem; line-height: 1.7; padding: 20px; background: white; border-radius: 20px; border: 2px solid #e2e8f0; user-select: none; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans pt-10">
 
-    <!-- ১. টপ স্ক্রলিং মেসেজ বার -->
+    <!-- ১. টপ মারকি বার -->
     <div class="fixed top-0 left-0 w-full bg-slate-900 text-white py-1 z-[3000] overflow-hidden border-b border-orange-500 shadow-md">
         <div id="top-marquee-content" class="scrolling-content text-xs font-bold uppercase tracking-widest flex items-center gap-10">
-             WIN REAL PRIZES! EARN POINTS BY TYPING FAST! 🏆 LEADERBOARD UPDATING LIVE... ⌨️
+             POINT EARN KORE PURUSHKAR JITE NAO! 🏆 EARN POINTS TO GET REWARDS! ⌨️
         </div>
     </div>
 
-    <!-- ২. নেভিগেশন বার -->
+    <!-- ২. নেভিগেশন ও ব্যাক বাটন -->
     <nav class="bg-white shadow-sm p-3 sticky top-7 z-50">
         <div class="container mx-auto flex justify-between items-center px-4">
-            <h1 class="text-2xl font-black text-blue-700 italic tracking-tighter">TYPING MASTER <span class="text-orange-600">PRO</span></h1>
+            <div class="flex items-center gap-4">
+                <a href="Typing_Practice_Custom.html" class="bg-blue-600 text-white px-4 py-1.5 rounded-xl font-black text-xs hover:bg-blue-700 transition shadow-md flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path></svg> BACK
+                </a>
+                <h1 class="text-xl font-black text-blue-700 italic tracking-tighter hidden md:block">TYPING MASTER <span class="text-orange-600">PRO</span></h1>
+            </div>
             <div id="user-area" class="flex items-center gap-3">
-                <button id="nav-login-btn" onclick="openAuth()" class="bg-blue-600 text-white px-5 py-2 rounded-full font-black text-xs shadow-md">LOGIN</button>
+                <button id="nav-login-btn" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1.5 rounded-full font-black text-[10px] shadow-md">LOGIN / REGISTER</button>
                 <div id="nav-profile" class="hidden flex items-center gap-3">
                     <div class="text-right">
-                        <p id="nav-name" class="font-black text-gray-800 text-sm leading-none"></p>
-                        <p id="nav-pts" class="text-[10px] font-black text-blue-600 mt-1 uppercase">Pts: 0</p>
+                        <p id="nav-name" class="font-black text-gray-800 text-xs leading-none"></p>
+                        <p id="nav-pts" class="text-[9px] font-black text-blue-600 mt-1 uppercase">Pts: 0</p>
                     </div>
-                    <img id="nav-avatar" onclick="openEditModal()" class="w-10 h-10 rounded-full border-2 border-blue-500 object-cover cursor-pointer hover:scale-110 transition" src="">
-                    <button onclick="logout()" class="text-red-500 p-1 hover:bg-red-50 rounded-full transition"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                    <img id="nav-avatar" onclick="openEditModal()" class="w-9 h-9 rounded-full border-2 border-blue-500 object-cover cursor-pointer" src="">
+                    <button onclick="logout()" class="text-red-500 p-1 hover:bg-red-50 rounded-full transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
                 </div>
             </div>
         </div>
@@ -74,52 +70,44 @@
     <div class="container mx-auto px-4 py-4 max-w-5xl">
         
         <!-- ৩. গোল্ডেন রোটেশন ব্যনার (টপ ৩) -->
-        <div id="top-rotation-banner" class="golden-banner rounded-[30px] p-6 mb-6 relative flex items-center gap-6 shadow-xl">
+        <div id="top-rotation-banner" class="golden-banner rounded-[30px] p-5 mb-6 relative flex items-center gap-6 shadow-xl">
             <div class="royal-container">
                 <div class="royal-crown">👑</div>
-                <div class="royal-frame">
-                    <img id="rotator-pic" src="https://www.w3schools.com/howto/img_avatar.png">
-                </div>
+                <div class="royal-frame"><img id="rotator-pic" src="https://www.w3schools.com/howto/img_avatar.png"></div>
             </div>
             <div class="flex-grow">
-                <div class="flex items-center gap-2">
-                    <span id="rotator-rank" class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">RANK #1</span>
-                    <h3 id="rotator-name" class="text-2xl font-black text-amber-950 leading-none">CHAMPION</h3>
-                </div>
-                <p id="rotator-bio" class="text-sm font-bold text-gray-800 mt-1 italic">Earn points to win grand prizes! 🎁</p>
-                <div class="mt-2 text-[10px] font-black uppercase text-red-700 bg-white/30 inline-block px-3 py-0.5 rounded-full shadow-sm">More Points = Bigger Rewards! 💰</div>
+                <span id="rotator-rank" class="bg-black text-white px-2 py-0.5 rounded-full text-[10px] font-black">RANK #1</span>
+                <h3 id="rotator-name" class="text-2xl font-black text-amber-950 leading-none">CHAMPION</h3>
+                <p class="text-sm font-bold text-gray-800 mt-1 italic">Point Orjon Kore Purushkar Jite Nao! 🎁</p>
             </div>
         </div>
 
         <!-- ৪. স্ট্যাটাস বার -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-blue-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">Time</p><p id="timer" class="text-2xl font-black">300s</p></div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">Speed (WPM)</p><p id="wpm" class="text-2xl font-black text-green-600">0</p></div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">Characters</p><p id="char-count" class="text-2xl font-black text-purple-600">0</p></div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-green-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">WPM</p><p id="wpm" class="text-2xl font-black text-green-600">0</p></div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-purple-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">Chars</p><p id="char-count" class="text-2xl font-black text-purple-600">0</p></div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border-b-4 border-red-500 text-center"><p class="text-[10px] font-black text-gray-400 uppercase">Points</p><p id="session-pts" class="text-2xl font-black text-red-500">0</p></div>
         </div>
 
         <!-- ৫. টাইপিং বক্স (Paste Blocked) -->
-        <div id="display-box" class="shadow-lg"></div>
-        <textarea id="typing-input" 
-            onpaste="return false;" oncopy="return false;" oncut="return false;" oncontextmenu="return false;"
-            class="w-full p-8 text-2xl border-none rounded-b-[40px] h-40 focus:outline-none shadow-inner bg-white mt-[-10px] border-2 border-gray-100" 
-            placeholder="Type here with keyboard only... (No Paste Allowed)"></textarea>
+        <div id="display-box"></div>
+        <textarea id="typing-input" autocomplete="off" onpaste="return false;" class="w-full p-8 text-2xl border-none rounded-b-[40px] h-40 focus:outline-none shadow-inner bg-white mt-[-10px] border-2 border-gray-100" placeholder="Keyboard only... (No Paste)"></textarea>
 
-        <div class="mt-6 flex justify-between items-center px-2">
+        <div class="mt-6 flex justify-between px-2">
             <button onclick="location.reload()" class="bg-slate-900 text-white px-8 py-3 rounded-xl font-black shadow-lg">RESET</button>
-            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-12 py-3 rounded-xl font-black shadow-xl animate-bounce">SUBMIT SCORE ✅</button>
+            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-12 py-3 rounded-xl font-black shadow-xl animate-bounce">SUBMIT ✅</button>
         </div>
 
         <!-- ৬. লিডারবোর্ড -->
         <div class="mt-12 bg-white rounded-[40px] shadow-2xl p-8 border border-gray-100">
-            <h2 class="text-2xl font-black mb-8 italic text-blue-800 border-l-8 border-orange-500 pl-4 uppercase">🏆 GLOBAL HALL OF FAME</h2>
+            <h2 class="text-2xl font-black mb-8 italic text-blue-800 border-l-8 border-orange-500 pl-4 uppercase">🏆 GLOBAL RANKINGS</h2>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-800 text-white">
-                        <tr><th class="p-5 rounded-l-3xl">RANK</th><th class="p-5">CHAMPION</th><th class="p-5 text-center">POINTS</th><th class="p-5 rounded-r-3xl text-center">BEST WPM</th></tr>
+                    <thead class="bg-slate-800 text-white text-xs">
+                        <tr><th class="p-4 rounded-l-3xl">RANK</th><th class="p-4">CHAMPION (Click to view)</th><th class="p-4 text-center">POINTS</th><th class="p-4 rounded-r-3xl text-center">BEST WPM</th></tr>
                     </thead>
-                    <tbody id="leaderboard-body" class="divide-y font-bold text-gray-700"></tbody>
+                    <tbody id="leaderboard-body" class="divide-y font-bold"></tbody>
                 </table>
             </div>
         </div>
@@ -127,39 +115,49 @@
 
     <!-- Modal: প্রোফাইল এডিট -->
     <div id="edit-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[5000] hidden p-4">
-        <div class="bg-white p-8 rounded-[40px] w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto border-t-8 border-orange-500">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-black text-gray-800">EDIT PROFILE</h2>
-                <button onclick="closeEditModal()" class="text-3xl">&times;</button>
-            </div>
-            <div class="space-y-4">
-                <div class="flex flex-col items-center mb-4">
-                    <img id="edit-preview" class="w-24 h-24 rounded-full border-4 border-blue-100 object-cover shadow-md mb-2" src="">
-                    <label class="bg-blue-50 text-blue-600 px-4 py-1 rounded-full text-xs font-black cursor-pointer">
-                        SELECT PHOTO <input type="file" id="file-input" class="hidden" accept="image/*" onchange="previewImage(event)">
-                    </label>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="text-[10px] font-black text-gray-400 uppercase">User ID</label><input type="text" id="edit-id" class="w-full p-3 border rounded-xl bg-gray-50 outline-none font-bold" readonly></div>
-                    <div><label class="text-[10px] font-black text-gray-400 uppercase">Full Name</label><input type="text" id="edit-name" class="w-full p-3 border rounded-xl outline-none font-bold"></div>
-                </div>
-                <div><label class="text-[10px] font-black text-gray-400 uppercase">Gmail</label><input type="email" id="edit-email" class="w-full p-3 border rounded-xl outline-none font-bold"></div>
-                <div><label class="text-[10px] font-black text-gray-400 uppercase">Mobile Number</label><input type="text" id="edit-phone" class="w-full p-3 border rounded-xl outline-none font-bold"></div>
-                <div><label class="text-[10px] font-black text-gray-400 uppercase">Address (ঠিকানা)</label><input type="text" id="edit-address" class="w-full p-3 border rounded-xl outline-none font-bold"></div>
-                <div><label class="text-[10px] font-black text-gray-400 uppercase">Bio (আপনার সম্পর্কে)</label><textarea id="edit-bio" class="w-full p-3 border rounded-xl outline-none h-20 font-bold"></textarea></div>
-                <button onclick="saveProfile()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-black shadow-lg hover:bg-orange-600 transition">SAVE CHANGES</button>
+        <div class="bg-white p-8 rounded-[40px] w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6"><h2 class="text-2xl font-black">EDIT PROFILE</h2><button onclick="closeEditModal()" class="text-3xl">&times;</button></div>
+            <div class="space-y-4 text-center">
+                <img id="edit-preview" class="w-24 h-24 rounded-full border-4 border-blue-100 mx-auto object-cover" src="">
+                <label class="bg-blue-50 text-blue-600 px-4 py-1 rounded-full text-xs font-black cursor-pointer inline-block">SELECT PHOTO <input type="file" class="hidden" accept="image/*" onchange="previewImage(event)"></label>
+                <input type="text" id="edit-name" class="w-full p-3 border rounded-xl font-bold" placeholder="Name">
+                <input type="email" id="edit-email" class="w-full p-3 border rounded-xl font-bold" placeholder="Gmail">
+                <input type="text" id="edit-phone" class="w-full p-3 border rounded-xl font-bold" placeholder="Phone">
+                <input type="text" id="edit-address" class="w-full p-3 border rounded-xl font-bold" placeholder="Address">
+                <textarea id="edit-bio" class="w-full p-3 border rounded-xl font-bold h-20" placeholder="Bio"></textarea>
+                <button onclick="saveProfile()" class="w-full bg-orange-500 text-white py-4 rounded-2xl font-black">SAVE CHANGES</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal: অন্যের প্রোফাইল দেখা -->
+    <div id="view-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[5000] hidden p-4">
+        <div class="bg-white p-8 rounded-[40px] w-full max-w-sm shadow-2xl text-center border-t-8 border-blue-600">
+            <div class="royal-container mb-4">
+                <div id="view-crown" class="royal-crown hidden">👑</div>
+                <div class="royal-frame mx-auto"><img id="view-pic" src=""></div>
+            </div>
+            <h2 id="view-name" class="text-2xl font-black text-gray-800"></h2>
+            <p id="view-uid" class="text-[10px] text-blue-500 font-bold mb-4"></p>
+            <div class="bg-gray-50 p-4 rounded-2xl text-left space-y-2 mb-6">
+                <p class="text-xs">📍 <strong>Address:</strong> <span id="view-address"></span></p>
+                <p class="text-xs">📧 <strong>Gmail:</strong> <span id="view-email"></span></p>
+                <p class="text-xs">📝 <strong>Bio:</strong> <span id="view-bio"></span></p>
+            </div>
+            <button onclick="document.getElementById('view-modal').classList.add('hidden')" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold">CLOSE</button>
+        </div>
+    </div>
+
     <!-- Modal: নিবন্ধন -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[5000] hidden">
-        <div class="bg-white p-10 rounded-[40px] w-full max-w-md shadow-2xl border-b-8 border-blue-600">
-            <h2 class="text-3xl font-black mb-8 text-center text-blue-600">REGISTRATION</h2>
+    <div id="auth-modal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-[5000] hidden p-4">
+        <div class="bg-white p-10 rounded-[40px] w-full max-w-md shadow-2xl border-t-8 border-blue-600">
+            <h2 class="text-3xl font-black mb-6 text-center text-blue-600 uppercase italic">Account Setup</h2>
+            <div id="device-locked-msg" class="hidden text-red-500 font-bold text-center mb-4 text-xs">⚠️ THIS DEVICE IS ALREADY REGISTERED!</div>
             <div class="space-y-4">
-                <input type="text" id="reg-name" placeholder="আপনার নাম" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
-                <input type="email" id="reg-email" placeholder="আপনার জিমেইল" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
-                <button onclick="handleRegister()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-xl shadow-lg hover:bg-blue-700 transition">START TYPING</button>
+                <input type="text" id="reg-name" placeholder="Full Name" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
+                <input type="email" id="reg-email" placeholder="Gmail Address" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
+                <input type="tel" id="reg-phone" placeholder="Mobile (01xxxxxxxxx)" class="w-full p-4 border rounded-2xl bg-gray-50 outline-none font-bold">
+                <button onclick="handleRegister()" id="reg-btn-action" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-xl shadow-lg hover:bg-blue-700">VERIFY & START</button>
             </div>
         </div>
     </div>
@@ -167,93 +165,37 @@
     <script>
         let dbUsers = JSON.parse(localStorage.getItem('globalUsers')) || [];
         let loggedInUser = JSON.parse(localStorage.getItem('currentUser')) || null;
-        let isStarted = false, timeLeft = 300, timer = null, rotationIdx = 0, tempBase64Img = "";
+        let isStarted = false, timeLeft = 300, timer = null, rotationIdx = 0, tempImg = "";
 
         function init() {
-            if (!loggedInUser) document.getElementById('auth-modal').classList.remove('hidden');
-            else {
+            if (!loggedInUser) {
+                document.getElementById('auth-modal').classList.remove('hidden');
+                if(localStorage.getItem('device_id')) {
+                    document.getElementById('device-locked-msg').classList.remove('hidden');
+                    document.getElementById('reg-btn-action').disabled = true;
+                    document.getElementById('reg-btn-action').classList.add('bg-gray-400');
+                }
+            } else {
                 document.getElementById('nav-profile').classList.remove('hidden');
                 document.getElementById('nav-name').innerText = loggedInUser.name;
                 document.getElementById('nav-avatar').src = loggedInUser.pic || "https://www.w3schools.com/howto/img_avatar.png";
                 document.getElementById('nav-pts').innerText = "Pts: " + (loggedInUser.points || 0);
             }
-            const content = "The quick brown fox jumps over the lazy dog. Hard work beats talent when talent doesn't work hard. Practice makes perfect. Typing is a superpower. ".repeat(35);
+            const content = "Typing speed is not just about moving fingers fast, it's about accuracy and rhythm. Hard work and consistent practice will make you a master. Focus on each key. ".repeat(35);
             document.getElementById('display-box').innerHTML = content.split('').map(c => `<span>${c}</span>`).join('');
-            loadLeaderboard(); updateTopMarquee(); startRotation();
+            loadLeaderboard(); startRotation(); updateTopMarquee();
         }
 
-        // --- প্রোফাইল এডিট লজিক ---
-        function openEditModal() {
-            document.getElementById('edit-id').value = loggedInUser.uid || "ID-" + Math.floor(Math.random()*9000);
-            document.getElementById('edit-name').value = loggedInUser.name;
-            document.getElementById('edit-email').value = loggedInUser.email;
-            document.getElementById('edit-phone').value = loggedInUser.phone || "";
-            document.getElementById('edit-address').value = loggedInUser.address || "";
-            document.getElementById('edit-bio').value = loggedInUser.bio || "";
-            document.getElementById('edit-preview').src = loggedInUser.pic || "https://www.w3schools.com/howto/img_avatar.png";
-            document.getElementById('edit-modal').classList.remove('hidden');
-        }
-        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
-
-        function previewImage(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function() {
-                const img = new Image();
-                img.onload = function() {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = 150; canvas.height = 150;
-                    ctx.drawImage(img, 0,0, 150, 150);
-                    tempBase64Img = canvas.toDataURL('image/jpeg', 0.7);
-                    document.getElementById('edit-preview').src = tempBase64Img;
-                };
-                img.src = reader.result;
+        // --- কিবোর্ড প্রটেকশন ---
+        const inputArea = document.getElementById('typing-input');
+        inputArea.addEventListener('beforeinput', (e) => {
+            if (e.inputType.includes('Dictation') || e.inputType.includes('Paste')) {
+                e.preventDefault(); alert("Use physical keyboard only!");
             }
-            reader.readAsDataURL(file);
-        }
+        });
 
-        function saveProfile() {
-            const idx = dbUsers.findIndex(u => u.email === loggedInUser.email);
-            loggedInUser.name = document.getElementById('edit-name').value;
-            loggedInUser.email = document.getElementById('edit-email').value;
-            loggedInUser.phone = document.getElementById('edit-phone').value;
-            loggedInUser.address = document.getElementById('edit-address').value;
-            loggedInUser.bio = document.getElementById('edit-bio').value;
-            loggedInUser.uid = document.getElementById('edit-id').value;
-            if (tempBase64Img) loggedInUser.pic = tempBase64Img;
-
-            dbUsers[idx] = loggedInUser;
-            localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
-            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-            alert("Profile Updated! ✅"); location.reload();
-        }
-
-        // --- রোটেশন ব্যনার লজিক ---
-        function startRotation() {
-            updateBanner();
-            setInterval(() => { rotationIdx = (rotationIdx + 1) % 3; updateBanner(); }, 39000);
-        }
-        function updateBanner() {
-            const top3 = [...dbUsers].sort((a,b) => b.points - a.points).slice(0, 3);
-            if (top3.length > 0) {
-                const u = top3[rotationIdx % top3.length];
-                document.getElementById('rotator-pic').src = u.pic || "https://www.w3schools.com/howto/img_avatar.png";
-                document.getElementById('rotator-name').innerText = u.name.toUpperCase();
-                document.getElementById('rotator-rank').innerText = `RANK #${(rotationIdx % top3.length) + 1}`;
-                document.getElementById('rotator-bio').innerText = u.bio || "Keep typing to win prizes!";
-            }
-        }
-
-        function updateTopMarquee() {
-            const sorted = [...dbUsers].sort((a,b) => b.points - a.points).slice(0,10);
-            let text = "🎁 WIN PRIZES! EARN POINTS! 🏆 TOP PLAYERS: ";
-            text += sorted.map((u,i) => `#${i+1} ${u.name} (${u.points} pts)`).join(" • ");
-            document.getElementById('top-marquee-content').innerText = text + " | KEEP TYPING! 🚀";
-        }
-
-        // --- টাইপিং লজিক ---
-        document.getElementById('typing-input').addEventListener('input', function(e) {
+        inputArea.addEventListener('input', function(e) {
+            if (!loggedInUser) return;
             if (!isStarted) { timer = setInterval(updateTimer, 1000); isStarted = true; }
             const spans = document.querySelectorAll('#display-box span');
             const input = e.target.value.split('');
@@ -272,7 +214,7 @@
 
         function updateTimer() {
             if (timeLeft > 0) { timeLeft--; document.getElementById('timer').innerText = timeLeft + "s"; }
-            else { clearInterval(timer); document.getElementById('typing-input').disabled = true; document.getElementById('submit-btn').classList.remove('hidden'); }
+            else { clearInterval(timer); inputArea.disabled = true; document.getElementById('submit-btn').classList.remove('hidden'); }
         }
 
         function submitScore() {
@@ -283,35 +225,113 @@
             if (wpm > (dbUsers[idx].bestWpm || 0)) dbUsers[idx].bestWpm = wpm;
             localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
             localStorage.setItem('currentUser', JSON.stringify(dbUsers[idx]));
-            alert("Score Submitted! ✅"); location.reload();
+            location.reload();
         }
 
-        function handleRegister() {
-            const n = document.getElementById('reg-name').value, e = document.getElementById('reg-email').value;
-            if (!n || !e) return alert("All fields are required!");
-            const newUser = { name: n, email: e, uid: "ID-" + Math.floor(Math.random()*9000), pic: "", points: 0, bestWpm: 0, phone: "", address: "", bio: "" };
-            dbUsers.push(newUser); localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
-            localStorage.setItem('currentUser', JSON.stringify(newUser)); location.reload();
+        // --- অন্য ইউজারের প্রোফাইল দেখা ---
+        function viewUser(uid) {
+            const user = dbUsers.find(u => u.uid === uid);
+            if (!user) return;
+            document.getElementById('view-pic').src = user.pic || "https://www.w3schools.com/howto/img_avatar.png";
+            document.getElementById('view-name').innerText = user.name;
+            document.getElementById('view-uid').innerText = user.uid;
+            document.getElementById('view-address').innerText = user.address || "N/A";
+            document.getElementById('view-email').innerText = user.email;
+            document.getElementById('view-bio').innerText = user.bio || "No bio added.";
+            
+            // ১ নাম্বার হলে মুকুট দেখাও
+            const sorted = [...dbUsers].sort((a,b) => b.points - a.points);
+            document.getElementById('view-crown').classList.toggle('hidden', sorted[0].uid !== uid);
+            
+            document.getElementById('view-modal').classList.remove('hidden');
         }
 
         function loadLeaderboard() {
-            const sorted = [...dbUsers].sort((a,b) => b.points - a.points).slice(0, 10);
-            document.getElementById('leaderboard-body').innerHTML = sorted.map((u,i) => `
-                <tr class="hover:bg-blue-50 transition border-b border-gray-50">
-                    <td class="p-5 text-blue-600 font-black italic text-xl">#${i+1}</td>
-                    <td class="p-5 flex items-center gap-5">
+            const sorted = [...dbUsers].sort((a,b) => b.points - a.points);
+            document.getElementById('leaderboard-body').innerHTML = sorted.map((u,i) => {
+                let rankClass = i === 0 ? "rank-1" : i === 1 ? "rank-2" : i === 2 ? "rank-3" : "";
+                let crown = i === 0 ? `<div class="royal-crown lb-crown">👑</div>` : "";
+                return `
+                <tr class="${rankClass} hover:bg-white transition cursor-pointer" onclick="viewUser('${u.uid}')">
+                    <td class="p-4 text-blue-600">#${i+1}</td>
+                    <td class="p-4 flex items-center gap-4">
                         <div class="royal-container">
-                            <div class="royal-crown lb-crown">👑</div>
-                            <div class="royal-frame lb-frame shadow-md"><img src="${u.pic || 'https://www.w3schools.com/howto/img_avatar.png'}"></div>
+                            ${crown}
+                            <div class="royal-frame lb-frame"><img src="${u.pic || 'https://www.w3schools.com/howto/img_avatar.png'}"></div>
                         </div>
-                        <div><p class="text-gray-800 text-lg leading-none">${u.name}</p><p class="text-[9px] text-gray-400 mt-1">${u.uid}</p></div>
+                        <div><p class="text-xs uppercase">${u.name}</p><p class="text-[8px] text-gray-400">${u.uid}</p></div>
                     </td>
-                    <td class="p-5 text-center text-blue-700 font-black text-xl">${u.points}</td>
-                    <td class="p-5 text-center text-green-600 font-black text-xl">${u.bestWpm || 0} WPM</td>
-                </tr>`).join('');
+                    <td class="p-4 text-center text-blue-700">${u.points}</td>
+                    <td class="p-4 text-center text-green-600">${u.bestWpm || 0} WPM</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function startRotation() {
+            const top3 = [...dbUsers].sort((a,b) => b.points - a.points).slice(0, 3);
+            const update = () => {
+                if (top3.length > 0) {
+                    const u = top3[rotationIdx % top3.length];
+                    document.getElementById('rotator-pic').src = u.pic || "https://www.w3schools.com/howto/img_avatar.png";
+                    document.getElementById('rotator-name').innerText = u.name;
+                    document.getElementById('rotator-rank').innerText = `RANK #${(rotationIdx % top3.length) + 1}`;
+                }
+            };
+            update(); setInterval(() => { rotationIdx++; update(); }, 39000);
+        }
+
+        function updateTopMarquee() {
+            const top10 = [...dbUsers].sort((a,b) => b.points - a.points).slice(0, 10);
+            let text = "🎁 WIN PRIZES! | TOP PLAYERS: " + (top10.map((u,i) => `#${i+1} ${u.name}`).join(" • ") || "BE THE FIRST!");
+            document.getElementById('top-marquee-content').innerText = text + " | TYPING CHALLENGE IS LIVE! 🚀";
+        }
+
+        function handleRegister() {
+            const name = document.getElementById('reg-name').value, email = document.getElementById('reg-email').value, phone = document.getElementById('reg-phone').value;
+            if (!name || !email.includes('@') || phone.length < 11) return alert("Invalid Info!");
+            const newUser = { name, email, phone, uid: "ID-"+Math.floor(1000+Math.random()*9000), points: 0, bestWpm: 0, pic: "" };
+            dbUsers.push(newUser); localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
+            localStorage.setItem('currentUser', JSON.stringify(newUser)); localStorage.setItem('device_id', 'locked');
+            location.reload();
         }
 
         function openAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
+        function openEditModal() {
+            document.getElementById('edit-name').value = loggedInUser.name;
+            document.getElementById('edit-email').value = loggedInUser.email;
+            document.getElementById('edit-phone').value = loggedInUser.phone;
+            document.getElementById('edit-preview').src = loggedInUser.pic || "https://www.w3schools.com/howto/img_avatar.png";
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+        function previewImage(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = () => {
+                const img = new Image();
+                img.onload = () => {
+                    const canv = document.createElement('canvas'); const ctx = canv.getContext('2d');
+                    canv.width = 120; canv.height = 120; ctx.drawImage(img, 0,0, 120, 120);
+                    tempImg = canv.toDataURL('image/jpeg', 0.6);
+                    document.getElementById('edit-preview').src = tempImg;
+                };
+                img.src = reader.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        function saveProfile() {
+            const idx = dbUsers.findIndex(u => u.uid === loggedInUser.uid);
+            loggedInUser.name = document.getElementById('edit-name').value;
+            loggedInUser.email = document.getElementById('edit-email').value;
+            loggedInUser.phone = document.getElementById('edit-phone').value;
+            loggedInUser.address = document.getElementById('edit-address').value;
+            loggedInUser.bio = document.getElementById('edit-bio').value;
+            if (tempImg) loggedInUser.pic = tempImg;
+            dbUsers[idx] = loggedInUser;
+            localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
+            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+            location.reload();
+        }
         function logout() { localStorage.removeItem('currentUser'); location.reload(); }
         init();
     </script>
