@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TYPING MASTER PRO - SLIM ELITE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .scrolling-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
@@ -51,7 +54,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pt-10" onload="init()">
+<body class="bg-slate-50 min-h-screen pt-10">
 
     <!-- Header Marquee -->
     <div class="fixed top-0 left-0 w-full bg-slate-900 text-white py-1 z-[5000] border-b border-yellow-500 overflow-hidden text-[9px] font-bold uppercase tracking-widest">
@@ -64,7 +67,7 @@
     <nav class="bg-white shadow-sm p-2 sticky top-6 z-50">
         <div class="container mx-auto flex justify-between items-center px-4">
             <div class="flex items-center gap-2">
-                <a href="Typing_Practice_Custom.html" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
+                <a href="#" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
                 <h1 class="text-base font-black text-slate-800 italic uppercase">Typing<span class="text-blue-600">Master</span></h1>
             </div>
             <div id="user-area" class="flex items-center gap-2">
@@ -83,10 +86,8 @@
 
     <div class="container mx-auto px-4 py-4 max-w-5xl">
         
-        <!-- ULTRA SLIM DYNAMIC BANNER -->
+        <!-- Banner -->
         <div id="elite-banner" class="golden-banner rounded-[25px] py-4 px-8 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
-            
-            <!-- Left Side: Motivational Text & Prize -->
             <div class="flex-1 text-center md:text-left">
                 <h2 class="text-[14px] md:text-[16px] font-black uppercase text-slate-900 leading-tight tracking-tight italic">
                     **Practice Daily, Improve Your Skills, <br>and Win Great Prizes!**
@@ -97,9 +98,7 @@
                 </div>
             </div>
 
-            <!-- Right Side: Profile & Stats -->
             <div class="flex flex-row items-center gap-6 justify-end">
-                <!-- Profile Area -->
                 <div id="profile-display-area" class="flex flex-row items-center gap-3 border-l border-black/10 pl-6">
                     <div class="relative">
                         <div class="crown" id="banner-crown">👑</div>
@@ -116,7 +115,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Area -->
                 <div class="flex gap-1.5">
                     <div class="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-xl text-center min-w-[70px] border border-white/20">
                         <p class="text-[7px] font-bold uppercase opacity-60 leading-none mb-1">Points</p>
@@ -134,7 +132,7 @@
         <div id="display-box"></div>
         <textarea id="typing-input" class="w-full text-lg bg-white mt-[-20px]" placeholder="Start typing to improve your skills..."></textarea>
         
-        <!-- Live Stats Bar -->
+        <!-- Stats Bar -->
         <div class="mt-4 flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
             <button onclick="location.reload()" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-bold uppercase text-[9px] hover:bg-black transition">Reset 🔄</button>
             <div class="flex gap-4 font-black text-slate-400 text-[9px] uppercase tracking-widest">
@@ -195,38 +193,214 @@
     </div>
 
     <script>
+        // ============================================
+        // FIREBASE CONFIG (এখানে আপনার config বসান)
+        // ============================================
+        const firebaseConfig = {
+apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
+  authDomain: "eirnbooster.firebaseapp.com",
+  databaseURL: "https://eirnbooster-default-rtdb.firebaseio.com",
+  projectId: "eirnbooster",
+  storageBucket: "eirnbooster.firebasestorage.app",
+  messagingSenderId: "1062288115898",
+  appId: "1:1062288115898:web:952df73a31a3acdc2e5a83",
+  measurementId: "G-7YJCXGJVY5"
+};
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("🔥 Firebase initialized successfully!");
+        } catch (error) {
+            console.error("❌ Firebase init error:", error);
+        }
+
+        // ============================================
+        // APP LOGIC
+        // ============================================
         const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-        let dbUsers = JSON.parse(localStorage.getItem('globalUsers')) || [];
-        let loggedInUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let loggedInUser = null;
         let rotateIdx = 0, isStarted = false, startTime = null, sessionMistakes = 0, correctChars = 0;
         let rotationTimer = null;
+        let allUsers = [];
 
+        // ---------- Firebase Helpers ----------
+        function syncUsersFromFirebase() {
+            try {
+                const dbRef = firebase.database().ref('users');
+                dbRef.on('value', snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        allUsers = Object.keys(data).map(key => ({
+                            id: key,
+                            ...data[key]
+                        }));
+                        console.log("📊 Users loaded:", allUsers.length);
+                        renderLeaderboard(allUsers);
+                        updateBannerWithRotation();
+                    } else {
+                        allUsers = [];
+                        renderLeaderboard([]);
+                    }
+                });
+            } catch (error) {
+                console.error("❌ Firebase sync error:", error);
+            }
+        }
+
+        function saveUserToFirebase(user) {
+            try {
+                const dbRef = firebase.database().ref('users/' + user.id);
+                return dbRef.set({
+                    name: user.name || user.id,
+                    password: user.password || '',
+                    points: user.points || 0,
+                    mistakes: user.mistakes || 0,
+                    bestWpm: user.bestWpm || 0,
+                    pic: user.pic || '',
+                    bio: user.bio || ''
+                }).then(() => {
+                    console.log("✅ User saved:", user.id);
+                    return true;
+                }).catch(err => {
+                    console.error("❌ Save error:", err);
+                    return false;
+                });
+            } catch (error) {
+                console.error("❌ Save function error:", error);
+                return false;
+            }
+        }
+
+        function updateUserInFirebase(user) {
+            try {
+                const dbRef = firebase.database().ref('users/' + user.id);
+                return dbRef.update({
+                    name: user.name,
+                    points: user.points,
+                    mistakes: user.mistakes,
+                    bestWpm: user.bestWpm,
+                    pic: user.pic,
+                    bio: user.bio
+                }).then(() => {
+                    console.log("✅ User updated:", user.id);
+                    return true;
+                }).catch(err => {
+                    console.error("❌ Update error:", err);
+                    return false;
+                });
+            } catch (error) {
+                console.error("❌ Update function error:", error);
+                return false;
+            }
+        }
+
+        // ---------- Init ----------
         function init() {
+            console.log("🚀 App initializing...");
             generateDisplayContent();
-            renderLeaderboard(dbUsers);
-            updateNav();
-            startEliteRotation();
+            syncUsersFromFirebase();
+
+            // Load logged in user
+            const stored = localStorage.getItem('currentUser');
+            if (stored) {
+                try {
+                    loggedInUser = JSON.parse(stored);
+                    console.log("👤 Logged in:", loggedInUser.id);
+                } catch (e) {
+                    loggedInUser = null;
+                }
+            }
+
+            if (loggedInUser) {
+                // Verify user exists in Firebase
+                try {
+                    firebase.database().ref('users/' + loggedInUser.id).once('value')
+                        .then(snapshot => {
+                            const fbUser = snapshot.val();
+                            if (fbUser) {
+                                loggedInUser = { id: loggedInUser.id, ...fbUser };
+                                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            }
+                            updateNav();
+                            updateBannerWithRotation();
+                            startEliteRotation();
+                        });
+                } catch (e) {
+                    updateNav();
+                    updateBannerWithRotation();
+                    startEliteRotation();
+                }
+            } else {
+                updateNav();
+                updateBannerWithRotation();
+                startEliteRotation();
+            }
+
+            // Typing input listener
+            document.getElementById('typing-input').addEventListener('input', function() {
+                if (!loggedInUser) {
+                    this.value = "";
+                    openAuth();
+                    return;
+                }
+                if (!isStarted) {
+                    isStarted = true;
+                    startTime = new Date();
+                    document.getElementById('submit-btn').classList.remove('hidden');
+                }
+                const chars = document.querySelectorAll('#display-box span');
+                const typed = this.value.split('');
+                sessionMistakes = 0;
+                correctChars = 0;
+                chars.forEach((s, i) => {
+                    if (typed[i] == null) s.className = "char";
+                    else if (typed[i] === s.innerText) {
+                        s.className = "char correct";
+                        correctChars++;
+                    } else {
+                        s.className = "char incorrect";
+                        sessionMistakes++;
+                    }
+                    if (i === typed.length) s.classList.add('current');
+                });
+                let time = (new Date() - startTime) / 60000;
+                let wpm = Math.round((correctChars / 5) / time) || 0;
+                document.getElementById('live-chars').innerText = typed.length;
+                document.getElementById('live-mistakes').innerText = sessionMistakes;
+                document.getElementById('live-wpm').innerText = wpm;
+                chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
         }
 
         function calcLvl(pts) { return Math.floor(pts / 200) + 1; }
 
         function showInBanner(user, rank) {
+            if (!user) return;
             document.getElementById('dash-name').innerText = user.name || user.id;
-            document.getElementById('dash-id').innerText = "ID: " + user.id.toUpperCase();
+            document.getElementById('dash-id').innerText = "ID: " + (user.id || '').toUpperCase();
             document.getElementById('dash-pts').innerText = user.points || 0;
             document.getElementById('dash-mistakes').innerText = user.mistakes || 0;
             document.getElementById('dash-pic').src = user.pic || DEFAULT_AVATAR;
             document.getElementById('dash-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : "No bio added.";
-            document.getElementById('dash-rank-tag').innerText = "#" + rank;
+            document.getElementById('dash-rank-tag').innerText = "#" + (rank || '--');
             document.getElementById('dash-lvl-tag').innerText = "LVL " + calcLvl(user.points || 0);
-            document.getElementById('banner-crown').style.display = rank <= 1 ? 'block' : 'none';
+            document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
+        }
+
+        function updateBannerWithRotation() {
+            const sorted = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
+            if (sorted.length > 0) {
+                const idx = rotateIdx % sorted.length;
+                showInBanner(sorted[idx], idx + 1);
+            }
         }
 
         function startEliteRotation() {
-            if(rotationTimer) clearInterval(rotationTimer);
+            if (rotationTimer) clearInterval(rotationTimer);
             document.getElementById('elite-banner').classList.remove('viewing-mode');
             const update = () => {
-                const sorted = [...dbUsers].sort((a,b) => b.points - a.points).slice(0, 10);
+                const sorted = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
                 if (sorted.length > 0) {
                     showInBanner(sorted[rotateIdx], rotateIdx + 1);
                     rotateIdx = (rotateIdx + 1) % sorted.length;
@@ -238,7 +412,7 @@
 
         function viewUserProfile(userId) {
             clearInterval(rotationTimer);
-            const sortedGlobal = [...dbUsers].sort((a,b) => b.points - a.points);
+            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userIdx = sortedGlobal.findIndex(u => u.id === userId);
             const user = sortedGlobal[userIdx];
             showInBanner(user, userIdx + 1);
@@ -249,109 +423,191 @@
 
         function searchPlayer() {
             const query = document.getElementById('search-box').value.toLowerCase();
-            const filtered = dbUsers.filter(u => (u.name && u.name.toLowerCase().includes(query)) || u.id.toLowerCase().includes(query));
+            const filtered = allUsers.filter(u =>
+                (u.name && u.name.toLowerCase().includes(query)) ||
+                (u.id && u.id.toLowerCase().includes(query))
+            );
             renderLeaderboard(filtered);
         }
 
         function handleAuth() {
             const id = document.getElementById('reg-id').value.trim().toLowerCase();
             const pass = document.getElementById('reg-pass').value.trim();
-            if(!id || !pass) return alert("Fill ID & Pass");
-            let user = dbUsers.find(u => u.id === id);
-            if(!user) {
-                user = { id, name: id, password: pass, points: 0, mistakes: 0, bestWpm: 0, pic: "", bio: "" };
-                dbUsers.push(user);
-                localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
+            if (!id || !pass) return alert("Fill ID & Pass");
+
+            // Check if user exists
+            let user = allUsers.find(u => u.id === id);
+            if (!user) {
+                // New user
+                user = {
+                    id: id,
+                    name: id,
+                    password: pass,
+                    points: 0,
+                    mistakes: 0,
+                    bestWpm: 0,
+                    pic: "",
+                    bio: ""
+                };
+                saveUserToFirebase(user).then(success => {
+                    if (success) {
+                        allUsers.push(user);
+                        loggedInUser = { ...user };
+                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                        updateNav();
+                        closeAuth();
+                        syncUsersFromFirebase();
+                        startEliteRotation();
+                        alert("✅ New user created! Welcome " + id);
+                    }
+                });
+            } else {
+                if (user.password !== pass) return alert("❌ Wrong Password!");
+                loggedInUser = { ...user };
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                updateNav();
+                closeAuth();
+                syncUsersFromFirebase();
+                startEliteRotation();
+                alert("✅ Welcome back " + user.name + "!");
             }
-            if(user.password === pass) {
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                location.reload();
-            } else alert("Wrong Password!");
         }
 
         function updateNav() {
-            if(loggedInUser) {
+            if (loggedInUser) {
                 document.getElementById('nav-profile-box').classList.remove('hidden');
                 document.getElementById('nav-login-btn').classList.add('hidden');
-                document.getElementById('nav-user-name').innerText = loggedInUser.name;
-                document.getElementById('nav-user-id-top').innerText = loggedInUser.id.toUpperCase();
+                document.getElementById('nav-user-name').innerText = loggedInUser.name || loggedInUser.id;
+                document.getElementById('nav-user-id-top').innerText = (loggedInUser.id || '').toUpperCase();
                 document.getElementById('nav-user-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
+            } else {
+                document.getElementById('nav-profile-box').classList.add('hidden');
+                document.getElementById('nav-login-btn').classList.remove('hidden');
             }
         }
 
-        document.getElementById('typing-input').addEventListener('input', function() {
-            if(!loggedInUser) { this.value = ""; return openAuth(); }
-            if(!isStarted) { isStarted = true; startTime = new Date(); document.getElementById('submit-btn').classList.remove('hidden'); }
-            const chars = document.querySelectorAll('#display-box span');
-            const typed = this.value.split('');
-            sessionMistakes = 0; correctChars = 0;
-            chars.forEach((s, i) => {
-                if(typed[i] == null) s.className = "char";
-                else if(typed[i] === s.innerText) { s.className = "char correct"; correctChars++; }
-                else { s.className = "char incorrect"; sessionMistakes++; }
-                if(i === typed.length) s.classList.add('current');
-            });
-            let time = (new Date() - startTime) / 60000;
-            let wpm = Math.round((correctChars / 5) / time) || 0;
-            document.getElementById('live-chars').innerText = typed.length;
-            document.getElementById('live-mistakes').innerText = sessionMistakes;
-            document.getElementById('live-wpm').innerText = wpm;
-            chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        });
-
         function submitScore() {
-            const idx = dbUsers.findIndex(u => u.id === loggedInUser.id);
+            if (!loggedInUser) return;
+            
             const earnedPts = Math.floor(correctChars / 5);
-            dbUsers[idx].points += earnedPts;
-            dbUsers[idx].mistakes += sessionMistakes;
-            dbUsers[idx].bestWpm = Math.max(dbUsers[idx].bestWpm || 0, Math.round(parseInt(document.getElementById('live-wpm').innerText)));
-            localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
-            localStorage.setItem('currentUser', JSON.stringify(dbUsers[idx]));
-            location.reload();
+            const wpm = Math.round(parseInt(document.getElementById('live-wpm').innerText) || 0);
+            
+            if (earnedPts === 0 && wpm === 0) {
+                alert("Type something first!");
+                return;
+            }
+
+            loggedInUser.points = (loggedInUser.points || 0) + earnedPts;
+            loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
+            loggedInUser.bestWpm = Math.max(loggedInUser.bestWpm || 0, wpm);
+
+            // Update Firebase
+            updateUserInFirebase(loggedInUser).then(success => {
+                if (success) {
+                    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                    document.getElementById('submit-btn').classList.add('hidden');
+                    isStarted = false;
+                    startTime = null;
+                    document.getElementById('typing-input').value = '';
+                    document.getElementById('live-chars').innerText = '0';
+                    document.getElementById('live-mistakes').innerText = '0';
+                    document.getElementById('live-wpm').innerText = '0';
+                    generateDisplayContent();
+                    syncUsersFromFirebase();
+                    alert("🎉 Score submitted!\nPoints earned: " + earnedPts + "\nWPM: " + wpm);
+                }
+            });
         }
 
         function renderLeaderboard(users) {
-            const sortedGlobal = [...dbUsers].sort((a,b) => b.points - a.points);
-            const list = [...users].sort((a,b) => b.points - a.points);
+            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const list = [...users].sort((a, b) => (b.points || 0) - (a.points || 0));
+            
+            if (list.length === 0) {
+                document.getElementById('leaderboard-body').innerHTML = 
+                    '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">No players yet. Be the first!</td></tr>';
+                return;
+            }
+
             document.getElementById('leaderboard-body').innerHTML = list.map((u) => {
                 const rank = sortedGlobal.findIndex(g => g.id === u.id) + 1;
+                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
                 return `
-                <tr class="clickable-row ${loggedInUser && u.id === loggedInUser.id ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}')">
+                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}')">
                     <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
                     <td class="p-3 flex items-center gap-2">
                         <img src="${u.pic || DEFAULT_AVATAR}" class="w-6 h-6 rounded-full border shadow-sm object-cover bg-white">
-                        <div><p class="uppercase text-slate-800 text-[10px] truncate max-w-[80px]">${u.name || u.id}</p><p class="text-[6px] opacity-40 uppercase">ID: ${u.id}</p></div>
+                        <div><p class="uppercase text-slate-800 text-[10px] truncate max-w-[80px]">${u.name || u.id}</p>
+                        <p class="text-[6px] opacity-40 uppercase">ID: ${u.id}</p></div>
                     </td>
                     <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
-                    <td class="p-3 text-center text-blue-600 font-black">${u.points}</td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.points || 0}</td>
                     <td class="p-3 text-center text-slate-500 text-[9px]">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
         }
 
         function openEditModal() {
-            document.getElementById('edit-id').value = loggedInUser.id;
-            document.getElementById('edit-name').value = loggedInUser.name;
-            document.getElementById('edit-pic').value = loggedInUser.pic || "";
-            document.getElementById('edit-bio').value = loggedInUser.bio || "";
+            if (!loggedInUser) return openAuth();
+            document.getElementById('edit-id').value = loggedInUser.id || '';
+            document.getElementById('edit-name').value = loggedInUser.name || '';
+            document.getElementById('edit-pic').value = loggedInUser.pic || '';
+            document.getElementById('edit-bio').value = loggedInUser.bio || '';
             document.getElementById('edit-preview').src = loggedInUser.pic || DEFAULT_AVATAR;
             document.getElementById('edit-modal').classList.remove('hidden');
         }
+
         function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
-        
+
         function saveProfile() {
+            if (!loggedInUser) return;
             const oldId = loggedInUser.id;
             const newId = document.getElementById('edit-id').value.trim().toLowerCase();
             const newName = document.getElementById('edit-name').value.trim();
             const newPic = document.getElementById('edit-pic').value.trim();
             const newBio = document.getElementById('edit-bio').value.trim();
-            if(!newId || !newName) return alert("Required!");
-            if(newId !== oldId && dbUsers.some(u => u.id === newId)) return alert("ID taken!");
-            const idx = dbUsers.findIndex(u => u.id === oldId);
-            dbUsers[idx].id = newId; dbUsers[idx].name = newName; dbUsers[idx].pic = newPic; dbUsers[idx].bio = newBio;
-            localStorage.setItem('globalUsers', JSON.stringify(dbUsers));
-            localStorage.setItem('currentUser', JSON.stringify(dbUsers[idx]));
-            location.reload();
+            
+            if (!newId || !newName) return alert("Required!");
+            if (newId !== oldId && allUsers.some(u => u.id === newId)) return alert("ID taken!");
+
+            // If ID changed, we need to move the data
+            if (newId !== oldId) {
+                // Create new user entry
+                const updatedUser = {
+                    ...loggedInUser,
+                    id: newId,
+                    name: newName,
+                    pic: newPic,
+                    bio: newBio
+                };
+                
+                // Remove old entry, add new one
+                firebase.database().ref('users/' + oldId).remove().then(() => {
+                    saveUserToFirebase(updatedUser).then(() => {
+                        loggedInUser = updatedUser;
+                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                        closeEditModal();
+                        syncUsersFromFirebase();
+                        updateNav();
+                        updateBannerWithRotation();
+                        alert("✅ Profile updated!");
+                    });
+                });
+            } else {
+                // Just update
+                loggedInUser.name = newName;
+                loggedInUser.pic = newPic;
+                loggedInUser.bio = newBio;
+                
+                updateUserInFirebase(loggedInUser).then(() => {
+                    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                    closeEditModal();
+                    syncUsersFromFirebase();
+                    updateNav();
+                    updateBannerWithRotation();
+                    alert("✅ Profile updated!");
+                });
+            }
         }
 
         function generateDisplayContent() {
@@ -361,7 +617,15 @@
 
         function openAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
         function closeAuth() { document.getElementById('auth-modal').classList.add('hidden'); }
-        function logout() { localStorage.removeItem('currentUser'); location.reload(); }
+        function logout() {
+            localStorage.removeItem('currentUser');
+            loggedInUser = null;
+            updateNav();
+            location.reload();
+        }
+
+        // Start the app when page loads
+        window.onload = init;
     </script>
 </body>
 </html>
