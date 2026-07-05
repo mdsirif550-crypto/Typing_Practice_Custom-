@@ -132,6 +132,80 @@
             background: #1e3a8a;
             transform: scale(1.05);
         }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            background: linear-gradient(135deg,#facc15,#f59e0b);
+            color: #111827;
+            font-weight: 800;
+            border-radius: 999px;
+            padding: 4px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+        }
+        .profile-preview-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            z-index: 7000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .profile-preview-modal.hidden {
+            display: none;
+        }
+        .profile-preview-card {
+            width: 100%;
+            max-width: 980px;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,58,138,0.95));
+            box-shadow: 0 25px 80px rgba(15,23,42,0.7);
+            position: relative;
+        }
+        .profile-preview-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(59,130,246,0.24), transparent 35%), radial-gradient(circle at bottom right, rgba(14,165,233,0.18), transparent 30%);
+            pointer-events: none;
+        }
+        .profile-preview-close {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            z-index: 10;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            line-height: 36px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .profile-preview-close:hover { transform: scale(1.08); background: rgba(255,255,255,0.28); }
+        .profile-preview-content { position: relative; z-index: 1; padding: 32px; }
+        .profile-preview-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: space-between; }
+        .profile-preview-avatar { width: 120px; height: 120px; border-radius: 30px; border: 3px solid rgba(255,255,255,0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.25); object-fit: cover; background: #fff; }
+        .profile-preview-meta { color: #f8fafc; }
+        .profile-preview-meta h3 { margin: 0; font-size: 1.8rem; font-weight: 900; letter-spacing: 0.5px; }
+        .profile-preview-meta p { margin: 6px 0 0; color: rgba(248,250,252,0.78); font-size: 0.9rem; }
+        .profile-preview-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 24px; }
+        .profile-preview-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 18px; color: white; text-align: center; }
+        .profile-preview-stat span { display: block; font-size: 1.3rem; font-weight: 900; margin-top: 6px; }
+        .profile-preview-levelbar { margin-top: 18px; }
+        .profile-preview-levelbar-label { color: rgba(255,255,255,0.8); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.12em; margin-bottom: 10px; }
+        .profile-preview-progress { width: 100%; height: 12px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
+        .profile-preview-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #fde68a, #f97316); transition: width 0.25s ease; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pt-10">
@@ -160,6 +234,7 @@
                     <div class="text-right leading-tight">
                         <p id="nav-user-name" class="font-bold text-[10px] uppercase text-slate-700"></p>
                         <p class="text-[8px] font-bold text-blue-600 uppercase">ID: <span id="nav-user-id-top">--</span></p>
+                        <p class="text-[8px] font-bold text-slate-500 uppercase">Rank: <span id="nav-user-rank">--</span></p>
                     </div>
                     <img id="nav-user-avatar" onclick="openEditModal()" class="w-8 h-8 rounded-full border border-blue-500 cursor-pointer object-cover bg-white" src="">
                     <button onclick="logout()" class="text-red-500 font-bold text-[8px] uppercase">Exit</button>
@@ -303,6 +378,53 @@
                     </thead>
                     <tbody id="all-users-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-preview-modal" class="profile-preview-modal hidden">
+        <div class="profile-preview-card">
+            <button class="profile-preview-close" onclick="closeProfilePreview()">×</button>
+            <div class="profile-preview-content">
+                <div class="profile-preview-hero">
+                    <img id="preview-pic" class="profile-preview-avatar" src="" alt="Profile picture">
+                    <div class="profile-preview-meta">
+                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Pool Profile</p>
+                        <h3 id="preview-name">PLAYER NAME</h3>
+                        <p id="preview-id">ID: ----</p>
+                        <p id="preview-rank" class="text-[14px] font-bold text-amber-300 mt-2">#--</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="preview-level" class="rank-badge">LVL 1</span>
+                    </div>
+                </div>
+                <div class="profile-preview-stats">
+                    <div class="profile-preview-stat">
+                        <span id="preview-points">0</span>
+                        Points
+                    </div>
+                    <div class="profile-preview-stat">
+                        <span id="preview-wpm">0</span>
+                        Best WPM
+                    </div>
+                    <div class="profile-preview-stat">
+                        <span id="preview-mistakes">0</span>
+                        Total Mistakes
+                    </div>
+                </div>
+                <div class="profile-preview-levelbar">
+                    <div class="profile-preview-levelbar-label">Level Progress</div>
+                    <div class="profile-preview-progress">
+                        <div id="preview-level-bar" class="profile-preview-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="mt-4 text-slate-200 text-sm space-y-2">
+                    <p id="preview-next-level" class="font-semibold"></p>
+                    <p id="preview-future-level" class="text-slate-300"></p>
+                </div>
+                <div class="mt-6 p-5 rounded-3xl bg-white/10 border border-white/10 text-slate-100">
+                    <p id="preview-bio" class="text-sm italic leading-6"></p>
+                </div>
             </div>
         </div>
     </div>
@@ -818,7 +940,38 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             });
         }
 
-        function calcLvl(pts) { return Math.floor(pts / 200) + 1; }
+        function getTargetIncrement(level) {
+            return level <= 3 ? 200 : (level - 2) * 200;
+        }
+
+        function pointsForLevel(level) {
+            if (level <= 1) return 0;
+            let total = 0;
+            for (let lvl = 2; lvl <= level; lvl += 1) {
+                total += getTargetIncrement(lvl);
+            }
+            return total;
+        }
+
+        function calcLvl(pts) {
+            let level = 1;
+            while (pts >= pointsForLevel(level + 1)) {
+                level += 1;
+            }
+            return level;
+        }
+
+        function calcLvlProgress(points) {
+            const level = calcLvl(points);
+            const start = pointsForLevel(level);
+            const end = pointsForLevel(level + 1);
+            const progress = end > start ? ((points - start) / (end - start)) * 100 : 100;
+            return Math.min(Math.max(Math.round(progress), 0), 100);
+        }
+
+        function getLevelProjection(points, extra) {
+            return calcLvl(points + extra);
+        }
 
         function showInBanner(user, rank) {
             if (!user) return;
@@ -855,15 +1008,59 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             rotationTimer = setInterval(update, 5000);
         }
 
-        function viewUserProfile(userId) {
-            clearInterval(rotationTimer);
+        function getUserRank(userId) {
+            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const idx = sortedGlobal.findIndex(u => u.id === userId);
+            return idx === -1 ? null : idx + 1;
+        }
+
+        function openProfilePreview(userId) {
             const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userIdx = sortedGlobal.findIndex(u => u.id === userId);
+            if (userIdx === -1) return;
             const user = sortedGlobal[userIdx];
             showInBanner(user, userIdx + 1);
+            const modal = document.getElementById('profile-preview-modal');
+            if (!modal) return;
+            modal.querySelector('#preview-pic').src = user.pic || DEFAULT_AVATAR;
+            modal.querySelector('#preview-name').innerText = user.name || user.id;
+            modal.querySelector('#preview-id').innerText = "ID: " + (user.id || '').toUpperCase();
+            modal.querySelector('#preview-rank').innerText = "#" + (userIdx + 1);
+            modal.querySelector('#preview-level').innerText = "LVL " + calcLvl(user.points || 0);
+            modal.querySelector('#preview-points').innerText = user.points || 0;
+            modal.querySelector('#preview-wpm').innerText = user.bestWpm || 0;
+            modal.querySelector('#preview-mistakes').innerText = user.mistakes || 0;
+            modal.querySelector('#preview-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : (currentLanguage === 'bn' ? '"কোনো বায়ো নেই."' : '"No bio added."');
+            const currentPoints = user.points || 0;
+            const currentLevel = calcLvl(currentPoints);
+            const nextLevel = currentLevel + 1;
+            const nextThreshold = pointsForLevel(nextLevel);
+            const pointsToNext = Math.max(nextThreshold - currentPoints, 0);
+            const projectedAt200 = getLevelProjection(currentPoints, 200);
+            modal.querySelector('#preview-level-bar').style.width = calcLvlProgress(currentPoints) + '%';
+            modal.querySelector('#preview-next-level').innerText = currentLanguage === 'bn'
+                ? `পরবর্তী লেভেলে যেতে ${pointsToNext} পয়েন্ট বাকি।`
+                : `Next level in ${pointsToNext} points.`;
+            modal.querySelector('#preview-future-level').innerText = currentLanguage === 'bn'
+                ? `আর ২০০ পয়েন্টে আপনি LVL ${projectedAt200} এ উঠবেন।`
+                : `With 200 more points you will reach LVL ${projectedAt200}.`;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeProfilePreview() {
+            const modal = document.getElementById('profile-preview-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            startEliteRotation();
+        }
+
+        function viewUserProfile(userId) {
+            clearInterval(rotationTimer);
             document.getElementById('elite-banner').classList.add('viewing-mode');
+            openProfilePreview(userId);
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(startEliteRotation, 15000);
         }
 
         function searchPlayer() {
@@ -925,6 +1122,9 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 document.getElementById('nav-user-name').innerText = loggedInUser.name || loggedInUser.id;
                 document.getElementById('nav-user-id-top').innerText = (loggedInUser.id || '').toUpperCase();
                 document.getElementById('nav-user-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
+                const userRank = getUserRank(loggedInUser.id);
+                const navRankEl = document.getElementById('nav-user-rank');
+                if (navRankEl) navRankEl.innerText = userRank ? '#' + userRank : '--';
             } else {
                 document.getElementById('nav-profile-box').classList.add('hidden');
                 document.getElementById('nav-login-btn').classList.remove('hidden');
