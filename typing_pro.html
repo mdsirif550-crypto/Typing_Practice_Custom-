@@ -54,7 +54,56 @@
         .clickable-row { cursor: pointer; transition: 0.2s; }
         .clickable-row:hover { background-color: #f0f7ff !important; transform: scale(1.01); }
         /* Larger leaderboard avatar */
-        .leader-img { width: 48px !important; height: 48px !important; }
+        .leader-img { width: 56px !important; height: 56px !important; }
+        .profile-preview-avatar { width: 140px; height: 140px; border-radius: 30px; border: 4px solid rgba(255,255,255,0.12); background: #0f172a; }
+        .profile-frame { display: inline-block; border-radius: 999px; transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+        .profile-frame img { display: block; border-radius: 999px; }
+        .profile-preview-card { max-width: 1040px; }
+        .profile-preview-meta h3 { font-size: 2rem; }
+        .profile-preview-stat span { font-size: 1.5rem; }
+        .profile-preview-hero { gap: 28px; }
+        .message-action-btn {
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 999px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(15,23,42,0.18);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .message-action-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+        .help-send-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg,#0ea5e9,#6366f1);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 12px 30px rgba(59,130,246,0.14), inset 0 -6px 18px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .help-send-btn:active { transform: translateY(1px); }
+        .help-send-btn.digital {
+            background: linear-gradient(90deg,#06b6d4,#3b82f6);
+            border-radius: 999px;
+            padding: 12px 22px;
+            letter-spacing: 0.6px;
+        }
+        .lesson-manager-button {
+            background: #111827;
+            color: #f8fafc;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 800;
+        }
         /* Emphasize leaderboard rows */
         #leaderboard-body tr { transition: transform 0.18s ease; }
         #leaderboard-body tr:hover { transform: translateY(-2px); }
@@ -226,6 +275,8 @@
             </div>
             <div id="user-area" class="flex items-center gap-2">
                 <a id="download-btn" href="#" onclick="event.preventDefault(); downloadPage();" class="bg-emerald-600 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-emerald-700 transition">Download</a>
+                <button id="help-btn" onclick="openHelpLine()" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-slate-900 transition">Help</button>
+                <button id="admin-lesson-btn" onclick="openLessonManager()" class="hidden bg-yellow-500 text-slate-900 px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-yellow-400 transition">Lessons</button>
                 <select id="lang-switcher" onchange="setLanguage(this.value)" class="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-bold uppercase outline-none">
                     <option value="en">EN</option>
                     <option value="bn">BN</option>
@@ -352,6 +403,25 @@
     </div>
 
     <!-- Auth Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-slate-900/90 flex items-center justify-center z-[6000] hidden p-4">
+        <div class="bg-slate-950/95 p-6 rounded-3xl w-full max-w-md text-left shadow-2xl border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-black uppercase text-white">Help Line</h2>
+                <button onclick="closeHelpLine()" class="text-slate-300 hover:text-white">×</button>
+            </div>
+            <p class="text-slate-300 leading-7">Need help? Send a quick message to the admin and we'll get back to you.</p>
+            <div class="mt-4">
+                <label class="text-slate-200 text-sm font-bold">Your message</label>
+                <textarea id="help-message-text" class="w-full mt-2 p-3 rounded-xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Describe the problem or ask for help..."></textarea>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="sendHelpMessage()" class="help-send-btn digital">Send to Admin</button>
+                    <button onclick="closeHelpLine()" class="mt-0 ml-auto px-4 py-2 rounded-xl bg-white/5 text-slate-200">Close</button>
+                </div>
+                <p id="help-send-status" class="mt-3 text-xs text-slate-400"></p>
+            </div>
+        </div>
+    </div>
+
     <div id="auth-modal" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center z-[6000] hidden p-4">
         <div class="bg-white p-8 rounded-3xl w-full max-w-[280px] text-center shadow-2xl border-b-4 border-blue-600">
             <h2 id="auth-title" class="text-xl font-black mb-4 text-slate-800 uppercase italic">Master Login</h2>
@@ -382,6 +452,34 @@
         </div>
     </div>
 
+    <div id="lesson-manager-modal" class="profile-preview-modal hidden">
+        <div class="profile-preview-card">
+            <button class="profile-preview-close" onclick="closeLessonManager()">×</button>
+            <div class="profile-preview-content">
+                <div class="profile-preview-hero">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Admin Lesson Manager</p>
+                        <h3 class="text-white">Typing Lessons</h3>
+                        <p class="text-slate-300 mt-2">Add and manage up to 15 practice lessons.</p>
+                    </div>
+                </div>
+                <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_260px]">
+                    <div>
+                        <div id="lesson-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
+                    </div>
+                    <div class="p-5 rounded-3xl bg-white/10 border border-white/10">
+                        <p class="text-slate-300 mb-2">New Lesson Text</p>
+                        <textarea id="new-lesson-text" class="w-full p-3 rounded-2xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Enter a typing sentence..."></textarea>
+                        <div class="mt-3 flex gap-2">
+                            <button onclick="addLesson()" class="lesson-manager-button flex-1">Add Lesson</button>
+                        </div>
+                        <p class="mt-4 text-slate-300 text-sm" id="lesson-count"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="profile-preview-modal" class="profile-preview-modal hidden">
         <div class="profile-preview-card">
             <button class="profile-preview-close" onclick="closeProfilePreview()">×</button>
@@ -394,7 +492,7 @@
                         <p id="preview-id">ID: ----</p>
                         <p id="preview-rank" class="text-[14px] font-bold text-amber-300 mt-2">#--</p>
                     </div>
-                    <div class="text-right">
+                    <div class="text-right flex flex-col items-end gap-3">
                         <span id="preview-level" class="rank-badge">LVL 1</span>
                     </div>
                 </div>
@@ -854,11 +952,23 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         // ---------- Init ----------
+        let adminLessons = [];
+
+        function loadTypingLessons() {
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                adminLessons = Object.values(data).map(item => item.text).filter(Boolean);
+            }).catch(() => {
+                adminLessons = [];
+            });
+        }
+
         function init() {
             console.log("🚀 App initializing...");
             setLanguage(currentLanguage);
             switchTypingLanguage(currentTypingLanguage);
             syncUsersFromFirebase();
+            loadTypingLessons();
 
             // Load logged in user
             const stored = localStorage.getItem('currentUser');
@@ -975,14 +1085,17 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
 
         function showInBanner(user, rank) {
             if (!user) return;
+            const level = calcLvl(user.points || 0);
             document.getElementById('dash-name').innerText = user.name || user.id;
             document.getElementById('dash-id').innerText = "ID: " + (user.id || '').toUpperCase();
             document.getElementById('dash-pts').innerText = user.points || 0;
             document.getElementById('dash-mistakes').innerText = user.mistakes || 0;
             document.getElementById('dash-pic').src = user.pic || DEFAULT_AVATAR;
+            document.getElementById('dash-pic').style.boxShadow = getLevelGlow(level);
+            document.getElementById('dash-pic').style.borderColor = getLevelFrameColor(level);
             document.getElementById('dash-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : "No bio added.";
             document.getElementById('dash-rank-tag').innerText = "#" + (rank || '--');
-            document.getElementById('dash-lvl-tag').innerText = "LVL " + calcLvl(user.points || 0);
+            document.getElementById('dash-lvl-tag').innerText = "LVL " + level;
             document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
         }
 
@@ -1014,6 +1127,55 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             return idx === -1 ? null : idx + 1;
         }
 
+        function getLevelGlow(level) {
+            const intensity = Math.min(level * 0.12, 1);
+            const color = level >= 8 ? '255, 183, 0' : level >= 5 ? '34, 197, 94' : '59, 130, 246';
+            const blur = 14 + level * 4;
+            const opacity = 0.18 + intensity * 0.44;
+            return `0 0 ${blur}px rgba(${color}, ${opacity})`;
+        }
+
+        function getLevelFrameColor(level) {
+            return level >= 8 ? 'rgba(252, 211, 77, 0.85)' : level >= 5 ? 'rgba(34, 197, 94, 0.85)' : 'rgba(96, 165, 250, 0.95)';
+        }
+
+        function openHelpLine() {
+            document.getElementById('help-modal').classList.remove('hidden');
+        }
+
+        function closeHelpLine() {
+            document.getElementById('help-modal').classList.add('hidden');
+        }
+
+        function sendHelpMessage() {
+            const statusEl = document.getElementById('help-send-status');
+            if (!loggedInUser) {
+                openAuth();
+                return;
+            }
+            const text = document.getElementById('help-message-text').value.trim();
+            if (!text) {
+                statusEl.innerText = currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message';
+                return;
+            }
+            statusEl.innerText = currentLanguage === 'bn' ? 'পাঠানো হচ্ছে...' : 'Sending...';
+            const ticketRef = firebase.database().ref('help_tickets/' + loggedInUser.id).push();
+            const payload = {
+                senderId: loggedInUser.id,
+                senderName: loggedInUser.name || loggedInUser.id,
+                text,
+                timestamp: Date.now()
+            };
+            ticketRef.set(payload).then(() => {
+                statusEl.innerText = currentLanguage === 'bn' ? 'আপনার মেসেজ পাঠানো হয়েছে।' : 'Your message was sent.';
+                document.getElementById('help-message-text').value = '';
+                setTimeout(() => { statusEl.innerText = ''; closeHelpLine(); }, 1400);
+            }).catch(err => {
+                console.error('Help send error', err);
+                statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
+            });
+        }
+
         function openProfilePreview(userId) {
             const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
             const userIdx = sortedGlobal.findIndex(u => u.id === userId);
@@ -1023,10 +1185,14 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             const modal = document.getElementById('profile-preview-modal');
             if (!modal) return;
             modal.querySelector('#preview-pic').src = user.pic || DEFAULT_AVATAR;
+            const previewPic = modal.querySelector('#preview-pic');
+            const previewLevel = calcLvl(user.points || 0);
+            previewPic.style.boxShadow = getLevelGlow(previewLevel);
+            previewPic.style.borderColor = getLevelFrameColor(previewLevel);
             modal.querySelector('#preview-name').innerText = user.name || user.id;
             modal.querySelector('#preview-id').innerText = "ID: " + (user.id || '').toUpperCase();
             modal.querySelector('#preview-rank').innerText = "#" + (userIdx + 1);
-            modal.querySelector('#preview-level').innerText = "LVL " + calcLvl(user.points || 0);
+            modal.querySelector('#preview-level').innerText = "LVL " + previewLevel;
             modal.querySelector('#preview-points').innerText = user.points || 0;
             modal.querySelector('#preview-wpm').innerText = user.bestWpm || 0;
             modal.querySelector('#preview-mistakes').innerText = user.mistakes || 0;
@@ -1046,6 +1212,63 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 : `With 200 more points you will reach LVL ${projectedAt200}.`;
             modal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
+        }
+
+
+        function openLessonManager() {
+            const modal = document.getElementById('lesson-manager-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadLessons();
+        }
+
+        function closeLessonManager() {
+            const modal = document.getElementById('lesson-manager-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function loadLessons() {
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const lessons = Object.keys(data).map(key => ({ id: key, text: data[key].text || '' }));
+                renderLessonList(lessons);
+            });
+        }
+
+        function renderLessonList(lessons) {
+            const lessonList = document.getElementById('lesson-list');
+            const lessonCount = document.getElementById('lesson-count');
+            if (!lessonList || !lessonCount) return;
+            lessonCount.innerText = `${lessons.length} / 15 lessons`;
+            lessonList.innerHTML = lessons.map(lesson => `
+                <div class="p-4 rounded-3xl bg-slate-900 border border-white/10 text-slate-100">
+                    <p class="text-sm leading-6">${lesson.text}</p>
+                    <button onclick="deleteLesson('${lesson.id}')" class="mt-3 text-[10px] font-bold uppercase text-red-400">Delete</button>
+                </div>
+            `).join('') || '<p class="text-slate-400 text-sm">No lessons yet.</p>';
+        }
+
+        function addLesson() {
+            const textEl = document.getElementById('new-lesson-text');
+            const lessonText = textEl.value.trim();
+            if (!lessonText) return alert('Enter lesson text');
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const count = Object.keys(data).length;
+                if (count >= 15) return alert('Lesson limit reached');
+                firebase.database().ref('lessons').push({ text: lessonText }).then(() => {
+                    textEl.value = '';
+                    loadLessons();
+                });
+            });
+        }
+
+        function deleteLesson(lessonId) {
+            if (!confirm('Remove this lesson?')) return;
+            firebase.database().ref('lessons/' + lessonId).remove().then(() => loadLessons());
         }
 
         function closeProfilePreview() {
@@ -1125,6 +1348,8 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 const userRank = getUserRank(loggedInUser.id);
                 const navRankEl = document.getElementById('nav-user-rank');
                 if (navRankEl) navRankEl.innerText = userRank ? '#' + userRank : '--';
+                const adminBtn = document.getElementById('admin-lesson-btn');
+                if (adminBtn) adminBtn.style.display = loggedInUser.id === 'admin' ? 'inline-flex' : 'none';
             } else {
                 document.getElementById('nav-profile-box').classList.add('hidden');
                 document.getElementById('nav-login-btn').classList.remove('hidden');
@@ -1376,7 +1601,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         function generateDisplayContent() {
-            const prompts = TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en;
+            const prompts = adminLessons.length > 0 ? adminLessons : (TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en);
             const prompt = prompts[Math.floor(Math.random() * prompts.length)];
             const topicLabel = currentTypingLanguage === 'bn' ? 'কম্পিউটার মৌলিক জ্ঞান' : 'Computer Fundamentals';
             const repeatCount = currentTypingLanguage === 'bn' ? 18 : 25;
