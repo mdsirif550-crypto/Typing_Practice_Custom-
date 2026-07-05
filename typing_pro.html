@@ -63,6 +63,75 @@
             width: 100%; padding: 8px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0;
             border-radius: 10px; font-size: 13px; font-weight: 600; outline: none;
         }
+        
+        /* All Users Modal */
+        #all-users-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        #all-users-modal.active {
+            display: flex;
+        }
+        .all-users-modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .all-users-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .all-users-modal-header h2 {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin: 0;
+        }
+        .all-users-modal-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .all-users-modal-close:hover {
+            background: #dc2626;
+        }
+        .view-all-btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .view-all-btn:hover {
+            background: #1e3a8a;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pt-10">
@@ -171,9 +240,12 @@
         <div class="mt-8 bg-white rounded-3xl shadow-lg p-6 mb-20 border border-slate-50">
             <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
                 <h2 id="leaderboard-title" class="text-base font-black italic uppercase border-l-4 border-blue-600 pl-3 text-slate-800 tracking-tight">Global Leaderboard</h2>
-                <div class="relative w-full md:w-56">
-                    <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-2 pl-8 rounded-lg border border-slate-200 bg-slate-50 outline-none font-bold text-[10px] focus:border-blue-400">
-                    <span class="absolute left-3 top-2 opacity-30 text-[10px]">🔍</span>
+                <div class="flex gap-2">
+                    <div class="relative flex-1 md:w-56">
+                        <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-2 pl-8 rounded-lg border border-slate-200 bg-slate-50 outline-none font-bold text-[10px] focus:border-blue-400">
+                        <span class="absolute left-3 top-2 opacity-30 text-[10px]">🔍</span>
+                    </div>
+                    <button class="view-all-btn" onclick="openAllUsersModal()">👥 View All</button>
                 </div>
             </div>
             <div class="overflow-hidden rounded-xl border border-slate-50">
@@ -213,6 +285,24 @@
                 <input type="password" id="reg-pass" placeholder="PASSWORD" class="slim-input text-center">
                 <button id="auth-submit-btn" onclick="handleAuth()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold uppercase text-[10px] mt-2 shadow-md">Login Arena</button>
                 <button id="auth-close-btn" onclick="closeAuth()" class="text-slate-300 text-[9px] uppercase mt-2 font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Users Modal -->
+    <div id="all-users-modal" class="fixed inset-0 bg-slate-900/80 z-[5999] hidden p-4">
+        <div class="all-users-modal-content">
+            <div class="all-users-modal-header">
+                <h2>All Players</h2>
+                <button class="all-users-modal-close" onclick="closeAllUsersModal()">✕</button>
+            </div>
+            <div class="overflow-hidden rounded-xl border border-slate-50">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
+                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">PTS</th><th class="p-3 text-center">WPM</th></tr>
+                    </thead>
+                    <tbody id="all-users-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -948,7 +1038,9 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 return;
             }
 
-            document.getElementById('leaderboard-body').innerHTML = list.map((u) => {
+            // Show only top 10 in main leaderboard
+            const topTen = list.slice(0, 10);
+            document.getElementById('leaderboard-body').innerHTML = topTen.map((u) => {
                 const rank = sortedGlobal.findIndex(g => g.id === u.id) + 1;
                 const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
                 return `
@@ -964,6 +1056,33 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                     <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
+        }
+
+        function openAllUsersModal() {
+            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const html = sortedGlobal.map((u, idx) => {
+                const rank = idx + 1;
+                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
+                return `
+                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}'); closeAllUsersModal();">
+                    <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
+                    <td class="p-3 flex items-center gap-2">
+                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img rounded-full border shadow-sm object-cover bg-white" style="width: 40px; height: 40px;">
+                        <div><p class="uppercase text-slate-800 text-sm font-black truncate max-w-[180px]">${u.name || u.id}</p>
+                        <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
+                    </td>
+                    <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('all-users-body').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">No players yet</td></tr>';
+            document.getElementById('all-users-modal').classList.add('active');
+        }
+
+        function closeAllUsersModal() {
+            document.getElementById('all-users-modal').classList.remove('active');
         }
 
         function openEditModal() {
