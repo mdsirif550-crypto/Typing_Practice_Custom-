@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TYPING MASTER PRO - SLIM ELITE</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- Firebase -->
@@ -270,11 +272,11 @@
     <nav class="bg-white shadow-sm p-2 sticky top-6 z-50">
         <div class="container mx-auto flex justify-between items-center px-4">
             <div class="flex items-center gap-2">
-                <a id="nav-home-link" href="#" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
+                <a id="nav-home-link" href="typing_pro.html" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
                 <h1 class="text-base font-black text-slate-800 italic uppercase">Typing<span class="text-blue-600">Master</span></h1>
             </div>
             <div id="user-area" class="flex items-center gap-2">
-                <a id="download-btn" href="#" onclick="event.preventDefault(); downloadPage();" class="bg-emerald-600 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-emerald-700 transition">Download</a>
+                <a id="download-btn" href="#" onclick="event.preventDefault(); triggerInstallPrompt();" class="bg-emerald-600 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-emerald-700 transition">Download</a>
                 <button id="help-btn" onclick="openHelpLine()" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-slate-900 transition">Help</button>
                 <button id="admin-lesson-btn" onclick="openLessonManager()" class="hidden bg-yellow-500 text-slate-900 px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-yellow-400 transition">Lessons</button>
                 <select id="lang-switcher" onchange="setLanguage(this.value)" class="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-bold uppercase outline-none">
@@ -410,14 +412,21 @@
                 <button onclick="closeHelpLine()" class="text-slate-300 hover:text-white">×</button>
             </div>
             <p class="text-slate-300 leading-7">Need help? Send a quick message to the admin and we'll get back to you.</p>
-            <div class="mt-4">
+            <div class="mt-4 space-y-2">
+                <div class="grid grid-cols-1 gap-2">
+                    <input id="help-name" placeholder="Your name" class="slim-input" />
+                    <input id="help-userid" placeholder="Your ID" class="slim-input uppercase" />
+                    <input id="help-mobile" placeholder="Your mobile (e.g. 8801XXXXXXXXX)" class="slim-input" />
+                </div>
                 <label class="text-slate-200 text-sm font-bold">Your message</label>
                 <textarea id="help-message-text" class="w-full mt-2 p-3 rounded-xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Describe the problem or ask for help..."></textarea>
                 <div class="mt-3 flex gap-2">
                     <button onclick="sendHelpMessage()" class="help-send-btn digital">Send to Admin</button>
+                    <button onclick="sendWhatsAppMessage()" class="help-send-btn" style="background:linear-gradient(90deg,#25D366,#128C7E);">Send via WhatsApp</button>
                     <button onclick="closeHelpLine()" class="mt-0 ml-auto px-4 py-2 rounded-xl bg-white/5 text-slate-200">Close</button>
                 </div>
                 <p id="help-send-status" class="mt-3 text-xs text-slate-400"></p>
+                <div id="help-replies" class="mt-4 max-h-44 overflow-y-auto text-sm text-slate-200"></div>
             </div>
         </div>
     </div>
@@ -553,6 +562,10 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         // ============================================
         // APP LOGIC
         // ============================================
+        // Admin WhatsApp number (international format, no + or dashes).
+        // Set to: 01877902991 -> international (Bangladesh) 8801877902991
+        const ADMIN_WHATSAPP_NUMBER = '8801877902991';
+
         const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
         const TYPING_PROMPTS = {
             en: [
@@ -992,21 +1005,25 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                             }
                             updateNav();
-                            updateBannerWithRotation();
-                            startEliteRotation();
-                            resetTyping();
+                                updateBannerWithRotation();
+                                startEliteRotation();
+                                resetTyping();
+                                // Start listening for admin replies for this user
+                                listenForHelpReplies();
                         });
                 } catch (e) {
                     updateNav();
                     updateBannerWithRotation();
                     startEliteRotation();
                     resetTyping();
+                    listenForHelpReplies();
                 }
             } else {
                 updateNav();
                 updateBannerWithRotation();
                 startEliteRotation();
                 resetTyping();
+                // If no logged in user, ensure any previous help listener is not active
             }
 
             // Typing input listener
@@ -1140,6 +1157,17 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         function openHelpLine() {
+            // Prefill fields from logged in user if available
+            try {
+                if (loggedInUser) {
+                    const n = document.getElementById('help-name');
+                    const uid = document.getElementById('help-userid');
+                    const mob = document.getElementById('help-mobile');
+                    if (n) n.value = loggedInUser.name || '';
+                    if (uid) uid.value = loggedInUser.id || '';
+                    if (mob) mob.value = loggedInUser.mobile || '';
+                }
+            } catch (e) { /* ignore */ }
             document.getElementById('help-modal').classList.remove('hidden');
         }
 
@@ -1159,20 +1187,135 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 return;
             }
             statusEl.innerText = currentLanguage === 'bn' ? 'পাঠানো হচ্ছে...' : 'Sending...';
-            const ticketRef = firebase.database().ref('help_tickets/' + loggedInUser.id).push();
-            const payload = {
-                senderId: loggedInUser.id,
-                senderName: loggedInUser.name || loggedInUser.id,
-                text,
-                timestamp: Date.now()
-            };
-            ticketRef.set(payload).then(() => {
-                statusEl.innerText = currentLanguage === 'bn' ? 'আপনার মেসেজ পাঠানো হয়েছে।' : 'Your message was sent.';
-                document.getElementById('help-message-text').value = '';
-                setTimeout(() => { statusEl.innerText = ''; closeHelpLine(); }, 1400);
-            }).catch(err => {
-                console.error('Help send error', err);
+            try {
+                const safeUserId = String(loggedInUser.id).replace(/\./g, '_');
+                const ticketsRef = firebase.database().ref('help_tickets/' + safeUserId);
+                const ticketRef = ticketsRef.push();
+                const payload = {
+                    senderId: loggedInUser.id,
+                    senderName: loggedInUser.name || loggedInUser.id,
+                    text,
+                    timestamp: Date.now(),
+                    status: 'open'
+                };
+
+                ticketRef.set(payload).then(() => {
+                    console.log('Help ticket written:', ticketRef.key, payload);
+                    // Also write a simple index/notification for admins so they can list new tickets easily
+                    const adminIndexRef = firebase.database().ref('admin_help_index/' + ticketRef.key);
+                    return adminIndexRef.set({ userId: loggedInUser.id, ticketId: ticketRef.key, createdAt: Date.now(), status: 'open' });
+                }).then(() => {
+                    statusEl.innerText = currentLanguage === 'bn' ? 'আপনার মেসেজ পাঠানো হয়েছে।' : 'Your message was sent.';
+                    document.getElementById('help-message-text').value = '';
+                    setTimeout(() => { statusEl.innerText = ''; closeHelpLine(); }, 1400);
+                }).catch(err => {
+                    console.error('Help send error (write):', err);
+                    statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
+                });
+            } catch (err) {
+                console.error('Help send unexpected error', err);
                 statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
+            }
+        }
+
+        function sendWhatsAppMessage() {
+            const name = (document.getElementById('help-name') && document.getElementById('help-name').value.trim()) || (loggedInUser && loggedInUser.name) || '';
+            const userId = (document.getElementById('help-userid') && document.getElementById('help-userid').value.trim()) || (loggedInUser && loggedInUser.id) || '';
+            const mobile = (document.getElementById('help-mobile') && document.getElementById('help-mobile').value.trim()) || '';
+            const msg = (document.getElementById('help-message-text') && document.getElementById('help-message-text').value.trim()) || '';
+            if (!mobile) return alert('Enter your mobile number');
+            if (!msg) return alert(currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message');
+
+            const full = `Help request from ${name || userId}\nID: ${userId}\nMobile: ${mobile}\nMessage: ${msg}`;
+            const encoded = encodeURIComponent(full);
+            // ADMIN_WHATSAPP_NUMBER should be international format without +
+            const target = ADMIN_WHATSAPP_NUMBER || '';
+            if (!target) return alert('Admin WhatsApp number not configured');
+            const url = `https://wa.me/${target}?text=${encoded}`;
+            window.open(url, '_blank');
+        }
+
+        // Listen for admin replies for the logged-in user and render them in the help modal
+        function safeUserId(id) {
+            if (!id) return '';
+            return String(id).replace(/\./g, '_');
+        }
+
+        function listenForHelpReplies() {
+            if (!loggedInUser || !loggedInUser.id) return;
+            const uid = safeUserId(loggedInUser.id);
+            try {
+                const ref = firebase.database().ref('help_tickets/' + uid);
+                ref.on('value', snap => {
+                    const data = snap.val() || {};
+                    const container = document.getElementById('help-replies');
+                    const parts = [];
+                    let hasAnyReplies = false;
+                    Object.keys(data).forEach(ticketId => {
+                        const t = data[ticketId] || {};
+                        const ticketText = t.text || t.senderText || '';
+                        const created = t.timestamp || t.createdAt || 0;
+                        const replies = t.replies || {};
+                        const repliesList = Object.keys(replies).map(k => replies[k]);
+                        if (repliesList.length) hasAnyReplies = true;
+                        const replyHtml = repliesList.map(r => `<div class="p-2 rounded-md bg-slate-800/60 mb-2"><strong>${escapeHtml(r.responderName||'Admin')}:</strong> ${escapeHtml(r.text)} <div class="text-xs text-slate-400">${new Date(r.ts||r.timestamp||0).toLocaleString()}</div></div>`).join('');
+                        parts.push(`<div class="p-3 rounded-md border border-slate-700 mb-2"><div class="text-slate-300 mb-2">${escapeHtml(ticketText)}</div>${replyHtml || '<div class="text-xs text-slate-400 mt-2">No replies yet.</div>'}<div class="text-xs text-slate-400 mt-2">${created ? new Date(created).toLocaleString() : ''}</div></div>`);
+                    });
+                    if (container) container.innerHTML = parts.join('') || '<div class="text-xs text-slate-400">No tickets yet.</div>';
+                    const statusEl = document.getElementById('help-send-status');
+                    if (statusEl) {
+                        if (hasAnyReplies) statusEl.innerText = currentLanguage === 'bn' ? 'আপনার জন্য অ্যাডমিনের উত্তর আছে।' : 'Admin has replied to your ticket(s).';
+                        else statusEl.innerText = '';
+                    }
+                });
+            } catch (err) {
+                console.error('listenForHelpReplies error', err);
+            }
+        }
+
+        // PWA install prompt handling
+        let deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const btn = document.getElementById('install-btn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        function triggerInstallPrompt() {
+            // If there's a saved install prompt, show it
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                deferredInstallPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredInstallPrompt = null;
+                    const btn = document.getElementById('install-btn');
+                    if (btn) btn.classList.add('hidden');
+                });
+            } else {
+                // For iOS or unsupported browsers, show manual instructions
+                const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                if (isiOS) {
+                    alert('To add to Home Screen on iOS: tap Share → Add to Home Screen.');
+                } else {
+                    alert('Add to Home Screen is not supported by your browser. Use browser menu → Install or Add to Home Screen.');
+                }
+            }
+        }
+
+        // Register service worker to improve installability (must be served over HTTPS or localhost)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+                    console.log('Service worker registered.', reg);
+                }).catch(function(err) {
+                    console.warn('Service worker registration failed:', err);
+                });
             });
         }
 
