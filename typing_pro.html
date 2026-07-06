@@ -55,7 +55,7 @@
         /* Ensure live WPM is visible on colored banners */
         #live-wpm { color: #ff7a18 !important; font-weight: 800; }
         /* When WPM value is inside the dark value pill, force white text */
-        .wpm-value-banner #live-wpm { color:  #7f1d1dদ !important; }
+        .wpm-value-banner #live-wpm { color:  #7f1d1d !important; }
         #wpm-label { color: #7f1d1d !important; font-weight: 800; }
         /* Small WPM banner under the WPM stat */
         .wpm-block { display:flex; flex-direction:column; align-items:center; }
@@ -359,17 +359,20 @@
             </div>
 
             <div class="flex flex-row items-center gap-6 justify-end">
-                <div id="profile-display-area" class="flex flex-row items-center gap-3 border-l border-black/10 pl-6">
-                    <div class="relative">
+                <div id="profile-display-area" class="flex flex-row items-center gap-3 border-l border-black/10 pl-6 min-w-0">
+                    <div class="relative flex-shrink-0">
                         <div class="crown" id="banner-crown">👑</div>
                         <img id="dash-pic" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white" src="">
                     </div>
-                    <div class="max-w-[140px]">
-                        <div class="flex items-center gap-1 mb-0.5">
+                    <div class="max-w-[180px] min-w-0">
+                        <div class="flex items-center gap-1 mb-0.5 flex-wrap min-w-0">
                             <span id="dash-rank-tag" class="bg-black text-white text-[8px] px-1 rounded font-bold uppercase">#--</span>
                             <span id="dash-lvl-tag" class="lvl-badge">LVL 1</span>
                         </div>
-                        <h2 id="dash-name" class="text-base font-black uppercase italic text-slate-900 leading-none truncate">Typist</h2>
+                        <div class="flex items-center gap-2 mb-1 flex-wrap min-w-0">
+                            <h2 id="dash-name" class="text-base font-black uppercase italic text-slate-900 leading-none truncate min-w-0">Typist</h2>
+                            <span id="dash-name-rank" class="text-[9px] font-extrabold uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-full">#--</span>
+                        </div>
                         <p id="dash-id" class="text-[7px] font-bold opacity-60 uppercase mb-0.5">ID: ----</p>
                         <p id="dash-my-rank" class="text-[8px] font-bold text-blue-600 uppercase mb-0.5">My Rank: --</p>
                         <p id="dash-bio" class="text-[8px] font-bold italic opacity-80 leading-none truncate">"No bio."</p>
@@ -1082,9 +1085,11 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                         console.log("📊 Users loaded:", allUsers.length);
                         renderLeaderboard(allUsers);
                         updateBannerWithRotation();
+                        if (loggedInUser) updateNav();
                     } else {
                         allUsers = [];
                         renderLeaderboard([]);
+                        if (loggedInUser) updateNav();
                     }
                 });
             } catch (error) {
@@ -1324,6 +1329,8 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             document.getElementById('dash-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : "No bio added.";
             document.getElementById('dash-next-target').innerText = getNextTargetText(user.points || 0);
             document.getElementById('dash-rank-tag').innerText = "#" + (rank || '--');
+            const nameRank = document.getElementById('dash-name-rank');
+            if (nameRank) nameRank.innerText = "#" + (rank || '--');
             document.getElementById('dash-lvl-tag').innerText = "LVL " + level;
             document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
         }
