@@ -22,6 +22,7 @@
             border: 2px solid #fff;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: all 0.5s ease;
+            color: #111827;
         }
         .viewing-mode { background: linear-gradient(110deg, #1e40af, #3b82f6, #1e3a8a); color: white !important; }
         @keyframes shine { to { background-position: 200% center; } }
@@ -40,16 +41,36 @@
         .topic-header { width: 100%; text-align: right; margin-bottom: 6px; }
         .topic-title { font-size: 1.6rem; font-weight: 900; color: #0f172a; letter-spacing: 0.5px; display: inline-block; }
         .topic-sub { font-size: 1rem; color: #475569; font-weight: 700; margin-top: 6px; display: block; }
-        .display-text { font-size: 1.15rem; line-height: 1.6; text-align: left; font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; }
+        .display-text { font-size: 1.15rem; line-height: 1.6; text-align: left; font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; white-space: pre-wrap; }
 
-        #display-box { height: 160px; overflow-y: auto; scroll-behavior: smooth; padding: 20px; background: white; border-radius: 15px; border: 1px solid #e2e8f0; }
+        #display-box { height: 180px; overflow-y: auto; scroll-behavior: smooth; scroll-padding: 20px 0; padding: 20px; background: white; border-radius: 15px; border: 1px solid #e2e8f0; }
+
+        .countdown-banner {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 40%, #ef4444 100%);
+            border: 1px solid #fca5a5;
+            color: #7f1d1d;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.14);
+        }
+        .countdown-banner #timer-display { color: #b91c1c !important; }
+        /* Ensure live WPM is visible on colored banners */
+        #live-wpm { color: #ff7a18 !important; font-weight: 800; }
+        /* When WPM value is inside the dark value pill, force white text */
+        .wpm-value-banner #live-wpm { color:  #7f1d1dদ !important; }
+        #wpm-label { color: #7f1d1d !important; font-weight: 800; }
+        /* Small WPM banner under the WPM stat */
+        .wpm-block { display:flex; flex-direction:column; align-items:center; }
+        .wpm-value-banner { background: #ffffff; color: #ffffff; font-weight: 900; font-size: 12px; padding: 6px 10px; border-radius: 999px; box-shadow: 0 8px 20px rgba(11,18,32,0.26); display: inline-flex; gap: 8px; align-items: center; }
+        .wpm-banner { background: linear-gradient(90deg,#0ea5e9,#2563eb); color: white; font-weight: 800; font-size: 11px; padding: 4px 8px; border-radius: 999px; margin-top: 6px; box-shadow: 0 6px 18px rgba(37,99,235,0.18); }
         
         #typing-input {
             border: 2px solid #2563eb !important;
-            border-radius: 0 0 30px 30px;
+            border-radius: 0 0 34px 34px;
             outline: none;
-            padding: 20px;
-            height: 110px;
+            padding: 24px;
+            height: 160px;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif;
         }
 
         .lvl-badge { background: #1e293b; color: #ffd700; padding: 1px 4px; border-radius: 4px; font-size: 8px; font-weight: 800; border: 1px solid #ffd700; }
@@ -114,7 +135,33 @@
             width: 100%; padding: 8px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0;
             border-radius: 10px; font-size: 13px; font-weight: 600; outline: none;
         }
-        
+        #leaderboard-reset-info {
+            color: #f8fafc !important;
+            font-weight: 800 !important;
+            background: linear-gradient(135deg, #111827, #000000);
+            border: 1px solid #374151;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            border-radius: 999px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.3;
+        }
+        #search-box {
+            font-weight: 800;
+            color: #0f172a;
+        }
+        #search-box::placeholder {
+            color: #475569;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .search-icon {
+            color: #0f172a;
+            opacity: 0.85;
+        }
         /* All Users Modal */
         #all-users-modal {
             position: fixed;
@@ -324,6 +371,7 @@
                         </div>
                         <h2 id="dash-name" class="text-base font-black uppercase italic text-slate-900 leading-none truncate">Typist</h2>
                         <p id="dash-id" class="text-[7px] font-bold opacity-60 uppercase mb-0.5">ID: ----</p>
+                        <p id="dash-my-rank" class="text-[8px] font-bold text-blue-600 uppercase mb-0.5">My Rank: --</p>
                         <p id="dash-bio" class="text-[8px] font-bold italic opacity-80 leading-none truncate">"No bio."</p>
                         <p id="dash-next-target" class="text-[8px] font-bold uppercase text-slate-500 mt-1"></p>
                     </div>
@@ -354,13 +402,16 @@
         <textarea id="typing-input" class="w-full text-lg bg-white mt-[-20px]" placeholder="Start typing to improve your skills..."></textarea>
         
         <!-- Stats Bar -->
-        <div class="mt-4 flex flex-wrap justify-between items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-            <button id="reset-btn" onclick="resetTyping()" class="bg-slate-800 text-white px-4 py-1.5 rounded-lg font-bold uppercase text-[9px] hover:bg-black transition">Reset 🔄</button>
-            <div class="flex flex-wrap gap-4 font-black text-slate-400 text-[9px] uppercase tracking-widest">
-                <div><span id="time-label">Time:</span> <span id="timer-display" class="text-red-500 text-sm">05:00</span></div>
-                <div><span id="chars-label">Chars:</span> <span id="live-chars" class="text-blue-500 text-sm">0</span></div>
-                <div><span id="mistakes-label">Mistakes:</span> <span id="live-mistakes" class="text-red-500 text-sm">0</span></div>
-                <div><span id="wpm-label">WPM:</span> <span id="live-wpm" class="text-orange-500 text-sm">0</span></div>
+        <div class="countdown-banner mt-4 flex flex-wrap justify-between items-center gap-3 p-4 rounded-xl shadow-sm border">
+            <button id="reset-btn" onclick="resetTyping()" class="bg-black text-white px-4 py-1.5 rounded-lg font-bold uppercase text-[9px] hover:bg-red-600 transition shadow-md">Reset 🔄</button>
+            <div class="flex flex-wrap gap-4 font-black text-slate-700 text-[9px] uppercase tracking-widest">
+                <div><span id="time-label">Time:</span> <span id="timer-display" class="text-red-600 text-sm">05:00</span></div>
+                <div><span id="chars-label">Chars:</span> <span id="live-chars" class="text-blue-700 text-sm">0</span></div>
+                <div><span id="mistakes-label">Mistakes:</span> <span id="live-mistakes" class="text-red-600 text-sm">0</span></div>
+                <div class="wpm-block">
+                    <div class="wpm-value-banner"><span id="wpm-label">WPM:</span> <span id="live-wpm" class="text-orange-600 text-sm">0</span></div>
+                    <div id="wpm-banner" class="wpm-banner" aria-hidden="true"></div>
+                </div>
             </div>
             <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-6 py-1.5 rounded-lg font-bold text-[9px] uppercase shadow-md">Save Result ✅</button>
         </div>
@@ -368,11 +419,14 @@
         <!-- Leaderboard -->
         <div class="mt-8 bg-white rounded-3xl shadow-lg p-6 mb-20 border border-slate-50">
             <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
-                <h2 id="leaderboard-title" class="text-base font-black italic uppercase border-l-4 border-blue-600 pl-3 text-slate-800 tracking-tight">Global Leaderboard</h2>
+                <div>
+                    <h2 id="leaderboard-title" class="text-base font-black italic uppercase border-l-4 border-blue-600 pl-3 text-slate-800 tracking-tight">Global Leaderboard</h2>
+                    <p id="leaderboard-reset-info" class="text-[11px] uppercase tracking-widest mt-2 inline-block">Loading reset timer...</p>
+                </div>
                 <div class="flex gap-2">
                     <div class="relative flex-1 md:w-56">
-                        <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-2 pl-8 rounded-lg border border-slate-200 bg-slate-50 outline-none font-bold text-[10px] focus:border-blue-400">
-                        <span class="absolute left-3 top-2 opacity-30 text-[10px]">🔍</span>
+                        <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-3 pl-10 rounded-2xl border border-slate-300 bg-slate-50 outline-none font-black text-[11px] uppercase tracking-wider placeholder:text-slate-500 placeholder:font-black focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+                        <span class="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-[14px] font-black">🔍</span>
                     </div>
                     <button class="view-all-btn" onclick="openAllUsersModal()">👥 View All</button>
                 </div>
@@ -380,7 +434,7 @@
             <div class="overflow-hidden rounded-xl border border-slate-50">
                 <table class="w-full text-left">
                     <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
-                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">PTS</th><th class="p-3 text-center">WPM</th></tr>
+                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
                     </thead>
                     <tbody id="leaderboard-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
                 </table>
@@ -454,7 +508,7 @@
             <div class="overflow-hidden rounded-xl border border-slate-50">
                 <table class="w-full text-left">
                     <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
-                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">PTS</th><th class="p-3 text-center">WPM</th></tr>
+                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
                     </thead>
                     <tbody id="all-users-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
                 </table>
@@ -590,7 +644,122 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         let timeLeft = 300, timerInterval = null, isTimeOver = false;
         let rotationTimer = null;
         let allUsers = [];
+        let leaderboardResetInfo = null;
+        let leaderboardResetCountdownInterval = null;
+        const LEADERBOARD_RESET_PATH = 'leaderboardReset';
         let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
+
+        function getMonthKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function formatResetDate(timestamp) {
+            const date = new Date(timestamp);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+
+        function formatNextResetText(monthKey) {
+            const [year, month] = monthKey.split('-').map(Number);
+            const next = new Date(year, month, 1);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${monthNames[next.getMonth()]} ${String(next.getDate()).padStart(2, '0')}`;
+        }
+
+        function getNextResetTimestamp(monthKey) {
+            const [year, month] = monthKey.split('-').map(Number);
+            const nextResetDate = new Date(year, month, 1, 0, 0, 0, 0);
+            return nextResetDate.getTime();
+        }
+
+        function formatRemainingTime(ms) {
+            const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const parts = [];
+            if (days) parts.push(`${days}d`);
+            if (hours || days) parts.push(`${hours}h`);
+            if (minutes || hours || days) parts.push(`${minutes}m`);
+            parts.push(`${seconds}s`);
+            return parts.join(' ');
+        }
+
+        function updateLeaderboardResetInfoText() {
+            const infoEl = document.getElementById('leaderboard-reset-info');
+            if (!infoEl) return;
+            const now = Date.now();
+            const currentKey = getMonthKey(new Date());
+            const monthKey = leaderboardResetInfo && leaderboardResetInfo.monthKey ? leaderboardResetInfo.monthKey : currentKey;
+            const nextReset = formatNextResetText(monthKey);
+            const nextResetTs = getNextResetTimestamp(monthKey);
+            const remaining = nextResetTs - now;
+            const remainingText = remaining > 0 ? formatRemainingTime(remaining) : 'Reset happening now';
+            const lastReset = leaderboardResetInfo && leaderboardResetInfo.timestamp ? formatResetDate(leaderboardResetInfo.timestamp) : 'Unknown';
+            const prevTopName = leaderboardResetInfo && leaderboardResetInfo.previousTopName ? leaderboardResetInfo.previousTopName : 'No last top';
+            const prevTopPoints = leaderboardResetInfo && leaderboardResetInfo.previousTopPoints ? leaderboardResetInfo.previousTopPoints : 0;
+            infoEl.innerText = `Resets on 1st of month | Last reset: ${lastReset} | Prev top: ${prevTopName} (${prevTopPoints} pts) | Next: ${nextReset} | Remaining: ${remainingText}`;
+        }
+
+        function startLeaderboardResetCountdown() {
+            if (leaderboardResetCountdownInterval) {
+                clearInterval(leaderboardResetCountdownInterval);
+            }
+            updateLeaderboardResetInfoText();
+            leaderboardResetCountdownInterval = setInterval(updateLeaderboardResetInfoText, 1000);
+        }
+
+        function setLeaderboardResetInfo(data) {
+            leaderboardResetInfo = data || {};
+            const infoEl = document.getElementById('leaderboard-reset-info');
+            if (!infoEl) return;
+            startLeaderboardResetCountdown();
+        }
+
+        function resetMonthlyLeaderboard(monthKey) {
+            const timestamp = Date.now();
+            return firebase.database().ref('users').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const users = Object.keys(data).map(key => ({
+                    id: key,
+                    name: data[key].name || key,
+                    monthlyPoints: data[key].monthlyPoints || 0
+                }));
+                const sorted = users.sort((a, b) => b.monthlyPoints - a.monthlyPoints);
+                const topUser = sorted[0] || null;
+                const resetData = {
+                    monthKey,
+                    timestamp,
+                    previousTopName: topUser ? topUser.name : null,
+                    previousTopPoints: topUser ? topUser.monthlyPoints : 0
+                };
+                const updates = {};
+                Object.keys(data).forEach(key => {
+                    updates[`users/${key}/monthlyPoints`] = 0;
+                });
+                const updatePromise = Object.keys(updates).length > 0 ? firebase.database().ref().update(updates) : Promise.resolve();
+                return updatePromise.then(() => firebase.database().ref(LEADERBOARD_RESET_PATH).set(resetData)).then(() => resetData);
+            }).then((resetData) => {
+                setLeaderboardResetInfo(resetData);
+            });
+        }
+
+        function loadLeaderboardResetInfo() {
+            return firebase.database().ref(LEADERBOARD_RESET_PATH).once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const storedKey = data.monthKey;
+                const currentKey = getMonthKey(new Date());
+                if (storedKey !== currentKey) {
+                    return resetMonthlyLeaderboard(currentKey);
+                }
+                setLeaderboardResetInfo(data);
+                return Promise.resolve();
+            }).catch(err => {
+                console.error('❌ Failed to load leaderboard reset info:', err);
+                setLeaderboardResetInfo(null);
+            });
+        }
 
         const translations = {
             en: {
@@ -619,9 +788,11 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 editBio: 'Add Bio...',
                 noPlayers: 'No players yet. Be the first!',
                 typeSomething: 'Type something first!',
+                submitBlocked: 'Please wait until the 5-minute timer finishes before saving your result.',
                 timeExpired: 'Time is up! Typing has been stopped. Reset to begin a new session.',
                 scoreSubmitted: '🎉 Score submitted!\nPoints earned: ',
-                scoreWpm: '\nWPM: '
+                scoreWpm: '\nWPM: ',
+                highWpmCongrats: '🎊 Congratulations! Your WPM is above 15.'
             },
             bn: {
                 navHome: 'হোম',
@@ -649,9 +820,11 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 editBio: 'বায়ো যোগ করুন...',
                 noPlayers: 'এখনো কোনো প্লেয়ার নেই। প্রথমজন হোন!',
                 typeSomething: 'প্রথমে কিছু টাইপ করুন!',
+                submitBlocked: 'ফলাফল সেভ করতে ৫ মিনিটের টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন।',
                 timeExpired: 'সময় শেষ! টাইপিং বন্ধ করা হয়েছে। নতুন সেশনের জন্য রিসেট করুন।',
                 scoreSubmitted: '🎉 স্কোর সাবমিট হয়েছে!\nপ্রাপ্ত পয়েন্ট: ',
-                scoreWpm: '\nডব্লিউপিএম: '
+                scoreWpm: '\nডব্লিউপিএম: ',
+                highWpmCongrats: '🎊 অভিনন্দন! আপনার ডব্লিউপিএম ১৫ এর উপরে।'
             }
         };
 
@@ -903,6 +1076,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                     if (data) {
                         allUsers = Object.keys(data).map(key => ({
                             id: key,
+                            monthlyPoints: (data[key].monthlyPoints || 0),
                             ...data[key]
                         }));
                         console.log("📊 Users loaded:", allUsers.length);
@@ -925,6 +1099,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                     name: user.name || user.id,
                     password: user.password || '',
                     points: user.points || 0,
+                    monthlyPoints: user.monthlyPoints || 0,
                     mistakes: user.mistakes || 0,
                     bestWpm: user.bestWpm || 0,
                     pic: user.pic || '',
@@ -948,6 +1123,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 return dbRef.update({
                     name: user.name,
                     points: user.points,
+                    monthlyPoints: user.monthlyPoints || 0,
                     mistakes: user.mistakes,
                     bestWpm: user.bestWpm,
                     pic: user.pic,
@@ -980,23 +1156,36 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         function init() {
             console.log("🚀 App initializing...");
             setLanguage(currentLanguage);
+            // If the user hasn't chosen a typing language, try to auto-detect Bengali from browser
+            if (!localStorage.getItem('typingLanguage')) {
+                try {
+                    const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+                    if (navLang && navLang.startsWith('bn')) {
+                        currentTypingLanguage = 'bn';
+                    }
+                } catch (e) {}
+            }
             switchTypingLanguage(currentTypingLanguage);
-            syncUsersFromFirebase();
+            loadLeaderboardResetInfo().then(() => {
+                syncUsersFromFirebase();
+            });
             loadTypingLessons();
 
-            // Load logged in user
+            // Load logged in user from localStorage
             const stored = localStorage.getItem('currentUser');
             if (stored) {
                 try {
                     loggedInUser = JSON.parse(stored);
-                    console.log("👤 Logged in:", loggedInUser.id);
+                    console.log("👤 Logged in from storage:", loggedInUser.id);
+                    updateNav();
+                    closeAuth();
                 } catch (e) {
                     loggedInUser = null;
                 }
             }
 
             if (loggedInUser) {
-                // Verify user exists in Firebase
+                // Verify user still exists in Firebase, but keep UI logged in while checking.
                 try {
                     firebase.database().ref('users/' + loggedInUser.id).once('value')
                         .then(snapshot => {
@@ -1004,13 +1193,23 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                             if (fbUser) {
                                 loggedInUser = { id: loggedInUser.id, ...fbUser };
                                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            } else {
+                                console.warn('⚠️ Stored user not found in Firebase, clearing local session');
+                                localStorage.removeItem('currentUser');
+                                loggedInUser = null;
                             }
                             updateNav();
-                                updateBannerWithRotation();
-                                startEliteRotation();
-                                resetTyping();
-                                // Start listening for admin replies for this user
-                                listenForHelpReplies();
+                            updateBannerWithRotation();
+                            startEliteRotation();
+                            resetTyping();
+                            listenForHelpReplies();
+                        }).catch(err => {
+                            console.error('❌ Firebase verification error:', err);
+                            updateNav();
+                            updateBannerWithRotation();
+                            startEliteRotation();
+                            resetTyping();
+                            listenForHelpReplies();
                         });
                 } catch (e) {
                     updateNav();
@@ -1042,7 +1241,6 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                     isStarted = true;
                     startTime = new Date();
                     startTimer();
-                    document.getElementById('submit-btn').classList.remove('hidden');
                 }
                 const chars = document.querySelectorAll('#display-box span');
                 const typed = this.value.split('');
@@ -1064,6 +1262,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 document.getElementById('live-chars').innerText = typed.length;
                 document.getElementById('live-mistakes').innerText = sessionMistakes;
                 document.getElementById('live-wpm').innerText = wpm;
+                try { updateWpmBanner(wpm); } catch (e) {}
                 chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
             });
         }
@@ -1130,7 +1329,12 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         function updateBannerWithRotation() {
-            const sorted = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
+            const sorted = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            }).slice(0, 10);
             if (sorted.length > 0) {
                 const idx = rotateIdx % sorted.length;
                 showInBanner(sorted[idx], idx + 1);
@@ -1141,7 +1345,12 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             if (rotationTimer) clearInterval(rotationTimer);
             document.getElementById('elite-banner').classList.remove('viewing-mode');
             const update = () => {
-                const sorted = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0)).slice(0, 10);
+                const sorted = [...allUsers].sort((a, b) => {
+                    const monthlyA = a.monthlyPoints || 0;
+                    const monthlyB = b.monthlyPoints || 0;
+                    if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                    return (b.points || 0) - (a.points || 0);
+                }).slice(0, 10);
                 if (sorted.length > 0) {
                     showInBanner(sorted[rotateIdx], rotateIdx + 1);
                     rotateIdx = (rotateIdx + 1) % sorted.length;
@@ -1152,8 +1361,14 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         function getUserRank(userId) {
-            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const idx = sortedGlobal.findIndex(u => u.id === userId);
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const normId = (userId || '').toString().toLowerCase();
+            const idx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
             return idx === -1 ? null : idx + 1;
         }
 
@@ -1333,8 +1548,18 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
         }
 
         function openProfilePreview(userId) {
-            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const userIdx = sortedGlobal.findIndex(u => u.id === userId);
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                const pointsA = a.points || 0;
+                const pointsB = b.points || 0;
+                if (pointsB !== pointsA) return pointsB - pointsA;
+                // stable tiebreaker by id
+                return (a.id || '').toString().localeCompare((b.id || '').toString());
+            });
+            const normId = (userId || '').toString().toLowerCase();
+            const userIdx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
             if (userIdx === -1) return;
             const user = sortedGlobal[userIdx];
             showInBanner(user, userIdx + 1);
@@ -1450,47 +1675,103 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             renderLeaderboard(filtered);
         }
 
-        function handleAuth() {
-            const id = document.getElementById('reg-id').value.trim().toLowerCase();
-            const pass = document.getElementById('reg-pass').value.trim();
-            if (!id || !pass) return alert("Fill ID & Pass");
+        function normalizeUserId(id) {
+            return String(id || '').trim().toLowerCase();
+        }
 
-            // Check if user exists
-            let user = allUsers.find(u => u.id === id);
-            if (!user) {
-                // New user
-                user = {
-                    id: id,
-                    name: id,
-                    password: pass,
-                    points: 0,
-                    mistakes: 0,
-                    bestWpm: 0,
-                    pic: "",
-                    bio: ""
-                };
-                saveUserToFirebase(user).then(success => {
-                    if (success) {
-                        allUsers.push(user);
-                        loggedInUser = { ...user };
-                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                        updateNav();
-                        closeAuth();
-                        syncUsersFromFirebase();
-                        startEliteRotation();
-                        alert("✅ New user created! Welcome " + id);
-                    }
+        function findUserByIdentity(identity) {
+            const normalizedValue = normalizeUserId(identity);
+            const cachedUser = allUsers.find(u =>
+                normalizeUserId(u.id) === normalizedValue ||
+                normalizeUserId(u.name) === normalizedValue
+            );
+            if (cachedUser) {
+                console.log('🔍 Found cached user by identity:', identity, cachedUser);
+                return Promise.resolve(cachedUser);
+            }
+
+            console.log('🔍 Looking up user by direct ID path:', normalizedValue);
+            return firebase.database().ref('users/' + normalizedValue).once('value').then(snapshot => {
+                const data = snapshot.val();
+                console.log('📥 Firebase direct path response:', normalizedValue, data);
+                if (data) {
+                    return { id: normalizedValue, ...data };
+                }
+                console.log('🔎 Direct ID lookup failed; scanning by name/ID inside users');
+                return firebase.database().ref('users').once('value').then(snapshotAll => {
+                    const allData = snapshotAll.val() || {};
+                    console.log('📥 Firebase users snapshot keys count:', Object.keys(allData).length);
+                    const matchedEntry = Object.entries(allData).find(([key, value]) => {
+                        const idMatches = normalizeUserId(key) === normalizedValue;
+                        const nameMatches = value && normalizeUserId(value.name) === normalizedValue;
+                        return idMatches || nameMatches;
+                    });
+                    console.log('🔎 Name scan result for', identity, matchedEntry);
+                    if (!matchedEntry) return null;
+                    const [key, value] = matchedEntry;
+                    return { id: key, ...value };
                 });
-            } else {
-                if (user.password !== pass) return alert("❌ Wrong Password!");
-                loggedInUser = { ...user };
+            }).catch(err => {
+                console.error('❌ Firebase lookup error for identity:', identity, err);
+                throw err;
+            });
+        }
+
+        function handleAuth() {
+            const identity = normalizeUserId(document.getElementById('reg-id').value);
+            const pass = document.getElementById('reg-pass').value.trim();
+            if (!identity || !pass) return alert("Fill ID & Pass");
+
+            findUserByIdentity(identity).then(user => {
+                if (!user) {
+                    const newUser = {
+                        id: identity,
+                        name: identity,
+                        password: pass,
+                        points: 0,
+                        mistakes: 0,
+                        bestWpm: 0,
+                        pic: "",
+                        bio: ""
+                    };
+                    saveUserToFirebase(newUser).then(success => {
+                        if (success) {
+                            allUsers.push(newUser);
+                            loggedInUser = { ...newUser };
+                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            updateNav();
+                            closeAuth();
+                            syncUsersFromFirebase();
+                            startEliteRotation();
+                            alert("✅ New user created! Welcome " + identity);
+                        }
+                    });
+                    return;
+                }
+
+                if (String(user.password || '') !== pass) {
+                    alert("❌ Wrong Password!");
+                    return;
+                }
+
+                loggedInUser = { ...user, id: user.id };
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 updateNav();
                 closeAuth();
                 syncUsersFromFirebase();
                 startEliteRotation();
-                alert("✅ Welcome back " + user.name + "!");
-            }
+                alert("✅ Welcome back " + (loggedInUser.name || loggedInUser.id) + "!");
+            }).catch(err => {
+                console.error("❌ Login error:", err);
+                alert("❌ Login failed. Please try again. Check your internet or Firebase connection.");
+            });
+        }
+
+        function updateMyRankDisplay() {
+            const rankEl = document.getElementById('dash-my-rank');
+            if (!rankEl || !loggedInUser) return;
+            const userRank = getUserRank(loggedInUser.id);
+            rankEl.innerText = "My Rank: " + (userRank ? '#' + userRank : '--');
         }
 
         function updateNav() {
@@ -1503,6 +1784,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                 const userRank = getUserRank(loggedInUser.id);
                 const navRankEl = document.getElementById('nav-user-rank');
                 if (navRankEl) navRankEl.innerText = userRank ? '#' + userRank : '--';
+                updateMyRankDisplay();
                 const adminBtn = document.getElementById('admin-lesson-btn');
                 if (adminBtn) adminBtn.style.display = loggedInUser.id === 'admin' ? 'inline-flex' : 'none';
             } else {
@@ -1553,6 +1835,26 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             }, 1000);
         }
 
+        function updateWpmBanner(wpm) {
+            const el = document.getElementById('wpm-banner');
+            if (!el) return;
+            if (!wpm || wpm <= 0) {
+                el.innerText = '';
+                el.style.opacity = '0';
+                return;
+            }
+            el.style.opacity = '1';
+            if (wpm >= 60) {
+                el.innerText = 'MASTER';
+            } else if (wpm >= 40) {
+                el.innerText = 'EXCELLENT';
+            } else if (wpm >= 20) {
+                el.innerText = 'GOOD';
+            } else {
+                el.innerText = 'KEEP GOING';
+            }
+        }
+
         function resetTyping() {
             const inputBox = document.getElementById('typing-input');
             inputBox.value = '';
@@ -1568,6 +1870,7 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             document.getElementById('live-chars').innerText = '0';
             document.getElementById('live-mistakes').innerText = '0';
             document.getElementById('live-wpm').innerText = '0';
+            try { updateWpmBanner(0); } catch (e) {}
             document.getElementById('submit-btn').classList.add('hidden');
             generateDisplayContent();
             document.getElementById('display-box').scrollTop = 0;
@@ -1575,14 +1878,25 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
 
         function submitScore() {
             if (!loggedInUser) return;
-            
-            const earnedPts = Math.floor(correctChars / 5);
-            const wpm = Math.round(parseInt(document.getElementById('live-wpm').innerText) || 0);
-            
+
             const t = translations[currentLanguage] || translations.en;
+            const wpm = Math.round(parseInt(document.getElementById('live-wpm').innerText) || 0);
+            const earnedPts = Math.floor(correctChars / 5);
+            loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earnedPts;
+
             if (earnedPts === 0 && wpm === 0) {
                 alert(t.typeSomething);
                 return;
+            }
+
+            const earlySubmitAllowed = wpm > 15;
+            if (!isTimeOver && timeLeft > 0 && !earlySubmitAllowed) {
+                alert(t.submitBlocked);
+                return;
+            }
+
+            if (!isTimeOver && timeLeft > 0 && earlySubmitAllowed) {
+                console.log('✅ Early submit allowed because WPM w> 15', wpm);
             }
 
             loggedInUser.points = (loggedInUser.points || 0) + earnedPts;
@@ -1600,16 +1914,31 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                     document.getElementById('live-chars').innerText = '0';
                     document.getElementById('live-mistakes').innerText = '0';
                     document.getElementById('live-wpm').innerText = '0';
+                    try { updateWpmBanner(0); } catch (e) {}
                     generateDisplayContent();
                     syncUsersFromFirebase();
-                    alert(t.scoreSubmitted + earnedPts + t.scoreWpm + wpm);
+                    let message = t.scoreSubmitted + earnedPts + t.scoreWpm + wpm;
+                    if (wpm > 15) {
+                        message += '\n' + t.highWpmCongrats;
+                    }
+                    alert(message);
                 }
             });
         }
 
         function renderLeaderboard(users) {
-            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
-            const list = [...users].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const list = [...users].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
             
             if (list.length === 0) {
                 const t = translations[currentLanguage] || translations.en;
@@ -1632,14 +1961,20 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                         <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
                     </td>
                     <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
-                    <td class="p-3 text-center text-blue-600 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
                     <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
         }
 
         function openAllUsersModal() {
-            const sortedGlobal = [...allUsers].sort((a, b) => (b.points || 0) - (a.points || 0));
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
             const html = sortedGlobal.map((u, idx) => {
                 const rank = idx + 1;
                 const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
@@ -1652,7 +1987,8 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
                         <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
                     </td>
                     <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
-                    <td class="p-3 text-center text-blue-600 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
                     <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
@@ -1697,46 +2033,55 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             const newName = document.getElementById('edit-name').value.trim();
             const newPic = document.getElementById('edit-pic').value.trim();
             const newBio = document.getElementById('edit-bio').value.trim();
-            
-            if (!newId || !newName) return alert("Required!");
-            if (newId !== oldId && allUsers.some(u => u.id === newId)) return alert("ID taken!");
 
-            // If ID changed, we need to move the data
+            if (!newId || !newName) return alert("Required!");
+            if (newId !== oldId && allUsers.some(u => normalizeUserId(u.id) === normalizeUserId(newId))) return alert("ID taken!");
+
+            const updatedUser = {
+                ...loggedInUser,
+                id: newId,
+                name: newName,
+                pic: newPic,
+                bio: newBio
+            };
+
+            const finishUpdate = () => {
+                loggedInUser = updatedUser;
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+
+                const existingIndex = allUsers.findIndex(u => normalizeUserId(u.id) === normalizeUserId(oldId));
+                if (existingIndex !== -1) {
+                    allUsers[existingIndex] = { ...updatedUser };
+                }
+
+                closeEditModal();
+                syncUsersFromFirebase();
+                updateNav();
+                updateBannerWithRotation();
+                alert("✅ Profile updated!");
+            };
+
             if (newId !== oldId) {
-                // Create new user entry
-                const updatedUser = {
-                    ...loggedInUser,
-                    id: newId,
-                    name: newName,
-                    pic: newPic,
-                    bio: newBio
-                };
-                
-                // Remove old entry, add new one
-                firebase.database().ref('users/' + oldId).remove().then(() => {
-                    saveUserToFirebase(updatedUser).then(() => {
-                        loggedInUser = updatedUser;
-                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                        closeEditModal();
-                        syncUsersFromFirebase();
-                        updateNav();
-                        updateBannerWithRotation();
-                        alert("✅ Profile updated!");
+                saveUserToFirebase(updatedUser).then(success => {
+                    if (!success) return alert("❌ Profile update failed. Please try again.");
+                    firebase.database().ref('users/' + oldId).remove().then(() => {
+                        finishUpdate();
+                    }).catch(err => {
+                        console.error('❌ Failed to remove old profile:', err);
+                        alert("❌ Profile updated to new ID, but old record could not be removed.");
+                        finishUpdate();
                     });
+                }).catch(err => {
+                    console.error('❌ Profile save failed:', err);
+                    alert("❌ Profile update failed. Please try again.");
                 });
             } else {
-                // Just update
-                loggedInUser.name = newName;
-                loggedInUser.pic = newPic;
-                loggedInUser.bio = newBio;
-                
-                updateUserInFirebase(loggedInUser).then(() => {
-                    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                    closeEditModal();
-                    syncUsersFromFirebase();
-                    updateNav();
-                    updateBannerWithRotation();
-                    alert("✅ Profile updated!");
+                updateUserInFirebase(updatedUser).then(success => {
+                    if (!success) return alert("❌ Profile update failed. Please try again.");
+                    finishUpdate();
+                }).catch(err => {
+                    console.error('❌ Profile update failed:', err);
+                    alert("❌ Profile update failed. Please try again.");
                 });
             }
         }
@@ -1750,20 +2095,42 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             if (inputBox) {
                 inputBox.placeholder = lang === 'bn' ? 'বাংলা টাইপ করা শুরু করুন...' : 'Start typing to improve your skills...';
                 inputBox.setAttribute('lang', lang);
-                inputBox.setAttribute('dir', lang === 'bn' ? 'rtl' : 'ltr');
+                // Bengali is left-to-right; always keep LTR direction
+                inputBox.setAttribute('dir', 'ltr');
             }
             generateDisplayContent();
         }
 
         function generateDisplayContent() {
-            const prompts = adminLessons.length > 0 ? adminLessons : (TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en);
+            // Prefer built-in prompts for the selected language, then append any admin-provided lessons
+            const prompts = (TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en).concat(adminLessons || []);
             const prompt = prompts[Math.floor(Math.random() * prompts.length)];
             const topicLabel = currentTypingLanguage === 'bn' ? 'কম্পিউটার মৌলিক জ্ঞান' : 'Computer Fundamentals';
             const repeatCount = currentTypingLanguage === 'bn' ? 18 : 25;
             const fullText = (prompt + ' ').repeat(repeatCount).trim();
-            const chars = fullText.split('');
+            // split into user-perceived characters (grapheme clusters) to handle Bengali combining marks
+            function splitGraphemes(str) {
+                try {
+                    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                        const seg = new Intl.Segmenter(currentTypingLanguage || 'bn', { granularity: 'grapheme' });
+                        return Array.from(seg.segment(str), s => s.segment);
+                    }
+                } catch (e) {
+                    // fallback
+                }
+                return Array.from(str);
+            }
+
+            const chars = splitGraphemes(fullText);
             const header = `<div class="topic-header"><div class="topic-title">${topicLabel}</div><div class="topic-sub">${prompt}</div></div>`;
-            const body = `<div class="display-text">${chars.map(c => `<span class=\\"char\\">${c}</span>`).join('')}</div>`;
+            // Break into lines so text naturally wraps per line and caret moves to next line
+            const lineLength = currentTypingLanguage === 'bn' ? 42 : 56;
+            const lines = [];
+            for (let i = 0; i < chars.length; i += lineLength) {
+                const chunk = chars.slice(i, i + lineLength);
+                lines.push(`<div>${chunk.map(c => `<span class=\\"char\\">${c}</span>`).join('')}</div>`);
+            }
+            const body = `<div class="display-text">${lines.join('')}</div>`;
             document.getElementById('display-box').innerHTML = header + body;
         }
 
