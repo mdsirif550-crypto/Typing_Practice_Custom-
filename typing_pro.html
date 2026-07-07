@@ -2,593 +2,323 @@
 <html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TYPING MASTER PRO - SLIM ELITE</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0ea5e9">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TYPING MASTER PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
-        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        .scrolling-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; background: #f1f5f9; padding-top: 45px; }
+        .marquee { background: #0f172a; color: #facc15; padding: 4px 0; overflow: hidden; white-space: nowrap; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; position: fixed; top: 0; left: 0; right: 0; z-index: 9999; }
+        .marquee span { display: inline-block; animation: scrollMarquee 25s linear infinite; }
+        @keyframes scrollMarquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         
-        .golden-banner {
-            background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            background-size: 200% auto;
-            animation: shine 4s linear infinite;
-            border: 2px solid #fff;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: all 0.5s ease;
-            color: #111827;
-        }
-        .viewing-mode { background: linear-gradient(110deg, #1e40af, #3b82f6, #1e3a8a); color: white !important; }
+        .golden-banner { background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); background-size: 200% auto; animation: shine 4s linear infinite; border: 2px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 20px; padding: 16px; position: relative; overflow: hidden; }
         @keyframes shine { to { background-position: 200% center; } }
-
-        .crown {
-            position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 22px;
-            filter: drop-shadow(0 0 3px gold); animation: bounce 2s infinite;
-        }
-        @keyframes bounce { 0%, 100% { top: -14px; } 50% { top: -20px; } }
-
-        .char { color: #94a3b8; font-family: 'Noto Sans Bengali', 'Courier New', monospace; font-size: 1.5rem; }
-        .correct { color: #10b981; font-weight: bold; }
-        .incorrect { background-color: #ef4444; color: white; border-radius: 4px; }
-        .current { border-bottom: 3px solid #1e293b; background-color: #f1f5f9; }
         
-        .topic-header { width: 100%; text-align: right; margin-bottom: 6px; }
-        .topic-title { font-size: 1.6rem; font-weight: 900; color: #0f172a; letter-spacing: 0.5px; display: inline-block; }
-        .topic-sub { font-size: 1rem; color: #475569; font-weight: 700; margin-top: 6px; display: block; }
-        .display-text { font-size: 1.15rem; line-height: 1.6; text-align: left; font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; white-space: pre-wrap; }
-
-        #display-box { height: 180px; overflow-y: auto; scroll-behavior: smooth; scroll-padding: 20px 0; padding: 20px; background: white; border-radius: 15px; border: 1px solid #e2e8f0; }
-
-        .countdown-banner {
-            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 40%, #ef4444 100%);
-            border: 1px solid #fca5a5;
-            color: #7f1d1d;
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.14);
-        }
-        .countdown-banner #timer-display { color: #b91c1c !important; }
-        /* Ensure live WPM is visible on colored banners */
-        #live-wpm { color: #ff7a18 !important; font-weight: 800; }
-        /* When WPM value is inside the dark value pill, force white text */
-        .wpm-value-banner #live-wpm { color:  #7f1d1d !important; }
-        #wpm-label { color: #7f1d1d !important; font-weight: 800; }
-        /* Small WPM banner under the WPM stat */
-        .wpm-block { display:flex; flex-direction:column; align-items:center; }
-        .wpm-value-banner { background: #ffffff; color: #ffffff; font-weight: 900; font-size: 12px; padding: 6px 10px; border-radius: 999px; box-shadow: 0 8px 20px rgba(11,18,32,0.26); display: inline-flex; gap: 8px; align-items: center; }
-        .wpm-banner { background: linear-gradient(90deg,#0ea5e9,#2563eb); color: white; font-weight: 800; font-size: 11px; padding: 4px 8px; border-radius: 999px; margin-top: 6px; box-shadow: 0 6px 18px rgba(37,99,235,0.18); }
+        .crown { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 22px; filter: drop-shadow(0 0 5px gold); animation: bounce 2s infinite; display: none; }
+        @keyframes bounce { 0%, 100% { top: -8px; } 50% { top: -14px; } }
         
-        #typing-input {
-            border: 2px solid #2563eb !important;
-            border-radius: 0 0 34px 34px;
-            outline: none;
-            padding: 24px;
-            height: 160px;
-            font-size: 1.15rem;
-            line-height: 1.7;
-            font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif;
+        .char { color: #94a3b8; font-size: 1.3rem; font-family: 'Noto Sans Bengali', monospace; }
+        .correct { color: #10b981; font-weight: 700; }
+        .incorrect { background: #ef4444; color: white; border-radius: 3px; padding: 0 2px; }
+        .current { border-bottom: 3px solid #2563eb; background: #dbeafe; }
+        
+        #display-box { height: 160px; overflow-y: auto; padding: 16px; background: white; border-radius: 16px; border: 2px solid #e2e8f0; font-size: 1.1rem; line-height: 1.8; }
+        #typing-input { border: 2px solid #2563eb; border-radius: 0 0 20px 20px; outline: none; padding: 20px; height: 130px; font-size: 1.1rem; font-family: 'Noto Sans Bengali', sans-serif; background: white; width: 100%; margin-top: -10px; }
+        #typing-input:disabled { background: #f1f5f9; cursor: not-allowed; }
+        
+        .stat-pill { background: white; padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: inline-flex; align-items: center; gap: 4px; }
+        .stat-pill .num { font-size: 16px; }
+        
+        .leader-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; }
+        .lvl-badge { background: #1e293b; color: #facc15; padding: 1px 8px; border-radius: 999px; font-size: 9px; font-weight: 800; border: 1px solid #facc15; }
+        .clickable-row { cursor: pointer; transition: 0.15s; }
+        .clickable-row:hover { background: #eff6ff !important; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: white; border-radius: 24px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
+        .modal-box h2 { font-size: 18px; font-weight: 900; margin-bottom: 16px; text-transform: uppercase; color: #0f172a; }
+        
+        .slim-input { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #f8fafc; }
+        .slim-input:focus { border-color: #2563eb; background: white; }
+        
+        .btn { padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; transition: 0.15s; }
+        .btn-primary { background: #2563eb; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-success:hover { background: #16a34a; }
+        .btn-outline { background: transparent; border: 2px solid #e2e8f0; color: #475569; }
+        .btn-outline:hover { background: #f1f5f9; }
+        
+        .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .online-dot.online { background: #22c55e; animation: pulse 1.5s infinite; }
+        .online-dot.offline { background: #94a3b8; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        
+        .chat-bubble { padding: 10px 14px; border-radius: 12px; margin-bottom: 6px; max-width: 85%; word-wrap: break-word; }
+        .chat-bubble.admin { background: #2563eb; color: white; margin-left: auto; }
+        .chat-bubble.user { background: #f1f5f9; color: #1e293b; }
+        .chat-bubble .time { font-size: 9px; opacity: 0.7; display: block; margin-top: 4px; }
+        .chat-bubble .sender { font-size: 10px; font-weight: 700; display: block; margin-bottom: 2px; }
+        
+        #help-chat { min-height: 120px; max-height: 200px; overflow-y: auto; }
+        
+        .control-select { border: 2px solid #e2e8f0; border-radius: 10px; padding: 6px 12px; font-size: 11px; font-weight: 700; background: white; outline: none; cursor: pointer; }
+        .control-select:focus { border-color: #2563eb; }
+        .control-select option { font-weight: 600; }
+        
+        /* Banner avatar glow */
+        .banner-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid white; object-fit: cover; background: white; transition: all 0.3s ease; }
+        
+        @media (max-width: 640px) {
+            .golden-banner { padding: 12px; }
+            .char { font-size: 1rem; }
+            #display-box { height: 130px; font-size: 0.95rem; padding: 12px; }
+            #typing-input { height: 100px; font-size: 0.95rem; padding: 14px; }
+            .stat-pill { font-size: 9px; padding: 4px 10px; }
+            .stat-pill .num { font-size: 13px; }
+            .modal-box { padding: 16px; }
+            .leader-img { width: 32px; height: 32px; }
+            .control-select { font-size: 10px; padding: 4px 8px; }
+            .banner-avatar { width: 44px; height: 44px; }
         }
-
-        .lvl-badge { background: #1e293b; color: #ffd700; padding: 1px 4px; border-radius: 4px; font-size: 8px; font-weight: 800; border: 1px solid #ffd700; }
-        .clickable-row { cursor: pointer; transition: 0.2s; }
-        .clickable-row:hover { background-color: #f0f7ff !important; transform: scale(1.01); }
-        /* Larger leaderboard avatar */
-        .leader-img { width: 56px !important; height: 56px !important; }
-        .profile-preview-avatar { width: 140px; height: 140px; border-radius: 30px; border: 4px solid rgba(255,255,255,0.12); background: #0f172a; }
-        .profile-frame { display: inline-block; border-radius: 999px; transition: box-shadow 0.3s ease, border-color 0.3s ease; }
-        .profile-frame img { display: block; border-radius: 999px; }
-        .profile-preview-card { max-width: 1040px; }
-        .profile-preview-meta h3 { font-size: 2rem; }
-        .profile-preview-stat span { font-size: 1.5rem; }
-        .profile-preview-hero { gap: 28px; }
-        .message-action-btn {
-            background: linear-gradient(90deg, #2563eb, #38bdf8);
-            color: white;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 999px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 15px 30px rgba(15,23,42,0.18);
-            transition: transform 0.2s ease, opacity 0.2s ease;
-        }
-        .message-action-btn:hover { transform: translateY(-1px); opacity: 0.95; }
-        .help-send-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: linear-gradient(90deg,#0ea5e9,#6366f1);
-            color: white;
-            padding: 10px 18px;
-            border-radius: 14px;
-            font-weight: 800;
-            border: 1px solid rgba(255,255,255,0.12);
-            box-shadow: 0 12px 30px rgba(59,130,246,0.14), inset 0 -6px 18px rgba(0,0,0,0.08);
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .help-send-btn:active { transform: translateY(1px); }
-        .help-send-btn.digital {
-            background: linear-gradient(90deg,#06b6d4,#3b82f6);
-            border-radius: 999px;
-            padding: 12px 22px;
-            letter-spacing: 0.6px;
-        }
-        .lesson-manager-button {
-            background: #111827;
-            color: #f8fafc;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            font-weight: 800;
-        }
-        /* Emphasize leaderboard rows */
-        #leaderboard-body tr { transition: transform 0.18s ease; }
-        #leaderboard-body tr:hover { transform: translateY(-2px); }
-
-        .slim-input {
-            width: 100%; padding: 8px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0;
-            border-radius: 10px; font-size: 13px; font-weight: 600; outline: none;
-        }
-        #leaderboard-reset-info {
-            color: #f8fafc !important;
-            font-weight: 800 !important;
-            background: linear-gradient(135deg, #111827, #000000);
-            border: 1px solid #374151;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-            border-radius: 999px;
-            padding: 8px 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            line-height: 1.3;
-        }
-        #search-box {
-            font-weight: 800;
-            color: #0f172a;
-        }
-        #search-box::placeholder {
-            color: #475569;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.12em;
-        }
-        .search-icon {
-            color: #0f172a;
-            opacity: 0.85;
-        }
-        /* All Users Modal */
-        #all-users-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 9000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        #all-users-modal.active {
-            display: flex;
-        }
-        .all-users-modal-content {
-            background: white;
-            border-radius: 20px;
-            max-width: 600px;
-            width: 100%;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-        .all-users-modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .all-users-modal-header h2 {
-            font-size: 18px;
-            font-weight: 900;
-            text-transform: uppercase;
-            color: #0f172a;
-            margin: 0;
-        }
-        .all-users-modal-close {
-            background: #ef4444;
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .all-users-modal-close:hover {
-            background: #dc2626;
-        }
-        .view-all-btn {
-            background: #1e40af;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 12px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.2s;
-        }
-        .view-all-btn:hover {
-            background: #1e3a8a;
-            transform: scale(1.05);
-        }
-        .rank-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 40px;
-            background: linear-gradient(135deg,#facc15,#f59e0b);
-            color: #111827;
-            font-weight: 800;
-            border-radius: 999px;
-            padding: 4px 10px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
-        }
-        .profile-preview-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.92);
-            z-index: 7000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            backdrop-filter: blur(8px);
-        }
-        .profile-preview-modal.hidden {
-            display: none;
-        }
-        .profile-preview-card {
-            width: 100%;
-            max-width: 980px;
-            border-radius: 32px;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,58,138,0.95));
-            box-shadow: 0 25px 80px rgba(15,23,42,0.7);
-            position: relative;
-        }
-        .profile-preview-card::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at top left, rgba(59,130,246,0.24), transparent 35%), radial-gradient(circle at bottom right, rgba(14,165,233,0.18), transparent 30%);
-            pointer-events: none;
-        }
-        .profile-preview-close {
-            position: absolute;
-            right: 18px;
-            top: 18px;
-            z-index: 10;
-            background: rgba(255,255,255,0.16);
-            border: 1px solid rgba(255,255,255,0.2);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            color: white;
-            font-size: 20px;
-            line-height: 36px;
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, background 0.2s ease;
-        }
-        .profile-preview-close:hover { transform: scale(1.08); background: rgba(255,255,255,0.28); }
-        .profile-preview-content { position: relative; z-index: 1; padding: 32px; }
-        .profile-preview-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: space-between; }
-        .profile-preview-avatar { width: 120px; height: 120px; border-radius: 30px; border: 3px solid rgba(255,255,255,0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.25); object-fit: cover; background: #fff; }
-        .profile-preview-meta { color: #f8fafc; }
-        .profile-preview-meta h3 { margin: 0; font-size: 1.8rem; font-weight: 900; letter-spacing: 0.5px; }
-        .profile-preview-meta p { margin: 6px 0 0; color: rgba(248,250,252,0.78); font-size: 0.9rem; }
-        .profile-preview-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 24px; }
-        .profile-preview-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 18px; color: white; text-align: center; }
-        .profile-preview-stat span { display: block; font-size: 1.3rem; font-weight: 900; margin-top: 6px; }
-        .profile-preview-levelbar { margin-top: 18px; }
-        .profile-preview-levelbar-label { color: rgba(255,255,255,0.8); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.12em; margin-bottom: 10px; }
-        .profile-preview-progress { width: 100%; height: 12px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
-        .profile-preview-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #fde68a, #f97316); transition: width 0.25s ease; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pt-10">
+<body>
 
-    <!-- Header Marquee -->
-    <div class="fixed top-0 left-0 w-full bg-slate-900 text-white py-1 z-[5000] border-b border-yellow-500 overflow-hidden text-[9px] font-bold uppercase tracking-widest">
-        <div class="scrolling-content">
-             🏆 JOIN THE CHALLENGE • PRACTICE DAILY • WIN GREAT PRIZES • 5 CHARS = 1 PT • $1,000 POOL LIVE!
-        </div>
-    </div>
+    <!-- Marquee -->
+    <div class="marquee"><span>🏆 JOIN THE CHALLENGE • PRACTICE DAILY • WIN GREAT PRIZES • 5 CHARS = 1 PT • $1,000 POOL LIVE! 🏆</span></div>
 
-    <!-- Nav -->
-    <nav class="bg-white shadow-sm p-2 sticky top-6 z-50">
-        <div class="container mx-auto flex justify-between items-center px-4">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md p-2 sticky top-[38px] z-50 border-b border-slate-200">
+        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
             <div class="flex items-center gap-2">
-                <a id="nav-home-link" href="typing_pro.html" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
-                <h1 class="text-base font-black text-slate-800 italic uppercase">Typing<span class="text-blue-600">Master</span></h1>
+                <h1 class="text-sm font-black italic uppercase text-slate-800">Typing<span class="text-blue-600">Master</span></h1>
             </div>
-            <div id="user-area" class="flex items-center gap-2">
-                <a id="install-btn" href="#" onclick="event.preventDefault(); triggerInstallPrompt();" class="bg-emerald-600 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-emerald-700 transition">Install App</a>
-                <button id="help-btn" onclick="openHelpLine()" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-slate-900 transition">Help</button>
-                <button id="admin-lesson-btn" onclick="openLessonManager()" class="hidden bg-yellow-500 text-slate-900 px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-yellow-400 transition">Lessons</button>
-                <select id="lang-switcher" onchange="setLanguage(this.value)" class="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-bold uppercase outline-none">
+            <div class="flex flex-wrap items-center gap-1.5">
+                <button onclick="triggerInstall()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase hover:bg-emerald-700">Install</button>
+                <button onclick="openHelp()" class="bg-slate-800 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase hover:bg-slate-900">Help</button>
+                <select id="lang-switcher" onchange="setLanguage(this.value)" class="border border-slate-300 rounded-lg px-2 py-1 text-[9px] font-bold uppercase bg-white outline-none">
                     <option value="en">EN</option>
                     <option value="bn">BN</option>
                 </select>
-                <div id="nav-profile-box" class="hidden flex items-center gap-2">
-                    <div class="text-right leading-tight">
-                        <p id="nav-user-name" class="font-bold text-[10px] uppercase text-slate-700"></p>
-                        <p class="text-[8px] font-bold text-blue-600 uppercase">ID: <span id="nav-user-id-top">--</span></p>
-                        <p class="text-[8px] font-bold text-slate-500 uppercase">Rank: <span id="nav-user-rank">--</span></p>
-                    </div>
-                    <img id="nav-user-avatar" onclick="openEditModal()" class="w-8 h-8 rounded-full border border-blue-500 cursor-pointer object-cover bg-white" src="">
+                <div id="nav-user" class="hidden flex items-center gap-2">
+                    <span id="nav-name" class="text-xs font-bold uppercase text-slate-700 truncate max-w-[80px]"></span>
+                    <img id="nav-avatar" onclick="viewProfile(loggedInUser.id)" class="w-8 h-8 rounded-full border-2 border-blue-500 cursor-pointer object-cover" src="">
                     <button onclick="logout()" class="text-red-500 font-bold text-[8px] uppercase">Exit</button>
                 </div>
-                <button id="nav-login-btn" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1 rounded-md font-bold text-[9px] uppercase">Login</button>
+                <button id="nav-login" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1 rounded-lg font-bold text-[9px] uppercase">Login</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-4 max-w-5xl">
+    <div class="max-w-5xl mx-auto px-3 py-4">
         
-        <!-- Banner -->
-        <div id="elite-banner" class="golden-banner rounded-[25px] py-4 px-8 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
-            <div class="flex-1 text-center md:text-left">
-                <h2 id="banner-title" class="text-[14px] md:text-[16px] font-black uppercase text-slate-900 leading-tight tracking-tight italic">
-                    **Practice Daily, Improve Your Skills, <br>and Win Great Prizes!**
-                </h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-2xl font-black text-red-700">$1,000</span>
-                    <span id="banner-pool" class="text-[10px] font-bold text-slate-800 uppercase bg-white/30 px-1.5 py-0.5 rounded">Pool Live</span>
+        <!-- Banner with Crown -->
+        <div id="banner" class="golden-banner mb-4">
+            <span class="crown" id="banner-crown">👑</span>
+            <div class="flex flex-col md:flex-row items-center gap-3">
+                <div class="flex-1 text-center md:text-left">
+                    <h2 class="text-sm md:text-base font-black uppercase text-slate-900">🏆 Top Typists</h2>
+                    <p class="text-xs font-bold text-red-700">$1,000 Prize Pool</p>
                 </div>
-            </div>
-
-            <div class="flex flex-row items-center gap-6 justify-end">
-                <div id="profile-display-area" class="flex flex-row items-center gap-3 border-l border-black/10 pl-6 min-w-0">
-                    <div class="relative flex-shrink-0">
-                        <div class="crown" id="banner-crown">👑</div>
-                        <img id="dash-pic" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white" src="">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <img id="banner-avatar" class="banner-avatar" src="">
                     </div>
-                    <div class="max-w-[180px] min-w-0">
-                        <div class="flex items-center gap-1 mb-0.5 flex-wrap min-w-0">
-                            <span id="dash-rank-tag" class="bg-black text-white text-[8px] px-1 rounded font-bold uppercase">#--</span>
-                            <span id="dash-lvl-tag" class="lvl-badge">LVL 1</span>
+                    <div>
+                        <div class="flex items-center gap-1">
+                            <span id="banner-rank" class="bg-black text-white text-[8px] px-1.5 py-0.5 rounded font-bold">#--</span>
+                            <span id="banner-level" class="lvl-badge">LVL 1</span>
                         </div>
-                        <div class="flex items-center gap-2 mb-1 flex-wrap min-w-0">
-                            <h2 id="dash-name" class="text-base font-black uppercase italic text-slate-900 leading-none truncate min-w-0">Typist</h2>
-                            <span id="dash-name-rank" class="text-[9px] font-extrabold uppercase text-slate-600 bg-slate-100 px-2 py-1 rounded-full">#--</span>
-                        </div>
-                        <p id="dash-id" class="text-[7px] font-bold opacity-60 uppercase mb-0.5">ID: ----</p>
-                        <p id="dash-my-rank" class="text-[8px] font-bold text-blue-600 uppercase mb-0.5">My Rank: --</p>
-                        <p id="dash-bio" class="text-[8px] font-bold italic opacity-80 leading-none truncate">"No bio."</p>
-                        <p id="dash-next-target" class="text-[8px] font-bold uppercase text-slate-500 mt-1"></p>
-                    </div>
-                </div>
-
-                <div class="flex gap-1.5">
-                    <div class="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-xl text-center min-w-[70px] border border-white/20">
-                        <p class="text-[7px] font-bold uppercase opacity-60 leading-none mb-1">Points</p>
-                        <p id="dash-pts" class="text-sm font-black leading-none">0</p>
-                    </div>
-                    <div class="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-xl text-center min-w-[70px] border border-white/20">
-                        <p class="text-[7px] font-bold uppercase opacity-60 leading-none mb-1">Mistakes</p>
-                        <p id="dash-mistakes" class="text-sm font-black text-red-700 leading-none">0</p>
+                        <p id="banner-name" class="text-sm font-black uppercase text-slate-900">Loading...</p>
+                        <p id="banner-id" class="text-[8px] font-bold text-slate-600">ID: --</p>
+                        <p id="banner-points" class="text-xs font-black text-blue-600">0 pts</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Typing Box -->
-        <div class="flex items-center justify-between mb-2">
-            <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Typing Mode</div>
-            <select id="typing-language" onchange="switchTypingLanguage(this.value)" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold uppercase outline-none">
-                <option value="en">English</option>
-                <option value="bn">বাংলা</option>
-            </select>
+        <!-- Typing Controls -->
+        <div class="flex flex-wrap items-center gap-3 mb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold uppercase text-slate-500">📝 Mode:</span>
+                <select id="typing-lang" onchange="switchTypingLang(this.value)" class="control-select">
+                    <option value="en">🇬🇧 English</option>
+                    <option value="bn">🇧🇩 বাংলা</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-2 flex-1 min-w-[120px]">
+                <span class="text-[10px] font-bold text-slate-500 flex-shrink-0">📚 Lesson:</span>
+                <select id="lesson-selector" onchange="selectLessonFromDropdown(this.value)" class="control-select flex-1">
+                    <option value="">No lessons available</option>
+                </select>
+            </div>
+            <button onclick="openCustomModal()" class="btn btn-outline text-[10px] whitespace-nowrap">✏️ Custom</button>
         </div>
+
+        <!-- Display Box -->
         <div id="display-box"></div>
-        <textarea id="typing-input" class="w-full text-lg bg-white mt-[-20px]" placeholder="Start typing to improve your skills..."></textarea>
-        
-        <!-- Stats Bar -->
-        <div class="countdown-banner mt-4 flex flex-wrap justify-between items-center gap-3 p-4 rounded-xl shadow-sm border">
-            <button id="reset-btn" onclick="resetTyping()" class="bg-black text-white px-4 py-1.5 rounded-lg font-bold uppercase text-[9px] hover:bg-red-600 transition shadow-md">Reset 🔄</button>
-            <div class="flex flex-wrap gap-4 font-black text-slate-700 text-[9px] uppercase tracking-widest">
-                <div><span id="time-label">Time:</span> <span id="timer-display" class="text-red-600 text-sm">05:00</span></div>
-                <div><span id="chars-label">Chars:</span> <span id="live-chars" class="text-blue-700 text-sm">0</span></div>
-                <div><span id="mistakes-label">Mistakes:</span> <span id="live-mistakes" class="text-red-600 text-sm">0</span></div>
-                <div class="wpm-block">
-                    <div class="wpm-value-banner"><span id="wpm-label">WPM:</span> <span id="live-wpm" class="text-orange-600 text-sm">0</span></div>
-                    <div id="wpm-banner" class="wpm-banner" aria-hidden="true"></div>
-                </div>
+        <textarea id="typing-input" placeholder="Start typing to improve your skills..."></textarea>
+
+        <!-- Stats -->
+        <div class="bg-gradient-to-r from-red-50 to-red-100 mt-[-10px] p-3 rounded-b-2xl border border-red-200 flex flex-wrap items-center justify-between gap-2">
+            <button onclick="resetTyping()" class="bg-black text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-red-600 transition">🔄 Reset</button>
+            <div class="flex flex-wrap gap-2 font-bold text-[10px] uppercase text-slate-700">
+                <span class="stat-pill">⏱ <span id="timer-display" class="num text-red-600">05:00</span></span>
+                <span class="stat-pill">📝 <span id="live-chars" class="num text-blue-600">0</span></span>
+                <span class="stat-pill">❌ <span id="live-mistakes" class="num text-red-600">0</span></span>
+                <span class="stat-pill">⚡ <span id="live-wpm" class="num text-orange-600">0</span> WPM</span>
             </div>
-            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-6 py-1.5 rounded-lg font-bold text-[9px] uppercase shadow-md">Save Result ✅</button>
+            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700">💾 Save</button>
         </div>
 
         <!-- Leaderboard -->
-        <div class="mt-8 bg-white rounded-3xl shadow-lg p-6 mb-20 border border-slate-50">
-            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
-                <div>
-                    <h2 id="leaderboard-title" class="text-base font-black italic uppercase border-l-4 border-blue-600 pl-3 text-slate-800 tracking-tight">Global Leaderboard</h2>
-                    <p id="leaderboard-reset-info" class="text-[11px] uppercase tracking-widest mt-2 inline-block">Loading reset timer...</p>
-                </div>
-                <div class="flex gap-2">
-                    <div class="relative flex-1 md:w-56">
-                        <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-3 pl-10 rounded-2xl border border-slate-300 bg-slate-50 outline-none font-black text-[11px] uppercase tracking-wider placeholder:text-slate-500 placeholder:font-black focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
-                        <span class="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-[14px] font-black">🔍</span>
-                    </div>
-                    <button class="view-all-btn" onclick="openAllUsersModal()">👥 View All</button>
+        <div class="mt-6 bg-white rounded-2xl shadow-lg p-4 border border-slate-100">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3">
+                <h2 class="text-sm font-black uppercase border-l-4 border-blue-600 pl-3 text-slate-800">🏆 Leaderboard</h2>
+                <div class="flex gap-2 w-full md:w-auto">
+                    <input id="search-box" oninput="searchPlayers()" placeholder="🔍 Search..." class="flex-1 md:w-48 p-2 rounded-xl border border-slate-300 bg-slate-50 outline-none font-bold text-[11px] text-slate-800 placeholder:text-slate-400 focus:border-blue-500">
+                    <button onclick="openAllUsers()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl font-bold text-[10px] hover:bg-blue-700">All</button>
                 </div>
             </div>
-            <div class="overflow-hidden rounded-xl border border-slate-50">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
-                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
+            <div class="overflow-x-auto">
+                <table class="w-full text-[10px]">
+                    <thead class="bg-slate-900 text-white uppercase tracking-wider">
+                        <tr><th class="p-2 text-center">#</th><th class="p-2 text-left">Player</th><th class="p-2 text-center">LVL</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Monthly</th><th class="p-2 text-center">WPM</th></tr>
                     </thead>
-                    <tbody id="leaderboard-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
+                    <tbody id="leaderboard-body" class="divide-y divide-slate-100 font-bold"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[6000] hidden p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl w-full max-w-[300px] shadow-2xl relative p-5 border border-blue-100">
-            <button onclick="closeEditModal()" class="absolute top-3 right-3 text-xl font-black text-slate-300 hover:text-red-500">&times;</button>
-            <h2 id="profile-title" class="text-sm font-black uppercase text-center mb-4 text-slate-800">Profile Settings</h2>
-            <div class="space-y-2">
-                <img id="edit-preview" class="w-16 h-16 rounded-full border-2 border-blue-500 mx-auto object-cover p-0.5 mb-2" src="">
-                <input type="file" id="edit-avatar-file" accept="image/*" onchange="handleProfileImageUpload(event)" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-600 file:text-white file:font-bold">
-                <input type="text" id="edit-id" class="slim-input uppercase text-[11px]" placeholder="User ID">
-                <input type="text" id="edit-name" class="slim-input text-[11px]" placeholder="Display Name">
-                <input type="text" id="edit-pic" oninput="document.getElementById('edit-preview').src = this.value || DEFAULT_AVATAR" class="slim-input text-[11px]" placeholder="Avatar.jpg">
-                <textarea id="edit-bio" class="slim-input text-[11px] h-12 resize-none" placeholder="Add Bio..."></textarea>
-                <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold uppercase text-[10px] mt-2 shadow-md">Update Profile</button>
-            </div>
-        </div>
-    </div>
+    <!-- ===== MODALS ===== -->
 
     <!-- Auth Modal -->
-    <div id="help-modal" class="fixed inset-0 bg-slate-900/90 flex items-center justify-center z-[6000] hidden p-4">
-        <div class="bg-slate-950/95 p-6 rounded-3xl w-full max-w-md text-left shadow-2xl border border-slate-700">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-lg font-black uppercase text-white">Help Line</h2>
-                <button onclick="closeHelpLine()" class="text-slate-300 hover:text-white">×</button>
-            </div>
-            <p class="text-slate-300 leading-7">Need help? Send a quick message to the admin and we'll get back to you.</p>
-            <div class="mt-4 space-y-2">
-                <div class="grid grid-cols-1 gap-2">
-                    <input id="help-name" placeholder="Your name" class="slim-input" />
-                    <input id="help-userid" placeholder="Your ID" class="slim-input uppercase" />
-                    <input id="help-mobile" placeholder="Your mobile (e.g. 8801XXXXXXXXX)" class="slim-input" />
-                </div>
-                <label class="text-slate-200 text-sm font-bold">Your message</label>
-                <textarea id="help-message-text" class="w-full mt-2 p-3 rounded-xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Describe the problem or ask for help..."></textarea>
-                <div class="mt-3 flex gap-2">
-                    <button onclick="sendHelpMessage()" class="help-send-btn digital">Send to Admin</button>
-                    <button onclick="sendWhatsAppMessage()" class="help-send-btn" style="background:linear-gradient(90deg,#25D366,#128C7E);">Send via WhatsApp</button>
-                    <button onclick="closeHelpLine()" class="mt-0 ml-auto px-4 py-2 rounded-xl bg-white/5 text-slate-200">Close</button>
-                </div>
-                <p id="help-send-status" class="mt-3 text-xs text-slate-400"></p>
-                <div id="help-replies" class="mt-4 max-h-44 overflow-y-auto text-sm text-slate-200"></div>
-            </div>
+    <div id="auth-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>🔐 Login / Register</h2>
+            <input id="auth-id" class="slim-input mb-2 uppercase" placeholder="User ID">
+            <input id="auth-pass" class="slim-input mb-3" placeholder="Password" type="password">
+            <button onclick="handleAuth()" class="btn btn-primary w-full">Login / Register</button>
+            <button onclick="closeAuth()" class="w-full mt-2 text-slate-400 text-[10px] font-bold uppercase">Close</button>
         </div>
     </div>
 
-    <div id="auth-modal" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center z-[6000] hidden p-4">
-        <div class="bg-white p-8 rounded-3xl w-full max-w-[280px] text-center shadow-2xl border-b-4 border-blue-600">
-            <h2 id="auth-title" class="text-xl font-black mb-4 text-slate-800 uppercase italic">Master Login</h2>
-            <div class="space-y-2">
-                <input type="text" id="reg-id" placeholder="USER ID" class="slim-input text-center uppercase">
-                <input type="password" id="reg-pass" placeholder="PASSWORD" class="slim-input text-center">
-                <button id="auth-submit-btn" onclick="handleAuth()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold uppercase text-[10px] mt-2 shadow-md">Login Arena</button>
-                <button id="auth-close-btn" onclick="closeAuth()" class="text-slate-300 text-[9px] uppercase mt-2 font-bold">Close</button>
+    <!-- Edit Profile Modal -->
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>✏️ Edit Profile</h2>
+            <img id="edit-preview" class="w-20 h-20 rounded-full border-2 border-blue-500 mx-auto object-cover mb-3" src="">
+            <input type="file" id="edit-avatar-file" accept="image/*" onchange="handleAvatarUpload(event)" class="w-full text-[10px] mb-2 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:font-bold">
+            <input id="edit-id" class="slim-input mb-2 uppercase" placeholder="User ID">
+            <input id="edit-name" class="slim-input mb-2" placeholder="Display Name">
+            <input id="edit-pic" class="slim-input mb-2" placeholder="Avatar URL" oninput="document.getElementById('edit-preview').src=this.value||DEFAULT_AVATAR">
+            <textarea id="edit-bio" class="slim-input mb-3 h-16 resize-none" placeholder="Bio..."></textarea>
+            <button onclick="saveProfile()" class="btn btn-primary w-full">Update Profile</button>
+            <button onclick="closeEdit()" class="w-full mt-2 text-slate-400 text-[10px] font-bold uppercase">Close</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>💬 Digital Help Line</h2>
+            <p class="text-[11px] text-slate-500 mb-3">Your name and user ID are automatically included with every message. Choose a ready message or type your own.</p>
+            <div class="grid grid-cols-2 gap-2 mb-3 text-[10px]">
+                <button onclick="setHelpTemplate('password')" class="btn btn-outline py-2 text-left">Forgot Password</button>
+                <button onclick="setHelpTemplate('lesson')" class="btn btn-outline py-2 text-left">Request Lesson Change</button>
+                <button onclick="setHelpTemplate('competition')" class="btn btn-outline py-2 text-left">Competition Participation</button>
+                <button onclick="setHelpTemplate('other')" class="btn btn-outline py-2 text-left">Other Inquiry</button>
+            </div>
+            <div id="help-chat" class="bg-slate-50 rounded-xl p-3 mb-3 text-sm"></div>
+            <textarea id="help-msg" class="slim-input mb-2 h-24 resize-none" placeholder="Write your support request here..."></textarea>
+            <div class="flex gap-2 mb-2">
+                <button onclick="sendHelp()" class="btn btn-primary flex-1">Send to Admin</button>
+                <button onclick="sendWhatsApp()" class="btn btn-success flex-1">Send via WhatsApp</button>
+            </div>
+            <div id="help-status" class="text-[10px] text-slate-500 mt-2"></div>
+            <button onclick="closeHelp()" class="w-full mt-3 text-slate-400 text-[10px] font-bold uppercase">Close</button>
+        </div>
+    </div>
+
+    <!-- Custom Text Modal -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-box">
+            <h2>✏️ Custom Text</h2>
+            <p class="text-xs text-slate-500 mb-3">Write your own text to practice typing.</p>
+            <textarea id="custom-text" class="slim-input mb-3 h-32 resize-none" placeholder="Type your custom text here..."></textarea>
+            <div class="flex gap-2">
+                <button onclick="applyCustomText()" class="btn btn-primary flex-1">Start Practice</button>
+                <button onclick="closeCustomModal()" class="btn btn-outline flex-1">Cancel</button>
             </div>
         </div>
     </div>
 
     <!-- All Users Modal -->
-    <div id="all-users-modal" class="fixed inset-0 bg-slate-900/80 z-[5999] hidden p-4">
-        <div class="all-users-modal-content">
-            <div class="all-users-modal-header">
-                <h2>All Players</h2>
-                <button class="all-users-modal-close" onclick="closeAllUsersModal()">✕</button>
+    <div id="all-users-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-3">
+                <h2>👥 All Players</h2>
+                <button onclick="closeAllUsers()" class="text-2xl font-bold text-red-500">×</button>
             </div>
-            <div class="overflow-hidden rounded-xl border border-slate-50">
-                <table class="w-full text-left">
-                    <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
-                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
-                    </thead>
-                    <tbody id="all-users-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                <table class="w-full text-[10px]">
+                    <thead class="bg-slate-900 text-white uppercase sticky top-0"><tr><th class="p-2 text-center">#</th><th class="p-2 text-left">Player</th><th class="p-2 text-center">LVL</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">WPM</th></tr></thead>
+                    <tbody id="all-users-body" class="divide-y divide-slate-100 font-bold"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="lesson-manager-modal" class="profile-preview-modal hidden">
-        <div class="profile-preview-card">
-            <button class="profile-preview-close" onclick="closeLessonManager()">×</button>
-            <div class="profile-preview-content">
-                <div class="profile-preview-hero">
-                    <div>
-                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Admin Lesson Manager</p>
-                        <h3 class="text-white">Typing Lessons</h3>
-                        <p class="text-slate-300 mt-2">Add and manage up to 15 practice lessons.</p>
+    <!-- Profile Preview Modal -->
+    <div id="preview-modal" class="modal-overlay">
+        <div class="modal-box relative overflow-hidden">
+            <button onclick="closePreview()" class="absolute right-4 top-4 text-2xl font-bold text-slate-400 hover:text-red-500">×</button>
+            <div class="bg-gradient-to-br from-slate-900 to-blue-700 text-white rounded-3xl p-6">
+                <div class="flex flex-col md:flex-row items-center gap-4">
+                    <img id="preview-avatar" class="w-24 h-24 rounded-full border-4 border-white object-cover" src="">
+                    <div class="flex-1">
+                        <p class="text-[10px] uppercase tracking-[0.3em] opacity-70">POOL PROFILE</p>
+                        <h3 id="preview-name" class="text-2xl font-black uppercase mt-2">Player</h3>
+                        <p id="preview-id" class="text-xs opacity-80 mt-1">ID: --</p>
+                        <p id="preview-rank" class="mt-3 text-sm font-black text-amber-300">#--</p>
+                    </div>
+                    <div class="text-right">
+                        <span id="preview-badge" class="lvl-badge text-[11px] py-2 px-4 bg-yellow-400 text-slate-900 border-yellow-500">LVL 1</span>
                     </div>
                 </div>
-                <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_260px]">
-                    <div>
-                        <div id="lesson-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
+                <div class="grid grid-cols-3 gap-3 mt-6 text-slate-900">
+                    <div class="bg-white rounded-3xl p-4 text-center">
+                        <p id="preview-points" class="text-2xl font-black">0</p>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Points</p>
                     </div>
-                    <div class="p-5 rounded-3xl bg-white/10 border border-white/10">
-                        <p class="text-slate-300 mb-2">New Lesson Text</p>
-                        <textarea id="new-lesson-text" class="w-full p-3 rounded-2xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Enter a typing sentence..."></textarea>
-                        <div class="mt-3 flex gap-2">
-                            <button onclick="addLesson()" class="lesson-manager-button flex-1">Add Lesson</button>
-                        </div>
-                        <p class="mt-4 text-slate-300 text-sm" id="lesson-count"></p>
+                    <div class="bg-white rounded-3xl p-4 text-center">
+                        <p id="preview-wpm" class="text-2xl font-black">0</p>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Best WPM</p>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="profile-preview-modal" class="profile-preview-modal hidden">
-        <div class="profile-preview-card">
-            <button class="profile-preview-close" onclick="closeProfilePreview()">×</button>
-            <div class="profile-preview-content">
-                <div class="profile-preview-hero">
-                    <img id="preview-pic" class="profile-preview-avatar" src="" alt="Profile picture">
-                    <div class="profile-preview-meta">
-                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Pool Profile</p>
-                        <h3 id="preview-name">PLAYER NAME</h3>
-                        <p id="preview-id">ID: ----</p>
-                        <p id="preview-rank" class="text-[14px] font-bold text-amber-300 mt-2">#--</p>
-                    </div>
-                    <div class="text-right flex flex-col items-end gap-3">
-                        <span id="preview-level" class="rank-badge">LVL 1</span>
+                    <div class="bg-white rounded-3xl p-4 text-center">
+                        <p id="preview-level" class="text-2xl font-black">1</p>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Level</p>
                     </div>
                 </div>
-                <div class="profile-preview-stats">
-                    <div class="profile-preview-stat">
-                        <span id="preview-points">0</span>
-                        Points
+                <div class="mt-6 bg-white/10 border border-white/20 rounded-3xl p-4">
+                    <p id="preview-progress" class="text-[10px] uppercase tracking-[0.3em] text-white/80 mb-2">Level Progress</p>
+                    <div class="h-2 rounded-full bg-white/20 overflow-hidden">
+                        <div id="preview-progress-bar" class="h-full bg-gradient-to-r from-amber-300 to-yellow-400 w-0"></div>
                     </div>
-                    <div class="profile-preview-stat">
-                        <span id="preview-wpm">0</span>
-                        Best WPM
-                    </div>
-                    <div class="profile-preview-stat">
-                        <span id="preview-mistakes">0</span>
-                        Total Mistakes
-                    </div>
+                    <p id="preview-progress-text" class="text-[11px] opacity-80 mt-2">Next level target information.</p>
                 </div>
-                <div class="profile-preview-levelbar">
-                    <div class="profile-preview-levelbar-label">Level Progress</div>
-                    <div class="profile-preview-progress">
-                        <div id="preview-level-bar" class="profile-preview-progress-fill" style="width: 0%;"></div>
-                    </div>
-                </div>
-                <div class="mt-4 text-slate-200 text-sm space-y-2">
-                    <p id="preview-next-level" class="font-semibold"></p>
-                    <p id="preview-future-level" class="text-slate-300"></p>
-                </div>
-                <div class="mt-6 p-5 rounded-3xl bg-white/10 border border-white/10 text-slate-100">
-                    <p id="preview-bio" class="text-sm italic leading-6"></p>
+                <div class="mt-5 bg-white/10 p-4 rounded-3xl border border-white/15">
+                    <p class="text-[10px] uppercase tracking-[0.3em] text-white/70 mb-2">Bio</p>
+                    <p id="preview-bio" class="text-[13px] italic opacity-90">"No bio"</p>
                 </div>
             </div>
         </div>
@@ -596,789 +326,72 @@
 
     <script>
         // ============================================
-        // FIREBASE CONFIG (এখানে আপনার config বসান)
+        // FIREBASE CONFIG
         // ============================================
         const firebaseConfig = {
-apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
-  authDomain: "eirnbooster.firebaseapp.com",
-  databaseURL: "https://eirnbooster-default-rtdb.firebaseio.com",
-  projectId: "eirnbooster",
-  storageBucket: "eirnbooster.firebasestorage.app",
-  messagingSenderId: "1062288115898",
-  appId: "1:1062288115898:web:952df73a31a3acdc2e5a83",
-  measurementId: "G-7YJCXGJVY5"
-};
-
-        // Initialize Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log("🔥 Firebase initialized successfully!");
-        } catch (error) {
-            console.error("❌ Firebase init error:", error);
-        }
-
-        // ============================================
-        // APP LOGIC
-        // ============================================
-        // Admin WhatsApp number (international format, no + or dashes).
-        // Set to: 01877902991 -> international (Bangladesh) 8801877902991
-        const ADMIN_WHATSAPP_NUMBER = '8801877902991';
+            apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
+            authDomain: "eirnbooster.firebaseapp.com",
+            databaseURL: "https://eirnbooster-default-rtdb.firebaseio.com",
+            projectId: "eirnbooster",
+            storageBucket: "eirnbooster.firebasestorage.app",
+            messagingSenderId: "1062288115898",
+            appId: "1:1062288115898:web:952df73a31a3acdc2e5a83"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-        const TYPING_PROMPTS = {
-            en: [
-                "Computers consist of hardware and software working together to perform tasks.",
-                "Programming languages let developers instruct computers to solve problems.",
-                "Networks connect computers so they can share data and resources securely.",
-                "Cybersecurity protects systems, data, and users from digital threats.",
-                "Algorithms are step-by-step procedures used to solve computational problems."
-            ],
-            bn: [
-                "কম্পিউটার হার্ডওয়্যার এবং সফটওয়্যার একসাথে কাজ করে বিভিন্ন কাজ সম্পন্ন করে।",
-                "প্রোগ্রামিং ভাষা ডেভেলপারদের কম্পিউটারকে সমস্যার সমাধান করতে নির্দেশ দিতে সহায়তা করে।",
-                "নেটওয়ার্ক কম্পিউটারগুলোকে একসাথে যুক্ত করে তথ্য ও সম্পদ ভাগ করে নিতে সাহায্য করে।",
-                "সাইবারসিকিউরিটি সিস্টেম, তথ্য এবং ব্যবহারকারীদের ডিজিটাল হুমকি থেকে রক্ষা করে।",
-                "অ্যালগোরিদম হল গণনামূলক সমস্যা সমাধানের জন্য ধাপে ধাপে নির্ধারিত পদ্ধতি।"
-            ]
-        };
+        const ADMIN_WHATSAPP = '8801877902991';
+
         let loggedInUser = null;
-        let currentTypingLanguage = localStorage.getItem('typingLanguage') || 'en';
-        let rotateIdx = 0, isStarted = false, startTime = null, sessionMistakes = 0, correctChars = 0;
-        let timeLeft = 300, timerInterval = null, isTimeOver = false;
-        let rotationTimer = null;
         let allUsers = [];
-        let leaderboardResetInfo = null;
-        let leaderboardResetCountdownInterval = null;
-        const LEADERBOARD_RESET_PATH = 'leaderboardReset';
-        let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
+        let allLessons = [];
+        let currentLessonId = null;
+        let typingLang = 'en';
+        let currentLanguage = 'en';
+        let isStarted = false, startTime = null, sessionMistakes = 0, correctChars = 0;
+        let timeLeft = 300, timerInterval = null, isTimeOver = false;
+        let helpListener = null;
+        let isCustomMode = false;
+        let customTextContent = '';
+        let rotateIdx = 0;
+        let rotationTimer = null;
 
-        function getMonthKey(date) {
-            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        }
-
-        function formatResetDate(timestamp) {
-            const date = new Date(timestamp);
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-        }
-
-        function formatNextResetText(monthKey) {
-            const [year, month] = monthKey.split('-').map(Number);
-            const next = new Date(year, month, 1);
-            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            return `${monthNames[next.getMonth()]} ${String(next.getDate()).padStart(2, '0')}`;
-        }
-
-        function getNextResetTimestamp(monthKey) {
-            const [year, month] = monthKey.split('-').map(Number);
-            const nextResetDate = new Date(year, month, 1, 0, 0, 0, 0);
-            return nextResetDate.getTime();
-        }
-
-        function formatRemainingTime(ms) {
-            const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
-            const days = Math.floor(totalSeconds / 86400);
-            const hours = Math.floor((totalSeconds % 86400) / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            const parts = [];
-            if (days) parts.push(`${days}d`);
-            if (hours || days) parts.push(`${hours}h`);
-            if (minutes || hours || days) parts.push(`${minutes}m`);
-            parts.push(`${seconds}s`);
-            return parts.join(' ');
-        }
-
-        function updateLeaderboardResetInfoText() {
-            const infoEl = document.getElementById('leaderboard-reset-info');
-            if (!infoEl) return;
-            const now = Date.now();
-            const currentKey = getMonthKey(new Date());
-            const monthKey = leaderboardResetInfo && leaderboardResetInfo.monthKey ? leaderboardResetInfo.monthKey : currentKey;
-            const nextReset = formatNextResetText(monthKey);
-            const nextResetTs = getNextResetTimestamp(monthKey);
-            const remaining = nextResetTs - now;
-            const remainingText = remaining > 0 ? formatRemainingTime(remaining) : 'Reset happening now';
-            const lastReset = leaderboardResetInfo && leaderboardResetInfo.timestamp ? formatResetDate(leaderboardResetInfo.timestamp) : 'Unknown';
-            const prevTopName = leaderboardResetInfo && leaderboardResetInfo.previousTopName ? leaderboardResetInfo.previousTopName : 'No last top';
-            const prevTopPoints = leaderboardResetInfo && leaderboardResetInfo.previousTopPoints ? leaderboardResetInfo.previousTopPoints : 0;
-            infoEl.innerText = `Resets on 1st of month | Last reset: ${lastReset} | Prev top: ${prevTopName} (${prevTopPoints} pts) | Next: ${nextReset} | Remaining: ${remainingText}`;
-        }
-
-        function startLeaderboardResetCountdown() {
-            if (leaderboardResetCountdownInterval) {
-                clearInterval(leaderboardResetCountdownInterval);
-            }
-            updateLeaderboardResetInfoText();
-            leaderboardResetCountdownInterval = setInterval(updateLeaderboardResetInfoText, 1000);
-        }
-
-        function setLeaderboardResetInfo(data) {
-            leaderboardResetInfo = data || {};
-            const infoEl = document.getElementById('leaderboard-reset-info');
-            if (!infoEl) return;
-            startLeaderboardResetCountdown();
-        }
-
-        function resetMonthlyLeaderboard(monthKey) {
-            const timestamp = Date.now();
-            return firebase.database().ref('users').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const users = Object.keys(data).map(key => ({
-                    id: key,
-                    name: data[key].name || key,
-                    monthlyPoints: data[key].monthlyPoints || 0
-                }));
-                const sorted = users.sort((a, b) => b.monthlyPoints - a.monthlyPoints);
-                const topUser = sorted[0] || null;
-                const resetData = {
-                    monthKey,
-                    timestamp,
-                    previousTopName: topUser ? topUser.name : null,
-                    previousTopPoints: topUser ? topUser.monthlyPoints : 0
-                };
-                const updates = {};
-                Object.keys(data).forEach(key => {
-                    updates[`users/${key}/monthlyPoints`] = 0;
-                });
-                const updatePromise = Object.keys(updates).length > 0 ? firebase.database().ref().update(updates) : Promise.resolve();
-                return updatePromise.then(() => firebase.database().ref(LEADERBOARD_RESET_PATH).set(resetData)).then(() => resetData);
-            }).then((resetData) => {
-                setLeaderboardResetInfo(resetData);
-            });
-        }
-
-        function loadLeaderboardResetInfo() {
-            return firebase.database().ref(LEADERBOARD_RESET_PATH).once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const storedKey = data.monthKey;
-                const currentKey = getMonthKey(new Date());
-                if (storedKey !== currentKey) {
-                    return resetMonthlyLeaderboard(currentKey);
-                }
-                setLeaderboardResetInfo(data);
-                return Promise.resolve();
-            }).catch(err => {
-                console.error('❌ Failed to load leaderboard reset info:', err);
-                setLeaderboardResetInfo(null);
-            });
-        }
-
-        const translations = {
-            en: {
-                navHome: 'Home',
-                navLogin: 'Login',
-                navDownload: 'Download',
-                bannerTitle: '**Practice Daily, Improve Your Skills, <br>and Win Great Prizes!**',
-                bannerPool: 'Pool Live',
-                typingPlaceholder: 'Start typing to improve your skills...',
-                reset: 'Reset 🔄',
-                time: 'Time:',
-                chars: 'Chars:',
-                mistakes: 'Mistakes:',
-                wpm: 'WPM:',
-                saveResult: 'Save Result ✅',
-                leaderboardTitle: 'Global Leaderboard',
-                searchPlaceholder: 'Search ID...',
-                profileTitle: 'Profile Settings',
-                profileUpdate: 'Update Profile',
-                authTitle: 'Master Login',
-                authLogin: 'Login Arena',
-                authClose: 'Close',
-                editId: 'User ID',
-                editName: 'Display Name',
-                editPic: 'Avatar.jpg',
-                editBio: 'Add Bio...',
-                noPlayers: 'No players yet. Be the first!',
-                typeSomething: 'Type something first!',
-                submitBlocked: 'Please wait until the 5-minute timer finishes before saving your result.',
-                timeExpired: 'Time is up! Typing has been stopped. Reset to begin a new session.',
-                scoreSubmitted: '🎉 Score submitted!\nPoints earned: ',
-                scoreWpm: '\nWPM: ',
-                highWpmCongrats: '🎊 Congratulations! Your WPM is above 15.'
-            },
-            bn: {
-                navHome: 'হোম',
-                navLogin: 'লগইন',
-                navDownload: 'ডাউনলোড',
-                bannerTitle: '**প্রতিদিন অনুশীলন করুন, আপনার দক্ষতা বাড়ান, <br>এবং বড় পুরস্কার জিতুন!**',
-                bannerPool: 'পুল লাইভ',
-                typingPlaceholder: 'আপনার দক্ষতা বাড়াতে টাইপ করা শুরু করুন...',
-                reset: 'রিসেট 🔄',
-                time: 'সময়:',
-                chars: 'অক্ষর:',
-                mistakes: 'ভুল:',
-                wpm: 'ডব্লিউপিএম:',
-                saveResult: 'ফলাফল সেভ করুন ✅',
-                leaderboardTitle: 'গ্লোবাল লিডারবোর্ড',
-                searchPlaceholder: 'আইডি খুঁজুন...',
-                profileTitle: 'প্রোফাইল সেটিংস',
-                profileUpdate: 'প্রোফাইল আপডেট',
-                authTitle: 'মাস্টার লগইন',
-                authLogin: 'লগইন আরেনা',
-                authClose: 'বন্ধ',
-                editId: 'ইউজার আইডি',
-                editName: 'ডিসপ্লে নাম',
-                editPic: 'অ্যাভাটার.jpg',
-                editBio: 'বায়ো যোগ করুন...',
-                noPlayers: 'এখনো কোনো প্লেয়ার নেই। প্রথমজন হোন!',
-                typeSomething: 'প্রথমে কিছু টাইপ করুন!',
-                submitBlocked: 'ফলাফল সেভ করতে ৫ মিনিটের টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন।',
-                timeExpired: 'সময় শেষ! টাইপিং বন্ধ করা হয়েছে। নতুন সেশনের জন্য রিসেট করুন।',
-                scoreSubmitted: '🎉 স্কোর সাবমিট হয়েছে!\nপ্রাপ্ত পয়েন্ট: ',
-                scoreWpm: '\nডব্লিউপিএম: ',
-                highWpmCongrats: '🎊 অভিনন্দন! আপনার ডব্লিউপিএম ১৫ এর উপরে।'
-            }
-        };
-
-        function setLanguage(lang) {
-            currentLanguage = lang;
-            localStorage.setItem('preferredLanguage', lang);
-            const t = translations[lang] || translations.en;
-            const langSwitcher = document.getElementById('lang-switcher');
-            if (langSwitcher) langSwitcher.value = lang;
-
-            document.documentElement.lang = lang;
-            const navHome = document.getElementById('nav-home-link');
-            if (navHome) navHome.innerText = t.navHome;
-            const navLogin = document.getElementById('nav-login-btn');
-            if (navLogin) navLogin.innerText = t.navLogin;
-            const downloadBtn = document.getElementById('download-btn');
-            if (downloadBtn) downloadBtn.innerText = t.navDownload;
-            const bannerTitle = document.getElementById('banner-title');
-            if (bannerTitle) bannerTitle.innerHTML = t.bannerTitle;
-            const bannerPool = document.getElementById('banner-pool');
-            if (bannerPool) bannerPool.innerText = t.bannerPool;
-            const typingInput = document.getElementById('typing-input');
-            if (typingInput) typingInput.placeholder = t.typingPlaceholder;
-            const resetBtn = document.getElementById('reset-btn');
-            if (resetBtn) resetBtn.innerText = t.reset;
-            const timeLabel = document.getElementById('time-label');
-            if (timeLabel) timeLabel.innerText = t.time;
-            const charsLabel = document.getElementById('chars-label');
-            if (charsLabel) charsLabel.innerText = t.chars;
-            const mistakesLabel = document.getElementById('mistakes-label');
-            if (mistakesLabel) mistakesLabel.innerText = t.mistakes;
-            const wpmLabel = document.getElementById('wpm-label');
-            if (wpmLabel) wpmLabel.innerText = t.wpm;
-            const saveBtn = document.getElementById('submit-btn');
-            if (saveBtn) saveBtn.innerText = t.saveResult;
-            const leaderboardTitle = document.getElementById('leaderboard-title');
-            if (leaderboardTitle) leaderboardTitle.innerText = t.leaderboardTitle;
-            const searchBox = document.getElementById('search-box');
-            if (searchBox) searchBox.placeholder = t.searchPlaceholder;
-            const profileTitle = document.getElementById('profile-title');
-            if (profileTitle) profileTitle.innerText = t.profileTitle;
-            const editId = document.getElementById('edit-id');
-            if (editId) editId.placeholder = t.editId;
-            const editName = document.getElementById('edit-name');
-            if (editName) editName.placeholder = t.editName;
-            const editPic = document.getElementById('edit-pic');
-            if (editPic) editPic.placeholder = t.editPic;
-            const editBio = document.getElementById('edit-bio');
-            if (editBio) editBio.placeholder = t.editBio;
-            const authTitle = document.getElementById('auth-title');
-            if (authTitle) authTitle.innerText = t.authTitle;
-            const authSubmit = document.getElementById('auth-submit-btn');
-            if (authSubmit) authSubmit.innerText = t.authLogin;
-            const authClose = document.getElementById('auth-close-btn');
-            if (authClose) authClose.innerText = t.authClose;
-            const profileSaveBtn = document.querySelector('#edit-modal button[onclick="saveProfile()"]');
-            if (profileSaveBtn) profileSaveBtn.innerText = t.profileUpdate;
-
-            const leaderboardBody = document.getElementById('leaderboard-body');
-            if (leaderboardBody && leaderboardBody.innerHTML.trim()) {
-                const noPlayersRow = leaderboardBody.querySelector('td[colspan="5"]');
-                if (noPlayersRow) noPlayersRow.innerText = t.noPlayers;
-            }
-        }
-
-        function downloadPage() {
-            const previewHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Typing Master Pro Preview</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --bg: #f8fafc;
-      --panel: #ffffff;
-      --ink: #0f172a;
-      --muted: #64748b;
-      --accent: #2563eb;
-      --accent2: #06b6d4;
-      --gold: #fbbf24;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
-      color: var(--ink);
-      display: grid;
-      place-items: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-    .app-shell {
-      width: min(920px, 100%);
-      background: rgba(255,255,255,0.9);
-      border: 1px solid #dbeafe;
-      border-radius: 28px;
-      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16);
-      padding: 24px;
-      backdrop-filter: blur(16px);
-    }
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding: 12px 16px;
-      background: linear-gradient(90deg, #0f172a, #1d4ed8);
-      color: white;
-      border-radius: 16px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 12px;
-    }
-    .preview-card {
-      background: var(--panel);
-      border: 1px solid #e2e8f0;
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-    }
-    .hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 16px;
-      padding: 16px;
-      border-radius: 18px;
-      background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-      color: #111827;
-      font-weight: 900;
-    }
-    .hero h1 { margin: 0 0 6px; font-size: 18px; text-transform: uppercase; }
-    .hero p { margin: 0; font-size: 12px; }
-    .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.7); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
-    .typing-area {
-      background: #f8fafc;
-      border: 1px solid #dbeafe;
-      border-radius: 20px;
-      padding: 18px;
-      margin-bottom: 16px;
-    }
-    .topic {
-      text-align: right;
-      font-size: 20px;
-      font-weight: 900;
-      color: #0f172a;
-      margin-bottom: 8px;
-    }
-    .prompt {
-      font-size: 16px;
-      line-height: 1.6;
-      color: #334155;
-      margin-bottom: 14px;
-    }
-    .input-box {
-      border: 2px solid var(--accent);
-      border-radius: 16px;
-      padding: 14px;
-      min-height: 86px;
-      background: white;
-      color: var(--muted);
-      font-size: 15px;
-    }
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 10px;
-      padding: 12px 0 0;
-      border-top: 1px solid #e2e8f0;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-    .pill {
-      background: #eff6ff;
-      border-radius: 999px;
-      padding: 8px 12px;
-      color: var(--accent);
-    }
-    .footer-note {
-      margin-top: 12px;
-      font-size: 11px;
-      color: #64748b;
-      text-align: center;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    @media (max-width: 700px) {
-      .hero { flex-direction: column; align-items: flex-start; }
-      .top-bar { font-size: 10px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="app-shell">
-    <div class="top-bar">
-      <span>Typing Master Pro</span>
-      <span>Download Preview</span>
-    </div>
-    <div class="preview-card">
-      <div class="hero">
-        <div>
-          <h1>Practice Daily • Improve Faster</h1>
-          <p>Boost your typing speed with a clean, modern experience.</p>
-        </div>
-        <div class="badge">⚡ 5 min challenge</div>
-      </div>
-      <div class="typing-area">
-        <div class="topic">Computer Fundamentals</div>
-        <div class="prompt">Programming languages let developers instruct computers to solve problems.</div>
-        <div class="input-box">Start typing to improve your skills...</div>
-      </div>
-      <div class="stats">
-        <div class="pill">Time: 05:00</div>
-        <div class="pill">Chars: 0</div>
-        <div class="pill">Mistakes: 0</div>
-        <div class="pill">WPM: 0</div>
-      </div>
-      <div class="footer-note">Self-contained typing app preview</div>
-    </div>
-  </div>
-</body>
-</html>`;
-            const blob = new Blob([previewHtml], { type: 'text/html;charset=utf-8' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'typing-master-pro-preview.html';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(link.href);
-        }
-
-        // ---------- Firebase Helpers ----------
-        function syncUsersFromFirebase() {
-            try {
-                const dbRef = firebase.database().ref('users');
-                dbRef.on('value', snapshot => {
-                    const data = snapshot.val();
-                    if (data) {
-                        allUsers = Object.keys(data).map(key => ({
-                            id: key,
-                            monthlyPoints: (data[key].monthlyPoints || 0),
-                            ...data[key]
-                        }));
-                        console.log("📊 Users loaded:", allUsers.length);
-                        renderLeaderboard(allUsers);
-                        updateBannerWithRotation();
-                        if (loggedInUser) updateNav();
-                    } else {
-                        allUsers = [];
-                        renderLeaderboard([]);
-                        if (loggedInUser) updateNav();
-                    }
-                });
-            } catch (error) {
-                console.error("❌ Firebase sync error:", error);
-            }
-        }
-
-        function saveUserToFirebase(user) {
-            try {
-                const dbRef = firebase.database().ref('users/' + user.id);
-                return dbRef.set({
-                    name: user.name || user.id,
-                    password: user.password || '',
-                    points: user.points || 0,
-                    monthlyPoints: user.monthlyPoints || 0,
-                    mistakes: user.mistakes || 0,
-                    bestWpm: user.bestWpm || 0,
-                    pic: user.pic || '',
-                    bio: user.bio || ''
-                }).then(() => {
-                    console.log("✅ User saved:", user.id);
-                    return true;
-                }).catch(err => {
-                    console.error("❌ Save error:", err);
-                    return false;
-                });
-            } catch (error) {
-                console.error("❌ Save function error:", error);
-                return false;
-            }
-        }
-
-        function updateUserInFirebase(user) {
-            try {
-                const dbRef = firebase.database().ref('users/' + user.id);
-                return dbRef.update({
-                    name: user.name,
-                    points: user.points,
-                    monthlyPoints: user.monthlyPoints || 0,
-                    mistakes: user.mistakes,
-                    bestWpm: user.bestWpm,
-                    pic: user.pic,
-                    bio: user.bio
-                }).then(() => {
-                    console.log("✅ User updated:", user.id);
-                    return true;
-                }).catch(err => {
-                    console.error("❌ Update error:", err);
-                    return false;
-                });
-            } catch (error) {
-                console.error("❌ Update function error:", error);
-                return false;
-            }
-        }
-
-        // ---------- Init ----------
-        let adminLessons = [];
-
-        function loadTypingLessons() {
-            firebase.database().ref('lessons').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                adminLessons = Object.values(data).map(item => item.text).filter(Boolean);
-            }).catch(() => {
-                adminLessons = [];
-            });
-        }
-
-        function init() {
-            console.log("🚀 App initializing...");
-            setLanguage(currentLanguage);
-            // If the user hasn't chosen a typing language, try to auto-detect Bengali from browser
-            if (!localStorage.getItem('typingLanguage')) {
-                try {
-                    const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-                    if (navLang && navLang.startsWith('bn')) {
-                        currentTypingLanguage = 'bn';
-                    }
-                } catch (e) {}
-            }
-            switchTypingLanguage(currentTypingLanguage);
-            loadLeaderboardResetInfo().then(() => {
-                syncUsersFromFirebase();
-            });
-            loadTypingLessons();
-
-            // Load logged in user from localStorage
-            const stored = localStorage.getItem('currentUser');
-            if (stored) {
-                try {
-                    loggedInUser = JSON.parse(stored);
-                    console.log("👤 Logged in from storage:", loggedInUser.id);
-                    updateNav();
-                    closeAuth();
-                } catch (e) {
-                    loggedInUser = null;
-                }
-            }
-
-            if (loggedInUser) {
-                // Verify user still exists in Firebase, but keep UI logged in while checking.
-                try {
-                    firebase.database().ref('users/' + loggedInUser.id).once('value')
-                        .then(snapshot => {
-                            const fbUser = snapshot.val();
-                            if (fbUser) {
-                                loggedInUser = { id: loggedInUser.id, ...fbUser };
-                                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                            } else {
-                                console.warn('⚠️ Stored user not found in Firebase, clearing local session');
-                                localStorage.removeItem('currentUser');
-                                loggedInUser = null;
-                            }
-                            updateNav();
-                            updateBannerWithRotation();
-                            startEliteRotation();
-                            resetTyping();
-                            listenForHelpReplies();
-                        }).catch(err => {
-                            console.error('❌ Firebase verification error:', err);
-                            updateNav();
-                            updateBannerWithRotation();
-                            startEliteRotation();
-                            resetTyping();
-                            listenForHelpReplies();
-                        });
-                } catch (e) {
-                    updateNav();
-                    updateBannerWithRotation();
-                    startEliteRotation();
-                    resetTyping();
-                    listenForHelpReplies();
-                }
-            } else {
-                updateNav();
-                updateBannerWithRotation();
-                startEliteRotation();
-                resetTyping();
-                // If no logged in user, ensure any previous help listener is not active
-            }
-
-            // Typing input listener
-            document.getElementById('typing-input').addEventListener('input', function() {
-                if (!loggedInUser) {
-                    this.value = "";
-                    openAuth();
-                    return;
-                }
-                if (isTimeOver) {
-                    this.value = this.value.substring(0, 0);
-                    return;
-                }
-                if (!isStarted) {
-                    isStarted = true;
-                    startTime = new Date();
-                    startTimer();
-                }
-                const chars = document.querySelectorAll('#display-box span');
-                const typed = this.value.split('');
-                sessionMistakes = 0;
-                correctChars = 0;
-                chars.forEach((s, i) => {
-                    if (typed[i] == null) s.className = "char";
-                    else if (typed[i] === s.innerText) {
-                        s.className = "char correct";
-                        correctChars++;
-                    } else {
-                        s.className = "char incorrect";
-                        sessionMistakes++;
-                    }
-                    if (i === typed.length) s.classList.add('current');
-                });
-                let time = (new Date() - startTime) / 60000;
-                let wpm = Math.round((correctChars / 5) / time) || 0;
-                document.getElementById('live-chars').innerText = typed.length;
-                document.getElementById('live-mistakes').innerText = sessionMistakes;
-                document.getElementById('live-wpm').innerText = wpm;
-                try { updateWpmBanner(wpm); } catch (e) {}
-                chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-        }
-
-        function getTargetIncrement(level) {
-            return level <= 3 ? 200 : (level - 2) * 200;
-        }
-
+        // ============================================
+        // LEVEL SYSTEM
+        // ============================================
+        function getTarget(level) { return level <= 3 ? 200 : (level - 2) * 200; }
         function pointsForLevel(level) {
             if (level <= 1) return 0;
             let total = 0;
-            for (let lvl = 2; lvl <= level; lvl += 1) {
-                total += getTargetIncrement(lvl);
-            }
+            for (let l = 2; l <= level; l++) total += getTarget(l);
             return total;
         }
-
-        function calcLvl(pts) {
+        function calcLevel(pts) {
             let level = 1;
-            while (pts >= pointsForLevel(level + 1)) {
-                level += 1;
-            }
+            while (pts >= pointsForLevel(level + 1)) level++;
             return level;
         }
 
-        function calcLvlProgress(points) {
-            const level = calcLvl(points);
-            const start = pointsForLevel(level);
-            const end = pointsForLevel(level + 1);
-            const progress = end > start ? ((points - start) / (end - start)) * 100 : 100;
-            return Math.min(Math.max(Math.round(progress), 0), 100);
+        function calcLevelProgress(points) {
+            const level = calcLevel(points);
+            const currentLevelPoints = pointsForLevel(level);
+            const nextLevelPoints = pointsForLevel(level + 1);
+            if (nextLevelPoints <= currentLevelPoints) return 100;
+            return Math.min(100, Math.max(0, Math.round((points - currentLevelPoints) / (nextLevelPoints - currentLevelPoints) * 100)));
         }
 
-        function getLevelProjection(points, extra) {
-            return calcLvl(points + extra);
-        }
-
-        function getNextTargetText(points) {
-            const currentLevel = calcLvl(points);
-            const nextLevel = currentLevel + 1;
+        function getNextLevelTargetText(points) {
+            const level = calcLevel(points);
+            const nextLevel = level + 1;
             const nextThreshold = pointsForLevel(nextLevel);
-            const remaining = Math.max(nextThreshold - points, 0);
-            if (remaining > 0) {
-                return `Next target: ${nextThreshold} pts (${remaining} more to LVL ${nextLevel})`;
-            }
-            return `Already reached LVL ${nextLevel}`;
+            const remaining = Math.max(0, nextThreshold - points);
+            return `Next target: ${nextThreshold} pts for LVL ${nextLevel} (${remaining} more)`;
         }
 
-        function showInBanner(user, rank) {
-            if (!user) return;
-            const level = calcLvl(user.points || 0);
-            document.getElementById('dash-name').innerText = user.name || user.id;
-            document.getElementById('dash-id').innerText = "ID: " + (user.id || '').toUpperCase();
-            document.getElementById('dash-pts').innerText = user.points || 0;
-            document.getElementById('dash-mistakes').innerText = user.mistakes || 0;
-            document.getElementById('dash-pic').src = user.pic || DEFAULT_AVATAR;
-            document.getElementById('dash-pic').style.boxShadow = getLevelGlow(level);
-            document.getElementById('dash-pic').style.borderColor = getLevelFrameColor(level);
-            document.getElementById('dash-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : "No bio added.";
-            document.getElementById('dash-next-target').innerText = getNextTargetText(user.points || 0);
-            document.getElementById('dash-rank-tag').innerText = "#" + (rank || '--');
-            const nameRank = document.getElementById('dash-name-rank');
-            if (nameRank) nameRank.innerText = "#" + (rank || '--');
-            document.getElementById('dash-lvl-tag').innerText = "LVL " + level;
-            document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
-        }
-
-        function updateBannerWithRotation() {
-            const sorted = [...allUsers].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
-                return (b.points || 0) - (a.points || 0);
-            }).slice(0, 10);
-            if (sorted.length > 0) {
-                const idx = rotateIdx % sorted.length;
-                showInBanner(sorted[idx], idx + 1);
-            }
-        }
-
-        function startEliteRotation() {
-            if (rotationTimer) clearInterval(rotationTimer);
-            document.getElementById('elite-banner').classList.remove('viewing-mode');
-            const update = () => {
-                const sorted = [...allUsers].sort((a, b) => {
-                    const monthlyA = a.monthlyPoints || 0;
-                    const monthlyB = b.monthlyPoints || 0;
-                    if (monthlyB !== monthlyA) return monthlyB - monthlyA;
-                    return (b.points || 0) - (a.points || 0);
-                }).slice(0, 10);
-                if (sorted.length > 0) {
-                    showInBanner(sorted[rotateIdx], rotateIdx + 1);
-                    rotateIdx = (rotateIdx + 1) % sorted.length;
-                }
-            };
-            update();
-            rotationTimer = setInterval(update, 5000);
-        }
-
-        function getUserRank(userId) {
-            const sortedGlobal = [...allUsers].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
-                return (b.points || 0) - (a.points || 0);
-            });
-            const normId = (userId || '').toString().toLowerCase();
-            const idx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
-            return idx === -1 ? null : idx + 1;
-        }
-
+        // ============================================
+        // BANNER ROTATION - FIXED
+        // ============================================
         function getLevelGlow(level) {
             const intensity = Math.min(level * 0.12, 1);
             const color = level >= 8 ? '255, 183, 0' : level >= 5 ? '34, 197, 94' : '59, 130, 246';
@@ -1391,644 +404,485 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             return level >= 8 ? 'rgba(252, 211, 77, 0.85)' : level >= 5 ? 'rgba(34, 197, 94, 0.85)' : 'rgba(96, 165, 250, 0.95)';
         }
 
-        function openHelpLine() {
-            // Prefill fields from logged in user if available
-            try {
-                if (loggedInUser) {
-                    const n = document.getElementById('help-name');
-                    const uid = document.getElementById('help-userid');
-                    const mob = document.getElementById('help-mobile');
-                    if (n) n.value = loggedInUser.name || '';
-                    if (uid) uid.value = loggedInUser.id || '';
-                    if (mob) mob.value = loggedInUser.mobile || '';
-                }
-            } catch (e) { /* ignore */ }
-            document.getElementById('help-modal').classList.remove('hidden');
-        }
-
-        function closeHelpLine() {
-            document.getElementById('help-modal').classList.add('hidden');
-        }
-
-        function sendHelpMessage() {
-            const statusEl = document.getElementById('help-send-status');
-            if (!loggedInUser) {
-                openAuth();
+        function updateBannerRotation() {
+            const sorted = [...allUsers].sort((a, b) => {
+                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
+                if (mb !== ma) return mb - ma;
+                return (b.points || 0) - (a.points || 0);
+            }).slice(0, 10);
+            
+            if (sorted.length === 0) {
+                document.getElementById('banner-rank').textContent = '#--';
+                document.getElementById('banner-name').textContent = 'No players';
+                document.getElementById('banner-id').textContent = 'ID: --';
+                document.getElementById('banner-points').textContent = '0 pts';
+                document.getElementById('banner-avatar').src = DEFAULT_AVATAR;
+                document.getElementById('banner-avatar').style.boxShadow = 'none';
+                document.getElementById('banner-avatar').style.borderColor = '#e2e8f0';
+                document.getElementById('banner-level').textContent = 'LVL 1';
+                document.getElementById('banner-crown').style.display = 'none';
                 return;
             }
-            const text = document.getElementById('help-message-text').value.trim();
-            if (!text) {
-                statusEl.innerText = currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message';
-                return;
+            
+            const idx = rotateIdx % sorted.length;
+            const user = sorted[idx];
+            const rank = idx + 1;
+            const level = calcLevel(user.points || 0);
+            
+            document.getElementById('banner-rank').textContent = '#' + rank;
+            document.getElementById('banner-name').textContent = user.name || user.id;
+            document.getElementById('banner-id').textContent = 'ID: ' + (user.id || '').toUpperCase();
+            document.getElementById('banner-points').textContent = (user.points || 0) + ' pts';
+            document.getElementById('banner-avatar').src = user.pic || DEFAULT_AVATAR;
+            document.getElementById('banner-avatar').style.boxShadow = getLevelGlow(level);
+            document.getElementById('banner-avatar').style.borderColor = getLevelFrameColor(level);
+            document.getElementById('banner-level').textContent = 'LVL ' + level;
+            document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
+        }
+
+        function startBannerRotation() {
+            if (rotationTimer) {
+                clearInterval(rotationTimer);
+                rotationTimer = null;
             }
-            statusEl.innerText = currentLanguage === 'bn' ? 'পাঠানো হচ্ছে...' : 'Sending...';
-            try {
-                const safeUserId = String(loggedInUser.id).replace(/\./g, '_');
-                const ticketsRef = firebase.database().ref('help_tickets/' + safeUserId);
-                const ticketRef = ticketsRef.push();
-                const payload = {
-                    senderId: loggedInUser.id,
-                    senderName: loggedInUser.name || loggedInUser.id,
-                    text,
-                    timestamp: Date.now(),
-                    status: 'open'
-                };
-
-                ticketRef.set(payload).then(() => {
-                    console.log('Help ticket written:', ticketRef.key, payload);
-                    // Also write a simple index/notification for admins so they can list new tickets easily
-                    const adminIndexRef = firebase.database().ref('admin_help_index/' + ticketRef.key);
-                    return adminIndexRef.set({ userId: loggedInUser.id, ticketId: ticketRef.key, createdAt: Date.now(), status: 'open' });
-                }).then(() => {
-                    statusEl.innerText = currentLanguage === 'bn' ? 'আপনার মেসেজ পাঠানো হয়েছে।' : 'Your message was sent.';
-                    document.getElementById('help-message-text').value = '';
-                    setTimeout(() => { statusEl.innerText = ''; closeHelpLine(); }, 1400);
-                }).catch(err => {
-                    console.error('Help send error (write):', err);
-                    statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
-                });
-            } catch (err) {
-                console.error('Help send unexpected error', err);
-                statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
-            }
+            
+            // প্রথমবার আপডেট
+            updateBannerRotation();
+            
+            // প্রতি 5 সেকেন্ডে রোটেট
+            rotationTimer = setInterval(() => {
+                rotateIdx = (rotateIdx + 1) % 10;
+                updateBannerRotation();
+            }, 5000);
         }
 
-        function sendWhatsAppMessage() {
-            const name = (document.getElementById('help-name') && document.getElementById('help-name').value.trim()) || (loggedInUser && loggedInUser.name) || '';
-            const userId = (document.getElementById('help-userid') && document.getElementById('help-userid').value.trim()) || (loggedInUser && loggedInUser.id) || '';
-            const mobile = (document.getElementById('help-mobile') && document.getElementById('help-mobile').value.trim()) || '';
-            const msg = (document.getElementById('help-message-text') && document.getElementById('help-message-text').value.trim()) || '';
-            if (!mobile) return alert('Enter your mobile number');
-            if (!msg) return alert(currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message');
-
-            const full = `Help request from ${name || userId}\nID: ${userId}\nMobile: ${mobile}\nMessage: ${msg}`;
-            const encoded = encodeURIComponent(full);
-            // ADMIN_WHATSAPP_NUMBER should be international format without +
-            const target = ADMIN_WHATSAPP_NUMBER || '';
-            if (!target) return alert('Admin WhatsApp number not configured');
-            const url = `https://wa.me/${target}?text=${encoded}`;
-            window.open(url, '_blank');
-        }
-
-        // Listen for admin replies for the logged-in user and render them in the help modal
-        function safeUserId(id) {
-            if (!id) return '';
-            return String(id).replace(/\./g, '_');
-        }
-
-        function listenForHelpReplies() {
-            if (!loggedInUser || !loggedInUser.id) return;
-            const uid = safeUserId(loggedInUser.id);
-            try {
-                const ref = firebase.database().ref('help_tickets/' + uid);
-                ref.on('value', snap => {
-                    const data = snap.val() || {};
-                    const container = document.getElementById('help-replies');
-                    const parts = [];
-                    let hasAnyReplies = false;
-                    Object.keys(data).forEach(ticketId => {
-                        const t = data[ticketId] || {};
-                        const ticketText = t.text || t.senderText || '';
-                        const created = t.timestamp || t.createdAt || 0;
-                        const replies = t.replies || {};
-                        const repliesList = Object.keys(replies).map(k => replies[k]);
-                        if (repliesList.length) hasAnyReplies = true;
-                        const replyHtml = repliesList.map(r => `<div class="p-2 rounded-md bg-slate-800/60 mb-2"><strong>${escapeHtml(r.responderName||'Admin')}:</strong> ${escapeHtml(r.text)} <div class="text-xs text-slate-400">${new Date(r.ts||r.timestamp||0).toLocaleString()}</div></div>`).join('');
-                        parts.push(`<div class="p-3 rounded-md border border-slate-700 mb-2"><div class="text-slate-300 mb-2">${escapeHtml(ticketText)}</div>${replyHtml || '<div class="text-xs text-slate-400 mt-2">No replies yet.</div>'}<div class="text-xs text-slate-400 mt-2">${created ? new Date(created).toLocaleString() : ''}</div></div>`);
-                    });
-                    if (container) container.innerHTML = parts.join('') || '<div class="text-xs text-slate-400">No tickets yet.</div>';
-                    const statusEl = document.getElementById('help-send-status');
-                    if (statusEl) {
-                        if (hasAnyReplies) statusEl.innerText = currentLanguage === 'bn' ? 'আপনার জন্য অ্যাডমিনের উত্তর আছে।' : 'Admin has replied to your ticket(s).';
-                        else statusEl.innerText = '';
-                    }
-                });
-            } catch (err) {
-                console.error('listenForHelpReplies error', err);
-            }
-        }
-
-        // PWA install prompt handling
-        let deferredInstallPrompt = null;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent the mini-infobar from appearing on mobile
-            e.preventDefault();
-            deferredInstallPrompt = e;
-            const btn = document.getElementById('install-btn');
-            if (btn) btn.classList.remove('hidden');
-        });
-
-        function triggerInstallPrompt() {
-            // If there's a saved install prompt, show it
-            if (deferredInstallPrompt) {
-                deferredInstallPrompt.prompt();
-                deferredInstallPrompt.userChoice.then(choiceResult => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the A2HS prompt');
-                    } else {
-                        console.log('User dismissed the A2HS prompt');
-                    }
-                    deferredInstallPrompt = null;
-                    const btn = document.getElementById('install-btn');
-                    if (btn) btn.classList.add('hidden');
-                });
-            } else {
-                // For iOS or unsupported browsers, show manual instructions
-                const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-                if (isiOS) {
-                    alert('To add to Home Screen on iOS: tap Share → Add to Home Screen.');
-                } else {
-                    alert('Add to Home Screen is not supported by your browser. Use browser menu → Install or Add to Home Screen.');
-                }
-            }
-        }
-
-        // Register service worker to improve installability (must be served over HTTPS or localhost)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('service-worker.js').then(function(reg) {
-                    console.log('Service worker registered.', reg);
-                }).catch(function(err) {
-                    console.warn('Service worker registration failed:', err);
-                });
+        // ============================================
+        // FIREBASE OPERATIONS
+        // ============================================
+        function syncUsers() {
+            db.ref('users').on('value', snap => {
+                const data = snap.val() || {};
+                allUsers = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                renderLeaderboard(allUsers);
+                updateBannerRotation();
+                if (loggedInUser) updateNav();
             });
-        }
-
-        function openProfilePreview(userId) {
-            const sortedGlobal = [...allUsers].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
-                const pointsA = a.points || 0;
-                const pointsB = b.points || 0;
-                if (pointsB !== pointsA) return pointsB - pointsA;
-                // stable tiebreaker by id
-                return (a.id || '').toString().localeCompare((b.id || '').toString());
-            });
-            const normId = (userId || '').toString().toLowerCase();
-            const userIdx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
-            if (userIdx === -1) return;
-            const user = sortedGlobal[userIdx];
-            showInBanner(user, userIdx + 1);
-            const modal = document.getElementById('profile-preview-modal');
-            if (!modal) return;
-            modal.querySelector('#preview-pic').src = user.pic || DEFAULT_AVATAR;
-            const previewPic = modal.querySelector('#preview-pic');
-            const previewLevel = calcLvl(user.points || 0);
-            previewPic.style.boxShadow = getLevelGlow(previewLevel);
-            previewPic.style.borderColor = getLevelFrameColor(previewLevel);
-            modal.querySelector('#preview-name').innerText = user.name || user.id;
-            modal.querySelector('#preview-id').innerText = "ID: " + (user.id || '').toUpperCase();
-            modal.querySelector('#preview-rank').innerText = "#" + (userIdx + 1);
-            modal.querySelector('#preview-level').innerText = "LVL " + previewLevel;
-            modal.querySelector('#preview-points').innerText = user.points || 0;
-            modal.querySelector('#preview-wpm').innerText = user.bestWpm || 0;
-            modal.querySelector('#preview-mistakes').innerText = user.mistakes || 0;
-            modal.querySelector('#preview-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : (currentLanguage === 'bn' ? '"কোনো বায়ো নেই."' : '"No bio added."');
-            const currentPoints = user.points || 0;
-            const currentLevel = calcLvl(currentPoints);
-            const nextLevel = currentLevel + 1;
-            const nextThreshold = pointsForLevel(nextLevel);
-            const pointsToNext = Math.max(nextThreshold - currentPoints, 0);
-            modal.querySelector('#preview-level-bar').style.width = calcLvlProgress(currentPoints) + '%';
-            modal.querySelector('#preview-next-level').innerText = currentLanguage === 'bn'
-                ? `পরবর্তী লেভেলে যেতে ${pointsToNext} পয়েন্ট বাকি।`
-                : `Next level in ${pointsToNext} points.`;
-            modal.querySelector('#preview-future-level').innerText = currentLanguage === 'bn'
-                ? `পরবর্তী টার্গেট: ${nextThreshold} পয়েন্টে LVL ${nextLevel}.`
-                : `Next target: ${nextThreshold} points for LVL ${nextLevel}.`;
-            modal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
-
-
-        function openLessonManager() {
-            const modal = document.getElementById('lesson-manager-modal');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-            loadLessons();
-        }
-
-        function closeLessonManager() {
-            const modal = document.getElementById('lesson-manager-modal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
         }
 
         function loadLessons() {
-            firebase.database().ref('lessons').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const lessons = Object.keys(data).map(key => ({ id: key, text: data[key].text || '' }));
-                renderLessonList(lessons);
+            db.ref('lessons').on('value', snap => {
+                const data = snap.val() || {};
+                allLessons = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                console.log('📚 Lessons loaded:', allLessons.length);
+                populateLessonDropdown();
+                if (!currentLessonId && allLessons.length > 0) {
+                    const filtered = getFilteredLessons();
+                    if (filtered.length > 0) {
+                        currentLessonId = filtered[0].id;
+                        document.getElementById('lesson-selector').value = currentLessonId;
+                    }
+                }
+                generateDisplay();
             });
         }
 
-        function renderLessonList(lessons) {
-            const lessonList = document.getElementById('lesson-list');
-            const lessonCount = document.getElementById('lesson-count');
-            if (!lessonList || !lessonCount) return;
-            lessonCount.innerText = `${lessons.length} / 15 lessons`;
-            lessonList.innerHTML = lessons.map(lesson => `
-                <div class="p-4 rounded-3xl bg-slate-900 border border-white/10 text-slate-100">
-                    <p class="text-sm leading-6">${lesson.text}</p>
-                    <button onclick="deleteLesson('${lesson.id}')" class="mt-3 text-[10px] font-bold uppercase text-red-400">Delete</button>
-                </div>
-            `).join('') || '<p class="text-slate-400 text-sm">No lessons yet.</p>';
+        function getFilteredLessons() {
+            return allLessons.filter(l => (l.language || 'en') === typingLang);
         }
 
-        function addLesson() {
-            const textEl = document.getElementById('new-lesson-text');
-            const lessonText = textEl.value.trim();
-            if (!lessonText) return alert('Enter lesson text');
-            firebase.database().ref('lessons').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const count = Object.keys(data).length;
-                if (count >= 15) return alert('Lesson limit reached');
-                firebase.database().ref('lessons').push({ text: lessonText }).then(() => {
-                    textEl.value = '';
-                    loadLessons();
-                });
-            });
-        }
-
-        function deleteLesson(lessonId) {
-            if (!confirm('Remove this lesson?')) return;
-            firebase.database().ref('lessons/' + lessonId).remove().then(() => loadLessons());
-        }
-
-        function closeProfilePreview() {
-            const modal = document.getElementById('profile-preview-modal');
-            if (!modal) return;
-            modal.classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-            startEliteRotation();
-        }
-
-        function viewUserProfile(userId) {
-            clearInterval(rotationTimer);
-            document.getElementById('elite-banner').classList.add('viewing-mode');
-            openProfilePreview(userId);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function searchPlayer() {
-            const query = document.getElementById('search-box').value.toLowerCase();
-            const filtered = allUsers.filter(u =>
-                (u.name && u.name.toLowerCase().includes(query)) ||
-                (u.id && u.id.toLowerCase().includes(query))
-            );
-            renderLeaderboard(filtered);
-        }
-
-        function normalizeUserId(id) {
-            return String(id || '').trim().toLowerCase();
-        }
-
-        function findUserByIdentity(identity) {
-            const normalizedValue = normalizeUserId(identity);
-            const cachedUser = allUsers.find(u =>
-                normalizeUserId(u.id) === normalizedValue ||
-                normalizeUserId(u.name) === normalizedValue
-            );
-            if (cachedUser) {
-                console.log('🔍 Found cached user by identity:', identity, cachedUser);
-                return Promise.resolve(cachedUser);
-            }
-
-            console.log('🔍 Looking up user by direct ID path:', normalizedValue);
-            return firebase.database().ref('users/' + normalizedValue).once('value').then(snapshot => {
-                const data = snapshot.val();
-                console.log('📥 Firebase direct path response:', normalizedValue, data);
-                if (data) {
-                    return { id: normalizedValue, ...data };
-                }
-                console.log('🔎 Direct ID lookup failed; scanning by name/ID inside users');
-                return firebase.database().ref('users').once('value').then(snapshotAll => {
-                    const allData = snapshotAll.val() || {};
-                    console.log('📥 Firebase users snapshot keys count:', Object.keys(allData).length);
-                    const matchedEntry = Object.entries(allData).find(([key, value]) => {
-                        const idMatches = normalizeUserId(key) === normalizedValue;
-                        const nameMatches = value && normalizeUserId(value.name) === normalizedValue;
-                        return idMatches || nameMatches;
-                    });
-                    console.log('🔎 Name scan result for', identity, matchedEntry);
-                    if (!matchedEntry) return null;
-                    const [key, value] = matchedEntry;
-                    return { id: key, ...value };
-                });
-            }).catch(err => {
-                console.error('❌ Firebase lookup error for identity:', identity, err);
-                throw err;
-            });
-        }
-
-        function handleAuth() {
-            const identity = normalizeUserId(document.getElementById('reg-id').value);
-            const pass = document.getElementById('reg-pass').value.trim();
-            if (!identity || !pass) return alert("Fill ID & Pass");
-
-            findUserByIdentity(identity).then(user => {
-                if (!user) {
-                    const newUser = {
-                        id: identity,
-                        name: identity,
-                        password: pass,
-                        points: 0,
-                        mistakes: 0,
-                        bestWpm: 0,
-                        pic: "",
-                        bio: ""
-                    };
-                    saveUserToFirebase(newUser).then(success => {
-                        if (success) {
-                            allUsers.push(newUser);
-                            loggedInUser = { ...newUser };
-                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                            updateNav();
-                            closeAuth();
-                            syncUsersFromFirebase();
-                            startEliteRotation();
-                            alert("✅ New user created! Welcome " + identity);
-                        }
-                    });
-                    return;
-                }
-
-                if (String(user.password || '') !== pass) {
-                    alert("❌ Wrong Password!");
-                    return;
-                }
-
-                loggedInUser = { ...user, id: user.id };
-                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                updateNav();
-                closeAuth();
-                syncUsersFromFirebase();
-                startEliteRotation();
-                alert("✅ Welcome back " + (loggedInUser.name || loggedInUser.id) + "!");
-            }).catch(err => {
-                console.error("❌ Login error:", err);
-                alert("❌ Login failed. Please try again. Check your internet or Firebase connection.");
-            });
-        }
-
-        function updateMyRankDisplay() {
-            const rankEl = document.getElementById('dash-my-rank');
-            if (!rankEl || !loggedInUser) return;
-            const userRank = getUserRank(loggedInUser.id);
-            rankEl.innerText = "My Rank: " + (userRank ? '#' + userRank : '--');
-        }
-
-        function updateNav() {
-            if (loggedInUser) {
-                document.getElementById('nav-profile-box').classList.remove('hidden');
-                document.getElementById('nav-login-btn').classList.add('hidden');
-                document.getElementById('nav-user-name').innerText = loggedInUser.name || loggedInUser.id;
-                document.getElementById('nav-user-id-top').innerText = (loggedInUser.id || '').toUpperCase();
-                document.getElementById('nav-user-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
-                const userRank = getUserRank(loggedInUser.id);
-                const navRankEl = document.getElementById('nav-user-rank');
-                if (navRankEl) navRankEl.innerText = userRank ? '#' + userRank : '--';
-                updateMyRankDisplay();
-                const adminBtn = document.getElementById('admin-lesson-btn');
-                if (adminBtn) adminBtn.style.display = loggedInUser.id === 'admin' ? 'inline-flex' : 'none';
-            } else {
-                document.getElementById('nav-profile-box').classList.add('hidden');
-                document.getElementById('nav-login-btn').classList.remove('hidden');
-            }
-        }
-
-        function formatTime(seconds) {
-            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-            const s = Math.max(seconds % 60, 0).toString().padStart(2, '0');
-            return `${m}:${s}`;
-        }
-
-        function updateTimerDisplay() {
-            document.getElementById('timer-display').innerText = formatTime(timeLeft);
-        }
-
-        function stopTimer() {
-            if (timerInterval) {
-                clearInterval(timerInterval);
-                timerInterval = null;
-            }
-        }
-
-        function handleTimeExpired() {
-            stopTimer();
-            isTimeOver = true;
-            document.getElementById('typing-input').disabled = true;
-            document.getElementById('submit-btn').classList.remove('hidden');
-            updateTimerDisplay();
-            const t = translations[currentLanguage] || translations.en;
-            alert(t.timeExpired);
-        }
-
-        function startTimer() {
-            stopTimer();
-            timeLeft = 300;
-            isTimeOver = false;
-            updateTimerDisplay();
-            timerInterval = setInterval(() => {
-                timeLeft -= 1;
-                if (timeLeft <= 0) {
-                    handleTimeExpired();
-                    return;
-                }
-                updateTimerDisplay();
-            }, 1000);
-        }
-
-        function updateWpmBanner(wpm) {
-            const el = document.getElementById('wpm-banner');
-            if (!el) return;
-            if (!wpm || wpm <= 0) {
-                el.innerText = '';
-                el.style.opacity = '0';
+        function populateLessonDropdown() {
+            const select = document.getElementById('lesson-selector');
+            const filtered = getFilteredLessons();
+            
+            if (filtered.length === 0) {
+                select.innerHTML = `<option value="">No lessons available</option>`;
                 return;
             }
-            el.style.opacity = '1';
-            if (wpm >= 60) {
-                el.innerText = 'MASTER';
-            } else if (wpm >= 40) {
-                el.innerText = 'EXCELLENT';
-            } else if (wpm >= 20) {
-                el.innerText = 'GOOD';
+            
+            const langLabel = typingLang === 'bn' ? 'লেসন' : 'Lesson';
+            select.innerHTML = filtered.map((l, i) => {
+                const label = typingLang === 'bn' ? `${langLabel} ${i + 1}` : `${langLabel} ${i + 1}`;
+                return `<option value="${l.id}">${label}</option>`;
+            }).join('');
+            
+            if (!currentLessonId || !filtered.some(l => l.id === currentLessonId)) {
+                currentLessonId = filtered[0].id;
+                select.value = currentLessonId;
             } else {
-                el.innerText = 'KEEP GOING';
+                select.value = currentLessonId;
             }
+        }
+
+        function selectLessonFromDropdown(lessonId) {
+            if (!lessonId) return;
+            currentLessonId = lessonId;
+            isCustomMode = false;
+            customTextContent = '';
+            resetTyping();
+        }
+
+        function getCurrentLesson() {
+            if (isCustomMode && customTextContent) {
+                return { text: customTextContent, isCustom: true };
+            }
+            const filtered = getFilteredLessons();
+            const lesson = filtered.find(l => l.id === currentLessonId);
+            return lesson || null;
+        }
+
+        // ============================================
+        // CUSTOM TEXT
+        // ============================================
+        function openCustomModal() {
+            document.getElementById('custom-modal').classList.add('active');
+            document.getElementById('custom-text').value = '';
+            document.getElementById('custom-text').focus();
+        }
+
+        function closeCustomModal() {
+            document.getElementById('custom-modal').classList.remove('active');
+        }
+
+        function applyCustomText() {
+            const text = document.getElementById('custom-text').value.trim();
+            if (!text) {
+                alert('Please write some text to practice!');
+                return;
+            }
+            isCustomMode = true;
+            customTextContent = text;
+            closeCustomModal();
+            resetTyping();
+            const select = document.getElementById('lesson-selector');
+            // Add custom option if not exists
+            if (!select.querySelector('option[value="custom"]')) {
+                const opt = document.createElement('option');
+                opt.value = 'custom';
+                opt.textContent = '✏️ Custom Text';
+                select.appendChild(opt);
+            }
+            select.value = 'custom';
+            generateDisplay();
+        }
+
+        // ============================================
+        // DISPLAY GENERATION
+        // ============================================
+        function splitGraphemes(str) {
+            try {
+                if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                    const seg = new Intl.Segmenter(typingLang, { granularity: 'grapheme' });
+                    return Array.from(seg.segment(str), s => s.segment);
+                }
+            } catch (e) {}
+            return Array.from(str);
+        }
+
+        function generateDisplay() {
+            const lesson = getCurrentLesson();
+            let text;
+            if (lesson) {
+                text = lesson.text;
+            } else {
+                text = typingLang === 'bn' ? 'বাংলা টাইপিং অনুশীলন করুন' : 'Practice typing in English';
+            }
+            
+            if (isCustomMode) {
+                const select = document.getElementById('lesson-selector');
+                if (!select.querySelector('option[value="custom"]')) {
+                    const opt = document.createElement('option');
+                    opt.value = 'custom';
+                    opt.textContent = '✏️ Custom Text';
+                    select.appendChild(opt);
+                }
+                select.value = 'custom';
+            }
+            
+            const repeat = typingLang === 'bn' ? 20 : 28;
+            const full = (text + ' ').repeat(repeat).trim();
+            
+            const chars = splitGraphemes(full);
+            const lineLen = typingLang === 'bn' ? 40 : 50;
+            let html = `<div class="text-right text-xs text-slate-400 font-bold uppercase mb-1">
+                ${isCustomMode ? '✏️ Custom Text' : (typingLang === 'bn' ? '📖 বাংলা' : '📖 English')}
+            </div>`;
+            for (let i = 0; i < chars.length; i += lineLen) {
+                const chunk = chars.slice(i, i + lineLen);
+                html += `<div>${chunk.map(c => `<span class="char">${c}</span>`).join('')}</div>`;
+            }
+            document.getElementById('display-box').innerHTML = html;
+        }
+
+        // ============================================
+        // TYPING ENGINE
+        // ============================================
+        function switchTypingLang(lang) {
+            typingLang = lang;
+            localStorage.setItem('typingLanguage', lang);
+            document.getElementById('typing-lang').value = lang;
+            isCustomMode = false;
+            customTextContent = '';
+            populateLessonDropdown();
+            const filtered = getFilteredLessons();
+            if (filtered.length > 0) {
+                currentLessonId = filtered[0].id;
+                document.getElementById('lesson-selector').value = currentLessonId;
+            } else {
+                currentLessonId = null;
+            }
+            const input = document.getElementById('typing-input');
+            if (input) {
+                input.setAttribute('lang', lang);
+                input.setAttribute('dir', 'ltr');
+                input.style.imeMode = 'active';
+            }
+            resetTyping();
         }
 
         function resetTyping() {
-            const inputBox = document.getElementById('typing-input');
-            inputBox.value = '';
-            inputBox.disabled = false;
+            const input = document.getElementById('typing-input');
+            input.value = '';
+            input.disabled = false;
             isStarted = false;
             isTimeOver = false;
             startTime = null;
             timeLeft = 300;
             sessionMistakes = 0;
             correctChars = 0;
-            stopTimer();
-            updateTimerDisplay();
-            document.getElementById('live-chars').innerText = '0';
-            document.getElementById('live-mistakes').innerText = '0';
-            document.getElementById('live-wpm').innerText = '0';
-            try { updateWpmBanner(0); } catch (e) {}
+            clearInterval(timerInterval);
+            document.getElementById('timer-display').textContent = '05:00';
+            document.getElementById('live-chars').textContent = '0';
+            document.getElementById('live-mistakes').textContent = '0';
+            document.getElementById('live-wpm').textContent = '0';
             document.getElementById('submit-btn').classList.add('hidden');
-            generateDisplayContent();
+            generateDisplay();
             document.getElementById('display-box').scrollTop = 0;
         }
 
-        function submitScore() {
-            if (!loggedInUser) return;
-
-            const t = translations[currentLanguage] || translations.en;
-            const wpm = Math.round(parseInt(document.getElementById('live-wpm').innerText) || 0);
-            const earnedPts = Math.floor(correctChars / 5);
-            loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earnedPts;
-
-            if (earnedPts === 0 && wpm === 0) {
-                alert(t.typeSomething);
-                return;
-            }
-
-            const earlySubmitAllowed = wpm > 15;
-            if (!isTimeOver && timeLeft > 0 && !earlySubmitAllowed) {
-                alert(t.submitBlocked);
-                return;
-            }
-
-            if (!isTimeOver && timeLeft > 0 && earlySubmitAllowed) {
-                console.log('✅ Early submit allowed because WPM w> 15', wpm);
-            }
-
-            loggedInUser.points = (loggedInUser.points || 0) + earnedPts;
-            loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
-            loggedInUser.bestWpm = Math.max(loggedInUser.bestWpm || 0, wpm);
-
-            // Update Firebase
-            updateUserInFirebase(loggedInUser).then(success => {
-                if (success) {
-                    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                    document.getElementById('submit-btn').classList.add('hidden');
-                    isStarted = false;
-                    startTime = null;
-                    document.getElementById('typing-input').value = '';
-                    document.getElementById('live-chars').innerText = '0';
-                    document.getElementById('live-mistakes').innerText = '0';
-                    document.getElementById('live-wpm').innerText = '0';
-                    try { updateWpmBanner(0); } catch (e) {}
-                    generateDisplayContent();
-                    syncUsersFromFirebase();
-                    let message = t.scoreSubmitted + earnedPts + t.scoreWpm + wpm;
-                    if (wpm > 15) {
-                        message += '\n' + t.highWpmCongrats;
-                    }
-                    alert(message);
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = 300;
+            isTimeOver = false;
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+                const s = String(timeLeft % 60).padStart(2, '0');
+                document.getElementById('timer-display').textContent = `${m}:${s}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    isTimeOver = true;
+                    document.getElementById('typing-input').disabled = true;
+                    document.getElementById('submit-btn').classList.remove('hidden');
+                    alert('⏰ Time is up! Save your result.');
                 }
+            }, 1000);
+        }
+
+        // ============================================
+        // AUTH
+        // ============================================
+        function openAuth() { document.getElementById('auth-modal').classList.add('active'); }
+        function closeAuth() { document.getElementById('auth-modal').classList.remove('active'); }
+
+        function findUser(identity) {
+            const norm = String(identity).trim().toLowerCase();
+            const cached = allUsers.find(u => 
+                String(u.id).toLowerCase() === norm || 
+                String(u.name).toLowerCase() === norm
+            );
+            if (cached) return Promise.resolve(cached);
+            return db.ref('users').once('value').then(snap => {
+                const data = snap.val() || {};
+                const entry = Object.entries(data).find(([k, v]) => 
+                    k.toLowerCase() === norm || (v && String(v.name).toLowerCase() === norm)
+                );
+                return entry ? { id: entry[0], ...entry[1] } : null;
             });
         }
 
+        function handleAuth() {
+            const id = document.getElementById('auth-id').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-pass').value.trim();
+            if (!id || !pass) return alert('Fill all fields');
+
+            findUser(id).then(user => {
+                if (!user) {
+                    const newUser = { id, name: id, password: pass, points: 0, monthlyPoints: 0, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
+                    db.ref('users/' + id).set(newUser).then(() => {
+                        loggedInUser = newUser;
+                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                        afterLogin();
+                        alert('✅ Welcome ' + id + '!');
+                    });
+                    return;
+                }
+                if (user.password !== pass) return alert('❌ Wrong password');
+                loggedInUser = { id: user.id, ...user };
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                afterLogin();
+                alert('✅ Welcome back ' + (loggedInUser.name || loggedInUser.id) + '!');
+            }).catch(() => alert('❌ Login failed'));
+        }
+
+        function afterLogin() {
+            closeAuth();
+            updateNav();
+            trackOnline();
+            resetTyping();
+            listenHelp();
+        }
+
+        function logout() {
+            if (loggedInUser) {
+                db.ref('online_users/' + loggedInUser.id).set({ uid: loggedInUser.id, online: false, lastSeen: Date.now() });
+            }
+            localStorage.removeItem('currentUser');
+            loggedInUser = null;
+            updateNav();
+            location.reload();
+        }
+
+        function updateNav() {
+            if (loggedInUser) {
+                document.getElementById('nav-user').classList.remove('hidden');
+                document.getElementById('nav-login').classList.add('hidden');
+                document.getElementById('nav-name').textContent = loggedInUser.name || loggedInUser.id;
+                document.getElementById('nav-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
+            } else {
+                document.getElementById('nav-user').classList.add('hidden');
+                document.getElementById('nav-login').classList.remove('hidden');
+            }
+        }
+
+        function getRank(userId) {
+            const sorted = [...allUsers].sort((a, b) => {
+                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
+                if (mb !== ma) return mb - ma;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const idx = sorted.findIndex(u => String(u.id).toLowerCase() === String(userId).toLowerCase());
+            return idx === -1 ? null : idx + 1;
+        }
+
+        function trackOnline() {
+            if (!loggedInUser) return;
+            const ref = db.ref('online_users/' + loggedInUser.id);
+            ref.set({ uid: loggedInUser.id, name: loggedInUser.name || loggedInUser.id, online: true, lastSeen: Date.now() });
+            ref.onDisconnect().set({ uid: loggedInUser.id, name: loggedInUser.name || loggedInUser.id, online: false, lastSeen: Date.now() });
+        }
+
+        // ============================================
+        // LEADERBOARD
+        // ============================================
         function renderLeaderboard(users) {
-            const sortedGlobal = [...allUsers].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+            const sorted = [...users].sort((a, b) => {
+                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
+                if (mb !== ma) return mb - ma;
                 return (b.points || 0) - (a.points || 0);
             });
-            const list = [...users].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
-                return (b.points || 0) - (a.points || 0);
-            });
-            
-            if (list.length === 0) {
-                const t = translations[currentLanguage] || translations.en;
-                document.getElementById('leaderboard-body').innerHTML = 
-                    '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">' + t.noPlayers + '</td></tr>';
+            const top = sorted.slice(0, 10);
+            const tbody = document.getElementById('leaderboard-body');
+            if (top.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No players yet</td></tr>';
                 return;
             }
-
-            // Show only top 10 in main leaderboard
-            const topTen = list.slice(0, 10);
-            document.getElementById('leaderboard-body').innerHTML = topTen.map((u) => {
-                const rank = sortedGlobal.findIndex(g => g.id === u.id) + 1;
-                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
-                return `
-                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}')">
-                    <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
-                    <td class="p-3 flex items-center gap-2">
-                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img rounded-full border shadow-sm object-cover bg-white">
-                        <div><p class="uppercase text-slate-800 text-sm font-black truncate max-w-[220px]">${u.name || u.id}</p>
-                        <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
+            tbody.innerHTML = top.map((u, i) => {
+                const rank = i + 1;
+                const isMe = loggedInUser && u.id === loggedInUser.id;
+                const medal = rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                return `<tr class="clickable-row ${isMe ? 'bg-blue-50' : ''}" onclick="viewProfile('${u.id}')">
+                    <td class="p-2 text-center font-bold text-slate-600">${medal}</td>
+                    <td class="p-2 flex items-center gap-2">
+                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img">
+                        <div><p class="font-black text-slate-800 text-[11px] truncate max-w-[120px]">${u.name || u.id}</p>
+                        <p class="text-[7px] text-slate-400">${u.id}</p></div>
                     </td>
-                    <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
-                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
-                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
-                    <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
+                    <td class="p-2 text-center"><span class="lvl-badge">${calcLevel(u.points || 0)}</span></td>
+                    <td class="p-2 text-center font-black">${u.points || 0}</td>
+                    <td class="p-2 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
+                    <td class="p-2 text-center font-bold text-orange-600">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
         }
 
-        function openAllUsersModal() {
-            const sortedGlobal = [...allUsers].sort((a, b) => {
-                const monthlyA = a.monthlyPoints || 0;
-                const monthlyB = b.monthlyPoints || 0;
-                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+        function searchPlayers() {
+            const q = document.getElementById('search-box').value.toLowerCase();
+            const filtered = allUsers.filter(u => 
+                String(u.id).toLowerCase().includes(q) || 
+                String(u.name).toLowerCase().includes(q)
+            );
+            renderLeaderboard(filtered);
+        }
+
+        function openAllUsers() {
+            const modal = document.getElementById('all-users-modal');
+            modal.classList.add('active');
+            const sorted = [...allUsers].sort((a, b) => {
+                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
+                if (mb !== ma) return mb - ma;
                 return (b.points || 0) - (a.points || 0);
             });
-            const html = sortedGlobal.map((u, idx) => {
-                const rank = idx + 1;
-                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
-                return `
-                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}'); closeAllUsersModal();">
-                    <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
-                    <td class="p-3 flex items-center gap-2">
-                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img rounded-full border shadow-sm object-cover bg-white" style="width: 40px; height: 40px;">
-                        <div><p class="uppercase text-slate-800 text-sm font-black truncate max-w-[180px]">${u.name || u.id}</p>
-                        <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
+            document.getElementById('all-users-body').innerHTML = sorted.map((u, i) => {
+                const isMe = loggedInUser && u.id === loggedInUser.id;
+                return `<tr class="clickable-row ${isMe ? 'bg-blue-50' : ''}" onclick="viewProfile('${u.id}'); closeAllUsers();">
+                    <td class="p-2 text-center font-bold">${i + 1}</td>
+                    <td class="p-2 flex items-center gap-2">
+                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img">
+                        <span class="font-black text-[11px]">${u.name || u.id}</span>
                     </td>
-                    <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
-                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
-                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
-                    <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
+                    <td class="p-2 text-center"><span class="lvl-badge">${calcLevel(u.points || 0)}</span></td>
+                    <td class="p-2 text-center font-black">${u.points || 0}</td>
+                    <td class="p-2 text-center font-bold text-orange-600">${u.bestWpm || 0}</td>
                 </tr>`;
             }).join('');
-            
-            document.getElementById('all-users-body').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">No players yet</td></tr>';
-            document.getElementById('all-users-modal').classList.add('active');
         }
+        function closeAllUsers() { document.getElementById('all-users-modal').classList.remove('active'); }
 
-        function closeAllUsersModal() {
-            document.getElementById('all-users-modal').classList.remove('active');
+        function viewProfile(userId) {
+            const user = allUsers.find(u => u.id === userId);
+            if (!user) return;
+            const points = user.points || 0;
+            const level = calcLevel(points);
+            const progress = calcLevelProgress(points);
+            const progressText = getNextLevelTargetText(points);
+            document.getElementById('preview-avatar').src = user.pic || DEFAULT_AVATAR;
+            document.getElementById('preview-name').textContent = user.name || user.id;
+            document.getElementById('preview-id').textContent = 'ID: ' + user.id.toUpperCase();
+            const rank = getRank(user.id);
+            document.getElementById('preview-rank').textContent = rank ? '#' + rank : '#--';
+            document.getElementById('preview-points').textContent = points;
+            document.getElementById('preview-wpm').textContent = user.bestWpm || 0;
+            document.getElementById('preview-level').textContent = level;
+            document.getElementById('preview-badge').textContent = 'LVL ' + level;
+            document.getElementById('preview-progress-bar').style.width = progress + '%';
+            document.getElementById('preview-progress-text').textContent = progressText;
+            document.getElementById('preview-bio').textContent = user.bio ? '"' + user.bio + '"' : '"No bio"';
+            document.getElementById('preview-modal').classList.add('active');
         }
+        function closePreview() { document.getElementById('preview-modal').classList.remove('active'); }
 
-        function openEditModal() {
+        // ============================================
+        // PROFILE
+        // ============================================
+        function openEditProfile() {
             if (!loggedInUser) return openAuth();
             document.getElementById('edit-id').value = loggedInUser.id || '';
             document.getElementById('edit-name').value = loggedInUser.name || '';
             document.getElementById('edit-pic').value = loggedInUser.pic || '';
             document.getElementById('edit-bio').value = loggedInUser.bio || '';
             document.getElementById('edit-preview').src = loggedInUser.pic || DEFAULT_AVATAR;
-            document.getElementById('edit-modal').classList.remove('hidden');
+            document.getElementById('edit-modal').classList.add('active');
         }
+        function closeEdit() { document.getElementById('edit-modal').classList.remove('active'); }
 
-        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
-
-        function handleProfileImageUpload(event) {
-            const file = event.target.files && event.target.files[0];
+        function handleAvatarUpload(e) {
+            const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const dataUrl = e.target.result;
-                document.getElementById('edit-preview').src = dataUrl;
-                document.getElementById('edit-pic').value = dataUrl;
+            reader.onload = function(ev) {
+                document.getElementById('edit-preview').src = ev.target.result;
+                document.getElementById('edit-pic').value = ev.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -2037,120 +891,287 @@ apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
             if (!loggedInUser) return;
             const oldId = loggedInUser.id;
             const newId = document.getElementById('edit-id').value.trim().toLowerCase();
-            const newName = document.getElementById('edit-name').value.trim();
-            const newPic = document.getElementById('edit-pic').value.trim();
-            const newBio = document.getElementById('edit-bio').value.trim();
+            const name = document.getElementById('edit-name').value.trim();
+            const pic = document.getElementById('edit-pic').value.trim();
+            const bio = document.getElementById('edit-bio').value.trim();
+            if (!newId || !name) return alert('Required fields missing');
+            if (newId !== oldId && allUsers.some(u => u.id.toLowerCase() === newId)) return alert('ID already taken');
 
-            if (!newId || !newName) return alert("Required!");
-            if (newId !== oldId && allUsers.some(u => normalizeUserId(u.id) === normalizeUserId(newId))) return alert("ID taken!");
+            const updated = { ...loggedInUser, id: newId, name, pic, bio };
 
-            const updatedUser = {
-                ...loggedInUser,
-                id: newId,
-                name: newName,
-                pic: newPic,
-                bio: newBio
-            };
-
-            const finishUpdate = () => {
-                loggedInUser = updatedUser;
+            const finish = () => {
+                loggedInUser = updated;
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-
-                const existingIndex = allUsers.findIndex(u => normalizeUserId(u.id) === normalizeUserId(oldId));
-                if (existingIndex !== -1) {
-                    allUsers[existingIndex] = { ...updatedUser };
-                }
-
-                closeEditModal();
-                syncUsersFromFirebase();
+                closeEdit();
                 updateNav();
-                updateBannerWithRotation();
-                alert("✅ Profile updated!");
+                syncUsers();
+                alert('✅ Profile updated!');
             };
 
             if (newId !== oldId) {
-                saveUserToFirebase(updatedUser).then(success => {
-                    if (!success) return alert("❌ Profile update failed. Please try again.");
-                    firebase.database().ref('users/' + oldId).remove().then(() => {
-                        finishUpdate();
-                    }).catch(err => {
-                        console.error('❌ Failed to remove old profile:', err);
-                        alert("❌ Profile updated to new ID, but old record could not be removed.");
-                        finishUpdate();
-                    });
-                }).catch(err => {
-                    console.error('❌ Profile save failed:', err);
-                    alert("❌ Profile update failed. Please try again.");
+                db.ref('users/' + newId).set(updated).then(() => {
+                    db.ref('users/' + oldId).remove().then(finish);
                 });
             } else {
-                updateUserInFirebase(updatedUser).then(success => {
-                    if (!success) return alert("❌ Profile update failed. Please try again.");
-                    finishUpdate();
-                }).catch(err => {
-                    console.error('❌ Profile update failed:', err);
-                    alert("❌ Profile update failed. Please try again.");
-                });
+                db.ref('users/' + oldId).update({ name, pic, bio }).then(finish);
             }
         }
 
-        function switchTypingLanguage(lang) {
-            currentTypingLanguage = lang;
-            localStorage.setItem('typingLanguage', lang);
-            const selector = document.getElementById('typing-language');
-            if (selector) selector.value = lang;
-            const inputBox = document.getElementById('typing-input');
-            if (inputBox) {
-                inputBox.placeholder = lang === 'bn' ? 'বাংলা টাইপ করা শুরু করুন...' : 'Start typing to improve your skills...';
-                inputBox.setAttribute('lang', lang);
-                // Bengali is left-to-right; always keep LTR direction
-                inputBox.setAttribute('dir', 'ltr');
+        // ============================================
+        // HELP / CHAT
+        // ============================================
+        function openHelp() {
+            if (!loggedInUser) return openAuth();
+            document.getElementById('help-modal').classList.add('active');
+            document.getElementById('help-status').textContent = '';
+            if (helpListener) {
+                try { helpListener.off(); } catch(e) {}
+                helpListener = null;
             }
-            generateDisplayContent();
+            listenHelp();
         }
 
-        function generateDisplayContent() {
-            // Prefer built-in prompts for the selected language, then append any admin-provided lessons
-            const prompts = (TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en).concat(adminLessons || []);
-            const prompt = prompts[Math.floor(Math.random() * prompts.length)];
-            const topicLabel = currentTypingLanguage === 'bn' ? 'কম্পিউটার মৌলিক জ্ঞান' : 'Computer Fundamentals';
-            const repeatCount = currentTypingLanguage === 'bn' ? 18 : 25;
-            const fullText = (prompt + ' ').repeat(repeatCount).trim();
-            // split into user-perceived characters (grapheme clusters) to handle Bengali combining marks
-            function splitGraphemes(str) {
-                try {
-                    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-                        const seg = new Intl.Segmenter(currentTypingLanguage || 'bn', { granularity: 'grapheme' });
-                        return Array.from(seg.segment(str), s => s.segment);
-                    }
-                } catch (e) {
-                    // fallback
+        function closeHelp() { 
+            document.getElementById('help-modal').classList.remove('active');
+            if (helpListener) {
+                try { helpListener.off(); } catch(e) {}
+                helpListener = null;
+            }
+        }
+
+        function setHelpTemplate(type) {
+            const templates = {
+                password: 'I think I forgot my password. Please help me reset it.',
+                lesson: 'I would like to change my lesson. Please assist with the correct lesson selection.',
+                competition: 'I want to participate in the competition. Please provide the details and how to join.',
+                other: 'I need help with something else. Please check my account and respond.'
+            };
+            document.getElementById('help-msg').value = templates[type] || templates.other;
+        }
+
+        function listenHelp() {
+            if (!loggedInUser) return;
+            if (helpListener) {
+                try { helpListener.off(); } catch(e) {}
+                helpListener = null;
+            }
+            
+            const ref = db.ref('chat_messages');
+            helpListener = ref.on('value', snap => {
+                const data = snap.val() || {};
+                const msgs = Object.values(data)
+                    .filter(m => (m.from === loggedInUser.id && m.to === 'admin') || 
+                                 (m.from === 'admin' && m.to === loggedInUser.id))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
+                const container = document.getElementById('help-chat');
+                if (msgs.length === 0) {
+                    container.innerHTML = '<div class="text-slate-400 text-sm">No messages yet. Send a message to admin.</div>';
+                } else {
+                    container.innerHTML = msgs.map(m => {
+                        const isAdmin = m.from === 'admin';
+                        return `<div class="chat-bubble ${isAdmin ? 'admin' : 'user'}">
+                            ${!isAdmin ? `<span class="sender">👤 You</span>` : `<span class="sender">👤 Admin</span>`}
+                            ${m.message}
+                            <span class="time">${new Date(m.timestamp).toLocaleTimeString()}</span>
+                        </div>`;
+                    }).join('');
                 }
-                return Array.from(str);
-            }
-
-            const chars = splitGraphemes(fullText);
-            const header = `<div class="topic-header"><div class="topic-title">${topicLabel}</div><div class="topic-sub">${prompt}</div></div>`;
-            // Break into lines so text naturally wraps per line and caret moves to next line
-            const lineLength = currentTypingLanguage === 'bn' ? 42 : 56;
-            const lines = [];
-            for (let i = 0; i < chars.length; i += lineLength) {
-                const chunk = chars.slice(i, i + lineLength);
-                lines.push(`<div>${chunk.map(c => `<span class=\\"char\\">${c}</span>`).join('')}</div>`);
-            }
-            const body = `<div class="display-text">${lines.join('')}</div>`;
-            document.getElementById('display-box').innerHTML = header + body;
+                container.scrollTop = container.scrollHeight;
+            });
         }
 
-        function openAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
-        function closeAuth() { document.getElementById('auth-modal').classList.add('hidden'); }
-        function logout() {
-            localStorage.removeItem('currentUser');
-            loggedInUser = null;
-            updateNav();
-            location.reload();
+        function sendHelp() {
+            if (!loggedInUser) return openAuth();
+            const msg = document.getElementById('help-msg').value.trim();
+            if (!msg) return alert('Write a message');
+            const status = document.getElementById('help-status');
+            status.textContent = 'Sending...';
+            const fullMessage = `Name: ${loggedInUser.name || loggedInUser.id}\nID: ${loggedInUser.id}\nMessage: ${msg}`;
+            
+            db.ref('chat_messages').push({
+                from: loggedInUser.id,
+                to: 'admin',
+                message: fullMessage,
+                timestamp: Date.now(),
+                type: 'help',
+                senderName: loggedInUser.name || loggedInUser.id,
+                senderId: loggedInUser.id
+            }).then(() => {
+                status.textContent = '✅ Sent!';
+                document.getElementById('help-msg').value = '';
+                setTimeout(() => status.textContent = '', 3000);
+                const safeId = String(loggedInUser.id).replace(/\./g, '_');
+                db.ref('help_tickets/' + safeId).push({
+                    senderId: loggedInUser.id,
+                    senderName: loggedInUser.name || loggedInUser.id,
+                    text: msg,
+                    timestamp: Date.now(),
+                    status: 'open'
+                });
+                listenHelp();
+            }).catch(err => {
+                console.error('Send error:', err);
+                status.textContent = '❌ Failed to send';
+            });
         }
 
-        // Start the app when page loads
+        function sendWhatsApp() {
+            const msg = document.getElementById('help-msg').value.trim() || 'Help needed';
+            const url = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent('From: ' + loggedInUser.id + '\n' + msg)}`;
+            window.open(url, '_blank');
+        }
+
+        // ============================================
+        // SCORE SUBMIT
+        // ============================================
+        function submitScore() {
+            if (!loggedInUser) return;
+            const wpm = parseInt(document.getElementById('live-wpm').textContent) || 0;
+            const earned = Math.floor(correctChars / 5);
+            if (earned === 0 && wpm === 0) return alert('Type something first!');
+
+            loggedInUser.points = (loggedInUser.points || 0) + earned;
+            loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earned;
+            loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
+            loggedInUser.bestWpm = Math.max(loggedInUser.bestWpm || 0, wpm);
+
+            db.ref('users/' + loggedInUser.id).update({
+                points: loggedInUser.points,
+                monthlyPoints: loggedInUser.monthlyPoints,
+                mistakes: loggedInUser.mistakes,
+                bestWpm: loggedInUser.bestWpm
+            }).then(() => {
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                document.getElementById('submit-btn').classList.add('hidden');
+                resetTyping();
+                alert('🎉 Score saved! +' + earned + ' pts, WPM: ' + wpm);
+            });
+        }
+
+        // ============================================
+        // LANGUAGE
+        // ============================================
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('preferredLanguage', lang);
+            document.getElementById('lang-switcher').value = lang;
+            const t = lang === 'bn' ? {
+                typingPlaceholder: 'বাংলা টাইপ করা শুরু করুন...'
+            } : {
+                typingPlaceholder: 'Start typing to improve your skills...'
+            };
+            document.getElementById('typing-input').placeholder = t.typingPlaceholder;
+        }
+
+        // ============================================
+        // PWA INSTALL
+        // ============================================
+        let installPrompt = null;
+        window.addEventListener('beforeinstallprompt', e => {
+            e.preventDefault();
+            installPrompt = e;
+        });
+        function triggerInstall() {
+            if (installPrompt) {
+                installPrompt.prompt();
+            } else {
+                alert('Use browser menu → Add to Home Screen');
+            }
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        function init() {
+            console.log('🚀 App starting...');
+            setLanguage(localStorage.getItem('preferredLanguage') || 'en');
+            typingLang = localStorage.getItem('typingLanguage') || 'en';
+            document.getElementById('typing-lang').value = typingLang;
+            
+            syncUsers();
+            loadLessons();
+            resetTyping();
+
+            // Start banner rotation
+            startBannerRotation();
+
+            const stored = localStorage.getItem('currentUser');
+            if (stored) {
+                try {
+                    loggedInUser = JSON.parse(stored);
+                    db.ref('users/' + loggedInUser.id).once('value').then(snap => {
+                        if (snap.exists()) {
+                            loggedInUser = { id: loggedInUser.id, ...snap.val() };
+                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            afterLogin();
+                            console.log('👤 Logged in:', loggedInUser.id);
+                        } else {
+                            localStorage.removeItem('currentUser');
+                            loggedInUser = null;
+                            updateNav();
+                        }
+                    });
+                } catch(e) {
+                    localStorage.removeItem('currentUser');
+                    loggedInUser = null;
+                    updateNav();
+                }
+            } else {
+                updateNav();
+            }
+
+            // Typing input
+            document.getElementById('typing-input').addEventListener('input', function() {
+                if (!loggedInUser) {
+                    this.value = '';
+                    openAuth();
+                    return;
+                }
+                if (isTimeOver) {
+                    this.value = this.value.substring(0, 0);
+                    return;
+                }
+                if (!isStarted) {
+                    isStarted = true;
+                    startTimer();
+                }
+                const chars = document.querySelectorAll('#display-box .char');
+                const typed = splitGraphemes(this.value);
+                sessionMistakes = 0;
+                correctChars = 0;
+                chars.forEach((s, i) => {
+                    const expected = s.textContent;
+                    const actual = typed[i];
+                    if (actual == null) {
+                        s.className = 'char';
+                    } else if (actual === expected) {
+                        s.className = 'char correct';
+                        correctChars++;
+                    } else {
+                        s.className = 'char incorrect';
+                        sessionMistakes++;
+                    }
+                    if (i === typed.length) s.classList.add('current');
+                });
+                const time = (Date.now() - startTime) / 60000;
+                const wpm = time > 0 ? Math.round((correctChars / 5) / time) : 0;
+                document.getElementById('live-chars').textContent = typed.length;
+                document.getElementById('live-mistakes').textContent = sessionMistakes;
+                document.getElementById('live-wpm').textContent = wpm;
+                if (typed.length > 0 && typed.length === chars.length) {
+                    document.getElementById('submit-btn').classList.remove('hidden');
+                }
+                chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+
+            document.getElementById('auth-pass').addEventListener('keypress', e => {
+                if (e.key === 'Enter') handleAuth();
+            });
+            
+            console.log('✅ App initialized');
+        }
+
         window.onload = init;
     </script>
 </body>
