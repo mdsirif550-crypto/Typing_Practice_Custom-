@@ -700,6 +700,18 @@
     <!-- Dashboard Panel -->
     <div class="dashboard">
       <div class="stat-box">
+        <div class="stat-label">Level Select</div>
+        <div class="controls">
+          <select id="levelSelect" onchange="populateLessonsDropdown(); loadLesson()">
+            <option value="basic">Basic Level</option>
+            <option value="level1">Level 1</option>
+            <option value="level2">Level 2</option>
+            <option value="level3">Level 3</option>
+            <option value="advanced">Advanced Level</option>
+          </select>
+        </div>
+      </div>
+      <div class="stat-box">
         <div class="stat-label">Lesson Select</div>
         <div class="controls">
           <select id="lessonSelect" onchange="loadLesson()">
@@ -771,7 +783,7 @@
         <div class="key" id="key-p" data-key="p">P</div>
         <div class="key" id="key-[" data-key="[">[</div>
         <div class="key" id="key-]" data-key="]">]</div>
-        <div class="key" id="key-\" data-key="\">\</div>
+          <div class="key" id="key-backslash" data-key="&#92;">&#92;</div>
       </div>
       <!-- Row 3 -->
       <div class="keyboard-row">
@@ -861,33 +873,132 @@
   </div>
 
   <script>
-    // English & Bengali Dynamic Lessons
-    const englishLessons = [
-      "asdfghjkl;asdfghjkl;ffff;jjjjjkkkkklllll;;;;;;'asdfghjkl;asdfghjk;'aaaaasssssdddddfffff;jjjjjkkkkklllll;;;;;;'aaaaasssssdddddfffff;jjjjjkkkkklllll;;;;;;",
-      ";;;;;llllkkkkjjjjhhhhhgggggfffffddddsssssaaaaa;;;;;llllkkkkjjjjhhhhhgggggfffffddddsssssaaaaasdfghjkl; ;lkjhgfdsahk;slkslflhkhfkgslkhfakf;",
-      "fsljfksjAfl;j l;hfhSjksh'sa'fh;lh fla;Dfjhk fl;jsfhkjf hklhFlkshkf jlkfhjlfgj kfj;ajhl;Ga jflfhl;jfjfhfj';lfj l;",
-      "lkjhgfdSa; hgFdsaLkj; gfdSaHlk;lkjhgfdSa; hgFdsaLkj; gfdSaHlklkjhgfdSa; hgFdsaLkj; gfdSaHlk;lkjhgfdSa; hgFdsaLkj;",
-      "fghjkdSaL; jhGfdsaKlfghjkdSaL; jhGfdsaKl fghjkdSaL; jhGfdsaKl fghjkdSaL; jhGfdsaKl'''fghjkdSaL; jhGfdsaKl'''fgh",
-      "zxcvbnm,./ zxCvbnm,./ nmbVczx,./zxcvbnm,./zxcvbnm,./zxvcbnm,.//.,mnbvcxzbbnnmm,,vvccxxzzzxcvbnm,./zxcvbnm,./zxcvbnm,./",
-      "/.,mnbvcxz /.,mNbvcxz mN,./bvcxz /.,mnbvcxz /.,mNbvcxz mN,./bvcxz? /.,mnbvcxz /.,mNbvcxz? mN,./bvcxz /.,mnbvcxz  ",
-      "zvxcm,.b/ zvXcm?,.b/ cbzVx,.mn?/ zvxcm,.b/ zvXcm,.b/ cbzVx,.mn/ zvxcm,.b/ zvXcm,.b/ cbzVx,.mn/ zvxcm,.b/ zvXcm,.b/ ",
-      ",./mnbvcxz ,./mNbvcxz vnmBzcx ,./mnbvcxz ,./mNbvcxz vnmBzcx ,./mnbvcxz? ,./mNbvcxz vnmBzcx ,./mnbvcxz ,./mNbvcxz vnmBzcx ,.",
-      "bvcxz,./mn bvCxz,./mn? mn,./bVcxz? bvcxz,./mn bvCxz,./mn mn,./bVcxz bvcxz,./mn bvCxz,./mn mn,./bVcxz bvcxz,./mn bvCxz,./mn ",
-      "qwertyuiop[] qwertyuiop poiuytrewq qetuo[ wryip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw ",
-      "WE wertyuiop[] qwertyuiop poiuyER trewq qetuo[ wrTYyip] qweqw rtyrtt uiopopi Qyuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      "WE wer ty u iop[ ] qwert yuiop poi uy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      "PQ ty uIIU iop[ ] qTYwert yuiop poi uQQy ER t rewq q etuo[ wrTYyip] qweqw rtyrtt uio popi Q yuie Ouru Yoew Ryui Eyuri Whfhd wtupqq[qrw",
-      "The internet has made computers even more useful. People can send emails, watch videos, read books, and search for information online. Many businesses use computers to keep records, manage accounts, and communicate with customers. Technology has changed the way people work, learn, and share information.",
-      "Computers have become an important part of our daily lives. People use computers in schools, offices, hospitals, banks, and homes. They help us perform many tasks quickly and accurately. Students use computers to study, complete assignments, and attend online classes. Teachers use them to prepare lessons and communicate with students."
-    ];
+    // English & Bengali Dynamic Lessons grouped by level
+    const englishLessonsByLevel = {
+      basic: [
+        "asdfghjkl;' asdfghjkl;' asdfghjkl;' asdfghjkl;'adgjl';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa asdfghjkl;'asdfghjkl;''",
+        "fdsa jkl; fdsa jkl; fdsa jkl; fdsa jkl; lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa dlg;jgsa dghdl;' gjkfdlfk jhsgak kfjks",
+        "asdfgh jkl; asdfgh jkl; asdfgh jkl; asdfgh jkl; shfkLdh skhak;fj jhghs;j H dlkg slkjhd S kgjg j;d S'dljgld jklskgk Alhlf slkGlfj",
+        "qwer tyui qwer tyui qwer tyui qwer tyui qwertyuiop poiuytrewq qwertyuiop poiuytrewq uqypwpqp yuqppo owqypqoru pqurpwu iey[",
+        "qwertyuiop poiuytrewq qwertyuiop poiuytrewq ipwp[qupriutw qiwirotpwu ie[oietou] eiu[woi[weotroiui wuoeuttp]pwu uoeueiootuw",
+        "Qwertyuiop OiuytrPewq qWertyuiop pozIuytrewq ooiriurY oi[q[itioruu Uopwiitwiuopwt iwpipoiwu oeEiwpwp Twpoituwoie Rwpui[witii]",
+        "xznm,v mnvbmzm znmzmk /m,bnxnm xxm,zb,mb mnvmmb. ncvbvzb. zncmnbznv, zcxvxvb. ncbvvbnncv. mmcnbn, nxbnxmb. znbcbnb, ncbbncz",
+        "mncbcv ncmnvnb nbcnbxvb, mnbmvn? m,mbnv nvbnc/vnn mcnmcbm, nmncb/ncbbx, ncbxmnb/mn ncbcvb. ncbnxcvb, nb/ncbn/nc ncbnvbmcb.",
+        "Nmn mvbnxb mcZcnmnv B,cnmx/ vmmc mvnbbb/mnv, mbnvbc? nxbcx/mvn computer keyboard computer keyboard computer keyboardn mxbvn, nnxmnvbz/",
+        "typing practice typing practice typing practice basic level lesson basic level lesson basic level lesson Mmcbnnbx cmxnNmxnb bnmc,? "
+      ],
+      level1: [
+        "The quick brown fox jumps over the lazy dog lnfue ncwinanir nanzoir nspwnczm Ejfncc iownlpzcn oawnsfV wjwnc ownipz sdjgwj: soorn? kshc9w",
+        "Learn to type with calm and steady hands. Practice Makes Perfect. Typing Every Day Improves Speed. Keep Your Eyes on the Screen.",
+        "Every day practice helps you improve your speed. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
+        "Your fingers should move smoothly and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
+        "A good rhythm makes typing easier and faster. Start with short lines and grow your confidence. Never Give Up. Keep Practicing. Practice",
+        "Start with short lines and grow your confidence. Keep practicing and enjoy the progress. Accuracy matters more than rushing through the text",
+        "Type with focus and keep your posture straight. The quick brown fox jumps over the lazy dog. lnfue ncwinanir nanzoir eep Practicing. Practice Makes Perfect.",
+        "Accuracy matters more than rushing through the text. Practice Makes Perfect. A good rhythm makes typing easier and faster. Start with short lines and",
+        "Simple words build strong typing habits. and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves Speed",
+        "Keep practicing and enjoy the progress. practicing and enjoy the progress. Practicing. Practice Makes Perfect. Typing Practicing. Practice Makes,"
+      ],
+      level2: [
+        "Computer typing is useful for school and work.",
+        "Many students use typing skills for assignments and projects.",
+        "A strong keyboard habit saves time every day.",
+        "Practice helps you avoid mistakes and stay relaxed.",
+        "Clear focus improves both speed and accuracy.",
+        "Reading the text before typing makes it easier.",
+        "Regular sessions build confidence and muscle memory.",
+        "Good technique helps your hands move naturally.",
+        "Typing well can support many online tasks.",
+        "Consistency is the key to steady improvement."
+      ],
+      level3: [
+        "Technology has changed the way people learn, work, and communicate.",
+        "Modern computers help us create, share, and organize information quickly.",
+        "Successful typing practice requires patience, concentration, and regular effort.",
+        "With steady progress, your speed and accuracy will improve together.",
+        "A comfortable setup and correct posture reduce strain during practice.",
+        "Daily exercises can turn simple typing into a valuable skill.",
+        "The more carefully you type, the stronger your habits become.",
+        "Professionals depend on accurate typing in many fields.",
+        "Challenge yourself with longer passages to grow faster.",
+        "Mastery comes from repeated practice and thoughtful correction."
+      ],
+      advanced: [
+        "Advanced typists combine speed, accuracy, and focus to handle complex passages with ease.",
+        "Professional work often demands quick and precise typing under time pressure.",
+        "A disciplined practice routine helps you build endurance and confidence.",
+        "Strong keyboard habits reduce errors and increase overall productivity.",
+        "Experienced typists can keep a steady rhythm even when the text becomes longer.",
+        "Writing reports, emails, and documents becomes faster with regular training.",
+        "Advanced practice encourages careful attention to punctuation and formatting.",
+        "The best learners review mistakes and correct them with patience.",
+        "Complex sentences challenge your coordination and improve your reflexes.",
+        "Continuous improvement turns ordinary typing into a professional advantage."
+      ]
+    };
 
-    const bengaliLessons = [
-      "বকতদবক তদবকতদ জচটডজ ঙযডপট চজহগড় বকতদ রনসসম",
-      "কতদচজ হগড়টপড যঙডযঙ হগচটযড়দ দহকতমস নরসমর টপটপহগগ।",
-      "য়যঢডপটচ জহগগছ ঢ়হজজকত ভসমত শতকধগহ বজকচখত ঘতকজচটপড সশরনহতম।",
-      "কড়গহজ খতগহদটপ জটজহগত ষতহমক হচকতণত গচপটযযডঘ তকদচব ঝসমরনর ধঘহতককব।",
-      "ঢ়হজককবক টঠচজপজকস থকবহপযড হগতকম ঞসজচপটচপচ ষতজহহতজ ফহপডচহড় তকদহমস গজহশহজ।"
-    ];
+    const bengaliLessonsByLevel = {
+      basic: [
+        "ক ক ক ক ক ক",
+        "খ গ ঘ ক খ গ ঘ",
+        "ড প ট চ জ হ গ",
+        "কতদচজ হগড়টপ",
+        "যমবনস রলস জহগ",
+        "কম্পিউটার টাইপিং",
+        "বেসিক লেভেল অনুশীলন",
+        "কীবোর্ড অনুশীলন",
+        "সঠিক টাইপিং শিখি",
+        "প্রতিদিন অনুশীলন করি"
+      ],
+      level1: [
+        "কতদচজ হগড়টপ",
+        "কীবোর্ডে সঠিকভাবে চাপুন",
+        "প্রথম লেভেলের অনুশীলন",
+        "স্মুথলি টাইপ করুন",
+        "ধীরে ধীরে দক্ষতা বাড়ান",
+        "শুরুতে সহজ শব্দ ব্যবহার করুন",
+        "সতর্কতার সাথে টাইপ করুন",
+        "ভুল এড়িয়ে চলুন",
+        "অভ্যাস গড়ে তোলুন",
+        "পুরো মনোযোগ দিন"
+      ],
+      level2: [
+        "কম্পিউটার ব্যবহার করে কাজ করা সহজ",
+        "টাইপিং দক্ষতা বাড়ায় সাফল্য",
+        "নিয়মিত অনুশীলন দরকার",
+        "ধীর গতিতে শুরু করে দ্রুত হোন",
+        "দক্ষতা বাড়াতে মনোযোগ দিন",
+        "ভুল কমাতে সতর্ক থাকুন",
+        "সঠিক postura বজায় রাখুন",
+        "কী বোর্ডে স্বাভাবিক চালনা করুন",
+        "প্রতিদিন কিছু সময় দিন",
+        "টেকনিক শিখে এগিয়ে যান"
+      ],
+      level3: [
+        "টেকনোলজি শিক্ষায় কাজের ধরন বদলে দিয়েছে",
+        "দক্ষ টাইপিং আজকের সময়ের একটি গুরুত্বপূর্ণ skill",
+        "নিয়মিত অভ্যাসে দ্রুততা ও নির্ভুলতা বাড়ে",
+        "সঠিক পদ্ধতিতে টাইপ করলে কম ভুল হয়",
+        "দীর্ঘ পাঠ দিয়ে নিজের দক্ষতা যাচাই করুন",
+        "প্রতিদিনের অনুশীলন আপনাকে উন্নত করবে",
+        "সুশৃঙ্খলতা এবং মনোযোগ বাড়ায় ফলাফল",
+        "প্রফেশনাল লাইফে টাইপিং খুব দরকারি",
+        "চ্যালেঞ্জ গ্রহণ করে নিজের সীমা বাড়ান",
+        "অনুশীলন চালিয়ে যান, সফলতা আসবেই"
+      ],
+      advanced: [
+        "এডভান্সড টাইপিস্টরা গতি, নির্ভুলতা ও মনোযোগ একসাথে ব্যবহার করে জটিল পাঠও সহজে টাইপ করতে পারে",
+        "পেশাগত কাজের অনেক সময় দ্রুত ও নির্ভুল টাইপিং প্রয়োজন হয়",
+        "একটি disip্লিনড অনুশীলনের রুটিন আপনার ধৈর্য ও আত্মবিশ্বাস বাড়ায়",
+        "সঠিক কীবোর্ড অভ্যাস ভুল কমায় এবং উৎপাদনশীলতা বাড়ায়",
+        "অভিজ্ঞ টাইপিস্টরা দীর্ঘ পাঠেও স্থির তাল বজায় রাখতে পারে",
+        "রিপোর্ট, ইমেইল ও ডকুমেন্ট লেখা নিয়মিত প্রশিক্ষণে সহজ হয়ে যায়",
+        "এডভান্সড অনুশীলনে বিরাম চিহ্ন ও ফরম্যাটিংয়ের দিকেও সতর্ক থাকা লাগে",
+        "সেরা শিক্ষার্থীরা ভুলগুলো দেখেও সেগুলো ধৈর্য ধরে ঠিক করে",
+        "জটিল বাক্য আপনার সমন্বয় ও প্রতিক্রিয়া ক্ষমতা বাড়ায়",
+        "অব্যাহত উন্নতি সাধারণ টাইপিংকে পেশাদার সুবিধায় পরিণত করে"
+      ]
+    };
 
     // কীবোর্ড বাটনগুলোতে বাংলা বর্ণমালা ম্যাপিং
     const bengaliKeyLabelMap = {
@@ -1013,17 +1124,23 @@
     }
 
     function populateLessonsDropdown() {
-      const select = document.getElementById("lessonSelect");
-      select.innerHTML = "";
+      const lessonSelect = document.getElementById("lessonSelect");
+      const levelSelect = document.getElementById("levelSelect");
+      const levelKey = levelSelect.value || "basic";
+      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+      lessonSelect.innerHTML = "";
       const grp = document.createElement("optgroup");
-      grp.label = currentLanguage === 'en' ? "English Lessons" : "বিজয় বাংলা লেসন";
-      const lessons = currentLanguage === 'en' ? englishLessons : bengaliLessons;
-      lessons.forEach((l, i) => {
+      grp.label = currentLanguage === 'en'
+        ? `${levelSelect.options[levelSelect.selectedIndex].text} Lessons`
+        : `${levelSelect.options[levelSelect.selectedIndex].text} লেসন`;
+      lessons.forEach((_lesson, i) => {
         const opt = document.createElement("option");
-        opt.value = i; opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i+1);
+        opt.value = i;
+        opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i + 1);
         grp.appendChild(opt);
       });
-      select.appendChild(grp);
+      lessonSelect.appendChild(grp);
+      lessonSelect.value = 0;
     }
 
     function updateKeyboardLayoutDisplay() {
@@ -1039,8 +1156,11 @@
     }
 
     function loadLesson() {
-      const select = document.getElementById("lessonSelect");
-      targetText = currentLanguage === 'en' ? englishLessons[select.value] : bengaliLessons[select.value];
+      const levelSelect = document.getElementById("levelSelect");
+      const lessonSelect = document.getElementById("lessonSelect");
+      const levelKey = levelSelect.value || "basic";
+      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+      targetText = lessons[lessonSelect.value] || lessons[0];
       resetExercise();
     }
 
@@ -1078,8 +1198,24 @@
         const guide = bijoyToEnglishGuide[targetChar];
         if (guide) keyId = guide.key.toLowerCase();
       }
-      const el = document.getElementById(`key-${keyId}`);
+      // Map some special characters to safe element ids
+      let lookupKey = keyId;
+      if (keyId === "\\") lookupKey = 'backslash';
+      const el = document.getElementById(`key-${lookupKey}`);
       if (el) el.classList.add("target-highlight");
+      
+      // If the target requires Shift (uppercase letters or shifted symbols), highlight Shift keys too
+      if (currentLanguage === 'en' && currentIndex < targetText.length) {
+        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
+        const needsUpper = /[A-Z]/.test(targetChar);
+        const needsShiftSymbol = shiftChars.includes(targetChar);
+        if (needsUpper || needsShiftSymbol) {
+          const leftShift = document.getElementById('key-shift');
+          const rightShift = document.getElementById('key-shiftright');
+          if (leftShift) leftShift.classList.add('target-highlight');
+          if (rightShift) rightShift.classList.add('target-highlight');
+        }
+      }
     }
 
     function updateFeedbackPrompt() {
@@ -1090,6 +1226,19 @@
         const guide = bijoyToEnglishGuide[targetChar];
         feedbackEl.innerHTML = guide ? `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ ইংরেজি কীবোর্ডের [ <strong style="color: #facc15;">${guide.label.toUpperCase()}</strong> ] চাপুন।` : "";
       } else feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+      
+      // For English mode, show Shift hint when uppercase or shifted symbols are required
+      if (currentLanguage === 'en') {
+        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
+        const needsUpper = /[A-Z]/.test(targetChar);
+        const needsShiftSymbol = shiftChars.includes(targetChar);
+        if (needsUpper || needsShiftSymbol) {
+          const displayChar = targetChar.toUpperCase();
+          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">Shift + "${displayChar}"</strong>`;
+        } else {
+          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+        }
+      }
     }
 
     function triggerErrorEffect() {
@@ -1121,48 +1270,59 @@
     }
 
     document.addEventListener("keydown", function(event) {
+      // Ignore modifier-only combos
       if (event.ctrlKey || event.altKey) return;
-      if (["Shift", "CapsLock", "Tab", "Control"].includes(event.key)) return;
-      
-      // Prevent space scroll
+
+      // Prevent default actions for navigation and editing keys so the page doesn't move focus/scroll
+      const navKeys = ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Tab","Backspace"];
+      if (navKeys.includes(event.key)) { event.preventDefault(); return; }
+
+      // Ignore keys that are purely modifiers
+      if (["Shift", "CapsLock", "Control"].includes(event.key)) return;
+
+      // Only process printable single-character keys and space
+      const isPrintable = (event.key.length === 1) || event.key === " ";
+      if (!isPrintable) return;
+
+      // Prevent space from scrolling the page
       if (event.key === " ") event.preventDefault();
 
       if (!isStarted) { isStarted = true; startTimer(); }
-      
+
       const typedChar = event.key;
       const targetChar = targetText[currentIndex];
       totalKeystrokes++;
-      
+
       let isMatch = (typedChar === targetChar);
       if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
         if (bijoyToEnglishGuide[targetChar].key === typedChar) isMatch = true;
       }
-      
-      if (isMatch) { 
-          playKeySound(true); 
-          currentIndex++; 
-          hasErrorAtCurrent = false; 
-      } else { 
-          playKeySound(false); 
-          hasErrorAtCurrent = true; 
-          totalErrors++; 
-          triggerErrorEffect();
+
+      if (isMatch) {
+        playKeySound(true);
+        currentIndex++;
+        hasErrorAtCurrent = false;
+      } else {
+        playKeySound(false);
+        hasErrorAtCurrent = true;
+        totalErrors++;
+        triggerErrorEffect();
       }
-      
-      renderText(); 
-      highlightKeyboardKey(); 
+
+      renderText();
+      highlightKeyboardKey();
       updateFeedbackPrompt();
-      
+
       document.getElementById("accuracyVal").innerText = Math.round(((totalKeystrokes - totalErrors) / totalKeystrokes) * 100) + "%";
       document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${Math.round((currentIndex / targetText.length) * 100)}%)`;
-      
-      if (currentIndex === targetText.length) { 
-          clearInterval(timerInterval); 
-          document.getElementById("modalWpm").innerText = document.getElementById("wpmVal").innerText;
-          document.getElementById("modalAccuracy").innerText = document.getElementById("accuracyVal").innerText;
-          document.getElementById("modalTime").innerText = document.getElementById("timeVal").innerText;
-          document.getElementById("modalErrors").innerText = totalErrors;
-          document.getElementById("summaryModal").style.display = "flex"; 
+
+      if (currentIndex === targetText.length) {
+        clearInterval(timerInterval);
+        document.getElementById("modalWpm").innerText = document.getElementById("wpmVal").innerText;
+        document.getElementById("modalAccuracy").innerText = document.getElementById("accuracyVal").innerText;
+        document.getElementById("modalTime").innerText = document.getElementById("timeVal").innerText;
+        document.getElementById("modalErrors").innerText = totalErrors;
+        document.getElementById("summaryModal").style.display = "flex";
       }
     });
 
@@ -1174,25 +1334,52 @@
     }
     
     function loadNextLesson() {
-        const select = document.getElementById("lessonSelect");
-        if (select.selectedIndex < select.options.length - 1) {
-            select.selectedIndex++;
+        const levelSelect = document.getElementById("levelSelect");
+        const lessonSelect = document.getElementById("lessonSelect");
+        const levelKey = levelSelect.value || "basic";
+        const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+        const nextLessonIndex = Number(lessonSelect.value) + 1;
+
+        if (nextLessonIndex < lessons.length) {
+            lessonSelect.value = nextLessonIndex;
             loadLesson();
             document.getElementById("summaryModal").style.display = "none";
         } else {
-            alert("Congratulations! You have completed all lessons.");
-            closeSummary();
+            const levelOrder = ["basic", "level1", "level2", "level3", "advanced"];
+            const currentLevelIndex = levelOrder.indexOf(levelKey);
+            const nextLevelKey = levelOrder[(currentLevelIndex + 1) % levelOrder.length];
+            levelSelect.value = nextLevelKey;
+            populateLessonsDropdown();
+            lessonSelect.value = 0;
+            loadLesson();
+            document.getElementById("summaryModal").style.display = "none";
         }
     }
 
     function closeSummary() { document.getElementById("summaryModal").style.display = "none"; resetExercise(); }
 
     window.onload = () => {
-      let w = 0; const int = setInterval(() => {
-        w += 5; document.getElementById("loaderProgress").style.width = w + "%";
-        if (w >= 100) { clearInterval(int); document.getElementById("loadingScreen").style.display = "none"; document.getElementById("trainerWelcomeScreen").style.display = "flex"; }
-      }, 100);
-      setLanguage('en');
+      // Simulate loader progress and then show trainer screen
+      try {
+        document.getElementById("loaderProgress").style.width = "0%";
+        document.getElementById("loadingScreen").style.display = "flex";
+        document.getElementById("trainerWelcomeScreen").style.display = "none";
+
+        let progress = 0;
+        const iv = setInterval(() => {
+          progress += 10;
+          document.getElementById("loaderProgress").style.width = progress + "%";
+          if (progress >= 100) {
+            clearInterval(iv);
+            setTimeout(() => {
+              document.getElementById("loadingScreen").style.display = "none";
+              document.getElementById("trainerWelcomeScreen").style.display = "flex";
+              // Initialize language and UI after loader
+              setTimeout(() => setLanguage('en'), 50);
+            }, 180);
+          }
+        }, 80);
+      } catch (e) {}
     };
   </script>
 </body>
