@@ -745,7 +745,7 @@
     </div>
 
     <!-- Typing Interactive Area -->
-    <div id="typingPanel" class="typing-panel">
+    <div id="typingPanel" class="typing-panel" tabindex="0">
       <div id="textDisplay" class="text-display"></div>
     </div>
 
@@ -900,40 +900,40 @@
         "Keep practicing and enjoy the progress. practicing and enjoy the progress. Practicing. Practice Makes Perfect. Typing Practicing. Practice Makes,"
       ],
       level2: [
-        "Computer typing is useful for school and work.",
-        "Many students use typing skills for assignments and projects.",
-        "A strong keyboard habit saves time every day.",
-        "Practice helps you avoid mistakes and stay relaxed.",
-        "Clear focus improves both speed and accuracy.",
-        "Reading the text before typing makes it easier.",
-        "Regular sessions build confidence and muscle memory.",
-        "Good technique helps your hands move naturally.",
-        "Typing well can support many online tasks.",
-        "Consistency is the key to steady improvement."
+        "Bangladesh has a rich and glorious history. The country became independent in 1971 after a long struggle for freedom. Before independence,",
+        "Bangladesh was known as East Pakistan. The people of this land faced political, economic, and cultural discrimination for many years. In 1952, the Language Movement began to protect",
+        "the right to speak the Bengali language. Many brave students sacrificed their lives for their mother tongue.",
+        "Later, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the demand for independence became stronger. On 26 March 1971, the War of Liberation started.",
+        "Millions of people joined the struggle for freedom. After nine months of war and great sacrifice, Bangladesh achieved victory on 16 December 1971. This day is celebrated as Victory Day.",
+        "Today, Bangladesh is a proud and independent country. The spirit of the Liberation War inspires the nation to move forward with unity, courage, and hard work.",
+        "history of Bangladesh teaches us the value of freedom, sacrifice, and love for our country.",
+        "Bangladesh is a country with a proud and glorious history. The people of this land struggled for freedom, justice, and their own identity. In 1947, the region became",
+        "part of Pakistan and was known as East Pakistan. However, the people faced many political, economic, and cultural problems. The Bengali language movement of 1952",
+        "became an important chapter in history. Students and ordinary people demanded the right to speak Bangla, and many brave people sacrificed their lives for the language."
       ],
       level3: [
-        "Technology has changed the way people learn, work, and communicate.",
-        "Modern computers help us create, share, and organize information quickly.",
-        "Successful typing practice requires patience, concentration, and regular effort.",
-        "With steady progress, your speed and accuracy will improve together.",
-        "A comfortable setup and correct posture reduce strain during practice.",
-        "Daily exercises can turn simple typing into a valuable skill.",
-        "The more carefully you type, the stronger your habits become.",
-        "Professionals depend on accurate typing in many fields.",
-        "Challenge yourself with longer passages to grow faster.",
-        "Mastery comes from repeated practice and thoughtful correction."
+        "Later, the struggle for rights and equality continued. In 1971, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the people of Bangladesh started the",
+        "Liberation War. Millions of men and women participated in the movement for independence. The war lasted for nine months and many freedom fighters sacrificed their lives. Finally, on 16 December 1971,",
+        "Today, Bangladesh is known for its culture, language, and remarkable progress. The spirit of the Liberation War inspires the nation to move forward with courage and",
+        "unity. The history of Bangladesh teaches us the value of freedom, sacrifice, and national pride.",
+        "A computer is one of the most useful inventions in the modern world. It helps people perform different tasks quickly, accurately, and efficiently. Today, computers are used in schools, colleges, universities, offices,",
+        "hospitals, banks, businesses, and many other places. Students use computers to study, complete assignments, and learn new skills. Teachers use computers to prepare lessons, presentations, and educational",
+        "materials. Office workers use computers to create documents, calculate data, send emails, and manage important information. The more carefully you type, the stronger your habits become.",
+        "Computers have also created many opportunities for online work and freelancing. People can earn money from home by learning graphic design, video editing, web development, programming, digital marketing,",
+        "and other computer skills. A computer also provides access to the internet, where people can communicate with others, watch educational videos, attend online classes, and find useful information from around the world.",
+        "Learning computer skills is becoming more important every day. Regular practice improves typing speed, increases productivity, and builds confidence. Every student should learn basic computer operations such as."
       ],
       advanced: [
-        "Advanced typists combine speed, accuracy, and focus to handle complex passages with ease.",
-        "Professional work often demands quick and precise typing under time pressure.",
-        "A disciplined practice routine helps you build endurance and confidence.",
-        "Strong keyboard habits reduce errors and increase overall productivity.",
-        "Experienced typists can keep a steady rhythm even when the text becomes longer.",
-        "Writing reports, emails, and documents becomes faster with regular training.",
-        "Advanced practice encourages careful attention to punctuation and formatting.",
-        "The best learners review mistakes and correct them with patience.",
-        "Complex sentences challenge your coordination and improve your reflexes.",
-        "Continuous improvement turns ordinary typing into a professional advantage."
+        "Microsoft Word, Microsoft Excel, Microsoft PowerPoint, file management, internet browsing, and email communication. With dedication, patience, and continuous practice, anyone can become skilled in using a",
+        "computer. Computer knowledge is the key to success in education, employment, freelancing, and everyday life. Keep practicing every day, and your computer skills will continue to improve.",
+        "Computers have become an essential part of modern life. Almost every home, school, office, hospital, bank, and business organization uses computers to complete daily tasks. They help people save time, improve",
+        "accuracy, and increase productivity. A computer can process large amounts of information within a few seconds, making work easier and more efficient than ever before.",
+        "Students use computers to prepare assignments, attend online classes, conduct research, and improve their knowledge. Teachers use computers to create lesson plans, presentations, question papers, and educational",
+        "materials. Office workers use computers for writing reports, preparing spreadsheets, managing databases, sending emails, and organizing important documents. Hospitals use computers to keep patient records, schedule app",
+        "The internet has made computers even more powerful. People can communicate instantly through email, video calls, and social media. They can also access online libraries, educational websites, digital newspapers,",
+        "and learning platforms. Computers allow people to work remotely from anywhere in the world, creating new opportunities for freelancing and online businesses.",
+        "Learning computer skills is one of the best investments for the future. Skills such as typing, Microsoft Word, Microsoft Excel, Microsoft PowerPoint, graphic design, video editing, web development, programming, and",
+        "artificial intelligence are highly valuable in today's job market. Many successful freelancers and entrepreneurs started their careers by learning these skills step by step."
       ]
     };
 
@@ -1112,7 +1112,11 @@
       } catch (e) {}
     }
 
-    function startTrainerSession() { document.getElementById("trainerWelcomeScreen").style.display = "none"; }
+    function startTrainerSession() { 
+      document.getElementById("trainerWelcomeScreen").style.display = "none";
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
+    }
 
     function setLanguage(lang) {
       currentLanguage = lang;
@@ -1121,6 +1125,8 @@
       populateLessonsDropdown();
       updateKeyboardLayoutDisplay();
       loadLesson();
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
     }
 
     function populateLessonsDropdown() {
@@ -1174,6 +1180,8 @@
       renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
       const feedbackEl = document.getElementById("statusFeedback");
       feedbackEl.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
     }
 
     function renderText() {
@@ -1271,6 +1279,11 @@
 
     document.addEventListener("keydown", function(event) {
       // Ignore modifier-only combos
+      const activeElement = document.activeElement;
+      if (activeElement && (activeElement.tagName === 'SELECT' || activeElement.tagName === 'OPTION' || activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        return;
+      }
+
       if (event.ctrlKey || event.altKey) return;
 
       // Prevent default actions for navigation and editing keys so the page doesn't move focus/scroll
