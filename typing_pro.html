@@ -111,6 +111,7 @@
                 <div id="nav-user" class="hidden flex items-center gap-2">
                     <span id="nav-name" class="text-xs font-bold uppercase text-slate-700 truncate max-w-[80px]"></span>
                     <img id="nav-avatar" onclick="viewProfile(loggedInUser.id)" class="w-8 h-8 rounded-full border-2 border-blue-500 cursor-pointer object-cover" src="">
+                    <button onclick="openEditProfile()" class="text-slate-700 font-bold text-[8px] uppercase">Edit</button>
                     <button onclick="logout()" class="text-red-500 font-bold text-[8px] uppercase">Exit</button>
                 </div>
                 <button id="nav-login" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1 rounded-lg font-bold text-[9px] uppercase">Login</button>
@@ -780,43 +781,50 @@
 
         function findUser(identity) {
             const norm = String(identity).trim().toLowerCase();
+            if (!norm) return Promise.resolve(null);
             const cached = allUsers.find(u => 
                 String(u.id).toLowerCase() === norm || 
-                String(u.name).toLowerCase() === norm
+                String(u.name || '').toLowerCase() === norm
             );
             if (cached) return Promise.resolve(cached);
             return db.ref('users').once('value').then(snap => {
                 const data = snap.val() || {};
+                const exactKey = Object.keys(data).find(k => String(k).toLowerCase() === norm);
+                if (exactKey) return { id: exactKey, ...data[exactKey] };
                 const entry = Object.entries(data).find(([k, v]) => 
-                    k.toLowerCase() === norm || (v && String(v.name).toLowerCase() === norm)
+                    v && String(v.name || '').toLowerCase() === norm
                 );
                 return entry ? { id: entry[0], ...entry[1] } : null;
             });
         }
 
         function handleAuth() {
-            const id = document.getElementById('auth-id').value.trim().toLowerCase();
+            const rawId = document.getElementById('auth-id').value.trim();
             const pass = document.getElementById('auth-pass').value.trim();
-            if (!id || !pass) return alert('Fill all fields');
+            const id = rawId.toLowerCase();
+            if (!rawId || !pass) return alert('Fill all fields');
 
-            findUser(id).then(user => {
+            findUser(rawId).then(user => {
                 if (!user) {
                     const currentMonth = getCurrentMonthKey();
-            const newUser = { id, name: id, password: pass, points: 0, monthlyPoints: 0, monthlyPointsMonth: currentMonth, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
+                    const newUser = { id, name: rawId, password: pass, points: 0, monthlyPoints: 0, monthlyPointsMonth: currentMonth, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
                     db.ref('users/' + id).set(newUser).then(() => {
                         loggedInUser = newUser;
                         localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                         afterLogin();
-                        alert('✅ Welcome ' + id + '!');
-                    });
+                        alert('✅ Welcome ' + rawId + '!');
+                    }).catch(() => alert('❌ সেভ করা যায়নি, আবার চেষ্টা করুন।'));
                     return;
                 }
-                if (user.password !== pass) return alert('❌ Wrong password');
+                if (user.password !== pass) return alert('❌ ভুল পাসওয়ার্ড');
                 loggedInUser = { id: user.id, ...user };
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 afterLogin();
-                alert('✅ Welcome back ' + (loggedInUser.name || loggedInUser.id) + '!');
-            }).catch(() => alert('❌ Login failed'));
+                alert('✅ স্বাগতম ফিরে ' + (loggedInUser.name || loggedInUser.id) + '!');
+            }).catch(err => {
+                console.error('Auth error:', err);
+                alert('❌ লগইন ব্যর্থ হয়েছে, আবার চেষ্টা করুন।');
+            });
         }
 
         function afterLogin() {
@@ -984,12 +992,14 @@
         function saveProfile() {
             if (!loggedInUser) return;
             const oldId = loggedInUser.id;
-            const newId = document.getElementById('edit-id').value.trim().toLowerCase();
+            const oldIdNorm = String(oldId || '').trim().toLowerCase();
+            const rawId = document.getElementById('edit-id').value.trim();
+            const newId = String(rawId).trim().toLowerCase();
             const name = document.getElementById('edit-name').value.trim();
             const pic = document.getElementById('edit-pic').value.trim();
             const bio = document.getElementById('edit-bio').value.trim();
             if (!newId || !name) return alert('Required fields missing');
-            if (newId !== oldId && allUsers.some(u => u.id.toLowerCase() === newId)) return alert('ID already taken');
+            if (newId !== oldIdNorm && allUsers.some(u => String(u.id).toLowerCase() === newId)) return alert('ID already taken');
 
             const updated = { ...loggedInUser, id: newId, name, pic, bio };
 
@@ -1002,12 +1012,21 @@
                 alert('✅ Profile updated!');
             };
 
-            if (newId !== oldId) {
+            if (newId !== oldIdNorm) {
                 db.ref('users/' + newId).set(updated).then(() => {
-                    db.ref('users/' + oldId).remove().then(finish);
+                    db.ref('users/' + oldId).remove().then(finish).catch(err => {
+                        console.error('Remove old user failed:', err);
+                        finish();
+                    });
+                }).catch(err => {
+                    console.error('Profile save failed:', err);
+                    alert('❌ প্রোফাইল আপডেট করতে পারিনি, আবার চেষ্টা করুন।');
                 });
             } else {
-                db.ref('users/' + oldId).update({ name, pic, bio }).then(finish);
+                db.ref('users/' + oldId).update({ name, pic, bio }).then(finish).catch(err => {
+                    console.error('Profile save failed:', err);
+                    alert('❌ প্রোফাইল আপডেট করতে পারিনি, আবার চেষ্টা করুন।');
+                });
             }
         }
 
@@ -1120,10 +1139,14 @@
         // SCORE SUBMIT
         // ============================================
         function submitScore() {
-            if (!loggedInUser) return;
+            if (!loggedInUser) {
+                openAuth();
+                return;
+            }
             const wpm = parseInt(document.getElementById('live-wpm').textContent) || 0;
+            const typedLength = parseInt(document.getElementById('live-chars').textContent) || 0;
             const earned = Math.floor(correctChars / 5);
-            if (earned === 0 && wpm === 0) return alert('Type something first!');
+            if (earned === 0 && wpm === 0 && typedLength === 0) return alert('প্রথমে টাইপ করুন, তারপর সেভ করুন।');
 
             const currentMonth = getCurrentMonthKey();
             if (loggedInUser.monthlyPointsMonth !== currentMonth) {
@@ -1146,7 +1169,10 @@
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 document.getElementById('submit-btn').classList.add('hidden');
                 resetTyping();
-                alert('🎉 Score saved! +' + earned + ' pts, WPM: ' + wpm);
+                alert('🎉 অভিনন্দন! সেভ সম্পন্ন হয়েছে। +' + earned + ' পয়েন্ট, WPM: ' + wpm);
+            }).catch(err => {
+                console.error('Save failed:', err);
+                alert('❌ সেভ করতে পারিনি, আবার চেষ্টা করুন।');
             });
         }
 
@@ -1203,6 +1229,7 @@
             if (stored) {
                 try {
                     loggedInUser = JSON.parse(stored);
+                    updateNav();
                     db.ref('users/' + loggedInUser.id).once('value').then(snap => {
                         if (snap.exists()) {
                             loggedInUser = { id: loggedInUser.id, ...snap.val() };
