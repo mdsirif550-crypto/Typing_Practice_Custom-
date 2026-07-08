@@ -174,6 +174,7 @@
                 <span class="stat-pill">⏱ <span id="timer-display" class="num text-red-600">05:00</span></span>
                 <span class="stat-pill">📝 <span id="live-chars" class="num text-blue-600">0</span></span>
                 <span class="stat-pill">❌ <span id="live-mistakes" class="num text-red-600">0</span></span>
+                <span class="stat-pill">🎯 <span id="live-accuracy" class="num text-rose-600">0</span>%</span>
                 <span class="stat-pill">⚡ <span id="live-wpm" class="num text-orange-600">0</span> WPM</span>
             </div>
             <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700">💾 Save</button>
@@ -188,7 +189,14 @@
                     <button onclick="openAllUsers()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl font-bold text-[10px] hover:bg-blue-700">All</button>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div id="monthly-reset-banner" class="mb-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-[10px] font-bold text-slate-700">
+                <span id="monthly-reset-text">Monthly leaderboard resets on 1st of every month.</span>
+                <span id="monthly-reset-countdown" class="ml-3 text-blue-600">Next reset in -- days --:--:--</span>
+            </div>
+            <div id="monthly-reset-alert" class="mb-3 rounded-2xl bg-red-600 text-white p-3 text-[10px] font-bold">
+                <span>সতর্কতা: মাসিক রিসেট শুধুমাত্র মাসিক পয়েন্ট রিসেট করে। টোটাল পয়েন্ট আজীবন থাকবে এবং কখনও 00 হবে না।</span>
+            </div>
+        <div class="overflow-x-auto">
                 <table class="w-full text-[10px]">
                     <thead class="bg-slate-900 text-white uppercase tracking-wider">
                         <tr><th class="p-2 text-center">#</th><th class="p-2 text-left">Player</th><th class="p-2 text-center">LVL</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Monthly</th><th class="p-2 text-center">WPM</th></tr>
@@ -456,15 +464,80 @@
             }, 5000);
         }
 
+        function getCurrentMonthKey() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function getNextMonthlyResetDate() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth();
+            const nextMonth = new Date(year, month + 1, 1, 0, 0, 0, 0);
+            return nextMonth;
+        }
+
+        function updateMonthlyCountdown() {
+            const nextReset = getNextMonthlyResetDate();
+            const now = new Date();
+            let diff = Math.floor((nextReset - now) / 1000);
+            if (diff <= 0) {
+                performMonthlyReset();
+                diff = Math.floor((getNextMonthlyResetDate() - new Date()) / 1000);
+            }
+            diff = Math.max(0, diff);
+            const days = Math.floor(diff / 86400);
+            diff %= 86400;
+            const hours = String(Math.floor(diff / 3600)).padStart(2, '0');
+            diff %= 3600;
+            const minutes = String(Math.floor(diff / 60)).padStart(2, '0');
+            const seconds = String(diff % 60).padStart(2, '0');
+            document.getElementById('monthly-reset-countdown').textContent = `Next reset in ${days}d ${hours}:${minutes}:${seconds}`;
+        }
+
+        function performMonthlyReset() {
+            const currentMonth = getCurrentMonthKey();
+            const updates = {};
+            allUsers.forEach(user => {
+                if (user.monthlyPointsMonth !== currentMonth) {
+                    updates[`users/${user.id}/monthlyPoints`] = 0;
+                    updates[`users/${user.id}/monthlyPointsMonth`] = currentMonth;
+                }
+            });
+            if (Object.keys(updates).length > 0) {
+                db.ref().update(updates).catch(err => console.error('Monthly reset failed:', err));
+            }
+        }
+
         // ============================================
         // FIREBASE OPERATIONS
         // ============================================
         function syncUsers() {
             db.ref('users').on('value', snap => {
                 const data = snap.val() || {};
-                allUsers = Object.keys(data).map(k => ({ id: k, ...data[k] }));
+                const currentMonth = getCurrentMonthKey();
+                const updates = {};
+                allUsers = Object.keys(data).map(k => {
+                    const user = { id: k, ...data[k] };
+                    if (user.monthlyPointsMonth !== currentMonth) {
+                        updates[`users/${k}/monthlyPoints`] = 0;
+                        updates[`users/${k}/monthlyPointsMonth`] = currentMonth;
+                        user.monthlyPoints = 0;
+                        user.monthlyPointsMonth = currentMonth;
+                        if (loggedInUser && loggedInUser.id === k) {
+                            loggedInUser.monthlyPoints = 0;
+                            loggedInUser.monthlyPointsMonth = currentMonth;
+                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                        }
+                    }
+                    return user;
+                });
+                if (Object.keys(updates).length > 0) {
+                    db.ref().update(updates).catch(err => console.error('Monthly reset failed:', err));
+                }
                 renderLeaderboard(allUsers);
                 updateBannerRotation();
+                updateMonthlyCountdown();
                 if (loggedInUser) updateNav();
             });
         }
@@ -528,6 +601,17 @@
             const filtered = getFilteredLessons();
             const lesson = filtered.find(l => l.id === currentLessonId);
             return lesson || null;
+        }
+
+        function getNextLessonId() {
+            const filtered = getFilteredLessons();
+            if (filtered.length === 0) return null;
+            if (isCustomMode) return currentLessonId;
+            const currentIndex = filtered.findIndex(l => l.id === currentLessonId);
+            if (currentIndex === -1 || currentIndex === filtered.length - 1) {
+                return filtered[0].id;
+            }
+            return filtered[currentIndex + 1].id;
         }
 
         // ============================================
@@ -641,6 +725,14 @@
 
         function resetTyping() {
             const input = document.getElementById('typing-input');
+            if (!isCustomMode) {
+                const nextLessonId = getNextLessonId();
+                if (nextLessonId) {
+                    currentLessonId = nextLessonId;
+                    const select = document.getElementById('lesson-selector');
+                    if (select) select.value = currentLessonId;
+                }
+            }
             input.value = '';
             input.disabled = false;
             isStarted = false;
@@ -653,6 +745,7 @@
             document.getElementById('timer-display').textContent = '05:00';
             document.getElementById('live-chars').textContent = '0';
             document.getElementById('live-mistakes').textContent = '0';
+            document.getElementById('live-accuracy').textContent = '0';
             document.getElementById('live-wpm').textContent = '0';
             document.getElementById('submit-btn').classList.add('hidden');
             generateDisplay();
@@ -708,7 +801,8 @@
 
             findUser(id).then(user => {
                 if (!user) {
-                    const newUser = { id, name: id, password: pass, points: 0, monthlyPoints: 0, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
+                    const currentMonth = getCurrentMonthKey();
+            const newUser = { id, name: id, password: pass, points: 0, monthlyPoints: 0, monthlyPointsMonth: currentMonth, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
                     db.ref('users/' + id).set(newUser).then(() => {
                         loggedInUser = newUser;
                         localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
@@ -1031,6 +1125,12 @@
             const earned = Math.floor(correctChars / 5);
             if (earned === 0 && wpm === 0) return alert('Type something first!');
 
+            const currentMonth = getCurrentMonthKey();
+            if (loggedInUser.monthlyPointsMonth !== currentMonth) {
+                loggedInUser.monthlyPoints = 0;
+                loggedInUser.monthlyPointsMonth = currentMonth;
+            }
+
             loggedInUser.points = (loggedInUser.points || 0) + earned;
             loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earned;
             loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
@@ -1039,6 +1139,7 @@
             db.ref('users/' + loggedInUser.id).update({
                 points: loggedInUser.points,
                 monthlyPoints: loggedInUser.monthlyPoints,
+                monthlyPointsMonth: loggedInUser.monthlyPointsMonth,
                 mistakes: loggedInUser.mistakes,
                 bestWpm: loggedInUser.bestWpm
             }).then(() => {
@@ -1051,7 +1152,9 @@
 
         // ============================================
         // LANGUAGE
-        // ============================================
+        // =====================
+
+=======================
         function setLanguage(lang) {
             currentLanguage = lang;
             localStorage.setItem('preferredLanguage', lang);
@@ -1092,6 +1195,8 @@
             syncUsers();
             loadLessons();
             resetTyping();
+            updateMonthlyCountdown();
+            setInterval(updateMonthlyCountdown, 1000);
 
             // Start banner rotation
             startBannerRotation();
@@ -1156,8 +1261,10 @@
                 });
                 const time = (Date.now() - startTime) / 60000;
                 const wpm = time > 0 ? Math.round((correctChars / 5) / time) : 0;
+                const accuracy = typed.length > 0 ? Math.max(0, Math.round((correctChars / typed.length) * 100)) : 0;
                 document.getElementById('live-chars').textContent = typed.length;
                 document.getElementById('live-mistakes').textContent = sessionMistakes;
+                document.getElementById('live-accuracy').textContent = accuracy;
                 document.getElementById('live-wpm').textContent = wpm;
                 if (typed.length > 0 && typed.length === chars.length) {
                     document.getElementById('submit-btn').classList.remove('hidden');
