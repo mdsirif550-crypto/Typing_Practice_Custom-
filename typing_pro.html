@@ -1,1310 +1,1399 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TYPING MASTER PRO</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <style>
-        * { box-sizing: border-box; }
-        body { font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; background: #f1f5f9; padding-top: 45px; }
-        .marquee { background: #0f172a; color: #facc15; padding: 4px 0; overflow: hidden; white-space: nowrap; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; position: fixed; top: 0; left: 0; right: 0; z-index: 9999; }
-        .marquee span { display: inline-block; animation: scrollMarquee 25s linear infinite; }
-        @keyframes scrollMarquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-        
-        .golden-banner { background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c); background-size: 200% auto; animation: shine 4s linear infinite; border: 2px solid #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-radius: 20px; padding: 16px; position: relative; overflow: hidden; }
-        @keyframes shine { to { background-position: 200% center; } }
-        
-        .crown { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 22px; filter: drop-shadow(0 0 5px gold); animation: bounce 2s infinite; display: none; }
-        @keyframes bounce { 0%, 100% { top: -8px; } 50% { top: -14px; } }
-        
-        .char { color: #94a3b8; font-size: 1.3rem; font-family: 'Noto Sans Bengali', monospace; }
-        .correct { color: #10b981; font-weight: 700; }
-        .incorrect { background: #ef4444; color: white; border-radius: 3px; padding: 0 2px; }
-        .current { border-bottom: 3px solid #2563eb; background: #dbeafe; }
-        
-        #display-box { height: 160px; overflow-y: auto; padding: 16px; background: white; border-radius: 16px; border: 2px solid #e2e8f0; font-size: 1.1rem; line-height: 1.8; }
-        #typing-input { border: 2px solid #2563eb; border-radius: 0 0 20px 20px; outline: none; padding: 20px; height: 130px; font-size: 1.1rem; font-family: 'Noto Sans Bengali', sans-serif; background: white; width: 100%; margin-top: -10px; }
-        #typing-input:disabled { background: #f1f5f9; cursor: not-allowed; }
-        
-        .stat-pill { background: white; padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: inline-flex; align-items: center; gap: 4px; }
-        .stat-pill .num { font-size: 16px; }
-        
-        .leader-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0; }
-        .lvl-badge { background: #1e293b; color: #facc15; padding: 1px 8px; border-radius: 999px; font-size: 9px; font-weight: 800; border: 1px solid #facc15; }
-        .clickable-row { cursor: pointer; transition: 0.15s; }
-        .clickable-row:hover { background: #eff6ff !important; }
-        
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; padding: 16px; }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: white; border-radius: 24px; max-width: 480px; width: 100%; max-height: 90vh; overflow-y: auto; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.3); }
-        .modal-box h2 { font-size: 18px; font-weight: 900; margin-bottom: 16px; text-transform: uppercase; color: #0f172a; }
-        
-        .slim-input { width: 100%; padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-weight: 600; outline: none; background: #f8fafc; }
-        .slim-input:focus { border-color: #2563eb; background: white; }
-        
-        .btn { padding: 8px 16px; border-radius: 10px; font-weight: 800; font-size: 12px; border: none; cursor: pointer; transition: 0.15s; }
-        .btn-primary { background: #2563eb; color: white; }
-        .btn-primary:hover { background: #1d4ed8; }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-success { background: #22c55e; color: white; }
-        .btn-success:hover { background: #16a34a; }
-        .btn-outline { background: transparent; border: 2px solid #e2e8f0; color: #475569; }
-        .btn-outline:hover { background: #f1f5f9; }
-        
-        .online-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .online-dot.online { background: #22c55e; animation: pulse 1.5s infinite; }
-        .online-dot.offline { background: #94a3b8; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        
-        .chat-bubble { padding: 10px 14px; border-radius: 12px; margin-bottom: 6px; max-width: 85%; word-wrap: break-word; }
-        .chat-bubble.admin { background: #2563eb; color: white; margin-left: auto; }
-        .chat-bubble.user { background: #f1f5f9; color: #1e293b; }
-        .chat-bubble .time { font-size: 9px; opacity: 0.7; display: block; margin-top: 4px; }
-        .chat-bubble .sender { font-size: 10px; font-weight: 700; display: block; margin-bottom: 2px; }
-        
-        #help-chat { min-height: 120px; max-height: 200px; overflow-y: auto; }
-        
-        .control-select { border: 2px solid #e2e8f0; border-radius: 10px; padding: 6px 12px; font-size: 11px; font-weight: 700; background: white; outline: none; cursor: pointer; }
-        .control-select:focus { border-color: #2563eb; }
-        .control-select option { font-weight: 600; }
-        
-        /* Banner avatar glow */
-        .banner-avatar { width: 56px; height: 56px; border-radius: 50%; border: 3px solid white; object-fit: cover; background: white; transition: all 0.3s ease; }
-        
-        @media (max-width: 640px) {
-            .golden-banner { padding: 12px; }
-            .char { font-size: 1rem; }
-            #display-box { height: 130px; font-size: 0.95rem; padding: 12px; }
-            #typing-input { height: 100px; font-size: 0.95rem; padding: 14px; }
-            .stat-pill { font-size: 9px; padding: 4px 10px; }
-            .stat-pill .num { font-size: 13px; }
-            .modal-box { padding: 16px; }
-            .leader-img { width: 32px; height: 32px; }
-            .control-select { font-size: 10px; padding: 4px 8px; }
-            .banner-avatar { width: 44px; height: 44px; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IELTS Rayhan's English Academy - Strict Typing Mastery</title>
+  <style>
+    :root {
+      --bg-color: #041e12; 
+      --panel-bg: #111e16; 
+      --primary: #c026d3;
+      --primary-hover: #a21caf;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-accent: #143a23;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --key-bg: #22372a;
+      --key-active: #c026d3;
+      --key-border: #111d15;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 45% 50%, rgba(244, 42, 65, 0.18) 0%, rgba(244, 42, 65, 0) 42%), var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* নতুন গোল্ডেন বাটন স্টাইল */
+    .btn-pro-version {
+      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important;
+      color: #000 !important;
+      border: 2px solid #fff !important;
+      box-shadow: 0 4px 15px rgba(184, 134, 11, 0.6) !important;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-pro-version:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+
+    /* সুন্দর লোডিং সিস্টেম (Pre-loader Overlay) */
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-color);
+      z-index: 300000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    .loader-sun {
+      width: 80px;
+      height: 80px;
+      background-color: #f42a41;
+      border-radius: 50%;
+      box-shadow: 0 0 30px #f42a41;
+      animation: pulseAndGlow 1.5s infinite alternate ease-in-out;
+      margin-bottom: 25px;
+    }
+    @keyframes pulseAndGlow {
+      0% { transform: scale(0.9); box-shadow: 0 0 20px rgba(244, 42, 65, 0.5); }
+      100% { transform: scale(1.1); box-shadow: 0 0 45px rgba(244, 42, 65, 0.9); }
+    }
+    .loader-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      margin-bottom: 12px;
+    }
+    .loader-bar {
+      width: 220px;
+      height: 5px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+    .loader-progress {
+      width: 0%;
+      height: 100%;
+      background-color: var(--success);
+      border-radius: 10px;
+      transition: width 0.1s linear;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    /* Header Branding */
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    .academy-tag {
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+    header h1 {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      background: linear-gradient(to right, #ffffff, #f472b6, #c026d3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    /* ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার */
+    .flag-landscape-banner {
+      width: 100%;
+      height: 120px;
+      background-color: #006a4e; 
+      border-radius: 16px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      margin-bottom: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+    .flag-red-circle {
+      width: 80px;
+      height: 80px;
+      background-color: #f42a41; 
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(244, 42, 65, 0.6);
+      position: absolute;
+      left: 45%; 
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .flag-banner-text {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: #ffffff;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+      z-index: 1;
+    }
+
+    /* Language Mode Selector */
+    .mode-container {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    .lang-btn {
+      background-color: var(--panel-bg);
+      color: var(--text-muted);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      padding: 10px 24px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .lang-btn.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
+    }
+
+    /* Dashboard Stats Card */
+    .dashboard {
+      background-color: var(--panel-bg);
+      border-radius: 12px;
+      padding: 15px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+    .stat-box {
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .stat-val {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--text-main);
+    }
+    .stat-val.highlight {
+      color: var(--success);
+    }
+
+    /* Controls Panel */
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+    select {
+      background-color: var(--key-bg);
+      color: var(--text-main);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      max-width: 250px;
+    }
+    .btn-reset {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .btn-reset:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* Real-time Warning & Helper Box */
+    .status-feedback {
+      background-color: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 15px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s;
+    }
+
+    /* Main Typing Box */
+    .typing-panel {
+      background-color: var(--panel-bg);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 25px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+      position: relative;
+      border: 2px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    /* ভুল টাইপ করলে কাঁপানো এনিমেশন */
+    @keyframes shakeError {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      50% { transform: translateX(8px); }
+      75% { transform: translateX(-8px); }
+      100% { transform: translateX(0); }
+    }
+    .panel-shake {
+      animation: shakeError 0.2s ease-in-out;
+      border-color: var(--danger) !important;
+    }
+    
+    .text-display {
+      font-size: 24px;
+      line-height: 1.7;
+      letter-spacing: 1px;
+      min-height: 120px;
+      color: var(--text-muted);
+      font-family: 'Courier New', Courier, monospace;
+      outline: none;
+      word-break: break-word;
+    }
+    
+    /* Character Highlighting Styles */
+    .char-correct {
+      color: var(--success) !important;
+      background-color: rgba(16, 185, 129, 0.1) !important;
+    }
+    .char-wrong {
+      color: var(--danger) !important;
+      background-color: rgba(239, 68, 68, 0.25) !important;
+      border-bottom: 3px solid var(--danger) !important;
+    }
+    .char-current {
+      color: var(--text-main);
+      background-color: rgba(192, 38, 211, 0.25);
+      border-bottom: 3px solid var(--primary);
+    }
+
+    /* 3D Virtual Keyboard Styling */
+    .keyboard-container {
+      background-color: var(--panel-bg);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .keyboard-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .keyboard-row:last-child {
+      margin-bottom: 0;
+    }
+    .key {
+      background-color: var(--key-bg);
+      color: var(--text-main);
+      padding: 10px;
+      min-width: 44px;
+      height: 46px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 13px;
+      font-weight: bold;
+      user-select: none;
+      position: relative;
+      border-bottom: 4px solid var(--key-border);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.05s ease;
+    }
+    .key.backspace { min-width: 80px; }
+    .key.tab { min-width: 65px; }
+    .key.caps { min-width: 75px; }
+    .key.enter { min-width: 85px; }
+    .key.shift { min-width: 100px; }
+    .key.space { min-width: 320px; }
+    
+    /* 3D Highlight Target Key */
+    .key.target-highlight {
+      background-color: var(--key-active) !important;
+      border-bottom-color: #701a75 !important;
+      box-shadow: 0 0 15px var(--key-active);
+      transform: translateY(-2px);
+    }
+    
+    /* Key Pressed Down 3D Effect */
+    .key.pressed, .key:active {
+      transform: translateY(3px);
+      border-bottom-width: 1px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Modern Glassmorphic Welcome/Guidelines Screen */
+    .trainer-intro-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(4, 30, 18, 0.9);
+      backdrop-filter: blur(10px);
+      z-index: 200000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .trainer-card {
+      background: linear-gradient(135deg, #111e16, #0c2514);
+      border-radius: 24px;
+      max-width: 600px;
+      width: 100%;
+      border: 2px solid var(--primary);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 38, 211, 0.2);
+      overflow: hidden;
+      animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes cardSlideIn {
+      0% { transform: translateY(30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+    .trainer-header {
+      background: linear-gradient(135deg, #006a4e, #0c2514);
+      padding: 30px 20px;
+      text-align: center;
+      border-bottom: 2px solid rgba(244, 42, 65, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    .trainer-header::after {
+      content: "";
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      background: rgba(244, 42, 65, 0.15);
+      filter: blur(25px);
+      border-radius: 50%;
+      top: 10%;
+      left: 45%;
+    }
+    .trainer-intro-text {
+      color: var(--text-main);
+      font-size: 15px;
+      font-weight: 500;
+      z-index: 1;
+    }
+    .trainer-body {
+      padding: 25px;
+    }
+    .guideline-item-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+    .guideline-item-card:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateX(4px);
+    }
+    .guideline-icon {
+      font-size: 22px;
+      background-color: rgba(192, 38, 211, 0.15);
+      border: 1px solid var(--primary);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .guideline-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .guideline-info h5 {
+      color: #facc15;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .guideline-info p {
+      color: var(--text-muted);
+      font-size: 12.5px;
+      line-height: 1.4;
+    }
+    .btn-start-training {
+      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s;
+      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .btn-start-training:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(192, 38, 211, 0.7);
+    }
+
+    /* Summary Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 100000;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background-color: var(--panel-bg);
+      padding: 35px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 450px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .modal h2 {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: var(--success);
+    }
+    .modal-stats {
+      margin: 20px 0;
+      background-color: var(--bg-color);
+      padding: 15px;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .modal-stat-line {
+      display: flex;
+      justify-content: space-between;
+      font-size: 16px;
+    }
+    .modal-stat-line strong {
+      color: var(--primary);
+    }
+    .modal-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+    .modal-btn:hover {
+      background-color: var(--primary-hover);
+    }
+    .trainer-tip {
+      font-size: 13px;
+      color: #fbcfe8;
+      background-color: var(--bg-accent);
+      padding: 8px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* Custom Text Modal Specific Styles */
+    #customTextModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 250000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #customTextArea {
+      width: 100%;
+      height: 150px;
+      background: var(--bg-color);
+      color: white;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      padding: 10px;
+      margin: 15px 0;
+      outline: none;
+      font-family: inherit;
+    }
+
+    /* রেসপন্সিভ ল্যান্ডস্কেপ ব্যানার সাইজিং */
+    @media (max-width: 600px) {
+      .flag-landscape-banner {
+        height: 90px;
+        padding: 0 20px;
+        margin-bottom: 15px;
+      }
+      .flag-banner-text {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+      }
+      .flag-red-circle {
+        width: 55px;
+        height: 55px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Marquee -->
-    <div class="marquee"><span>🏆 JOIN THE CHALLENGE • PRACTICE DAILY • WIN GREAT PRIZES • 5 CHARS = 1 PT • $1,000 POOL LIVE! 🏆</span></div>
+  <!-- জাতীয় পতাকার ব্যাকগ্রাউন্ড অ্যানিমেশনসহ প্রি-লোডার -->
+  <div id="loadingScreen" class="loader-overlay">
+    <div class="loader-sun"></div>
+    <div class="loader-text">Rayhan's English Academy</div>
+    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; letter-spacing: 1px;">বিজয় ৫২ টাইপিং মাস্টার লোড হচ্ছে...</div>
+    <div class="loader-bar">
+      <div id="loaderProgress" class="loader-progress"></div>
+    </div>
+  </div>
 
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md p-2 sticky top-[38px] z-50 border-b border-slate-200">
-        <div class="max-w-5xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <div class="flex items-center gap-2">
-                <h1 class="text-sm font-black italic uppercase text-slate-800">Typing<span class="text-blue-600">Master</span></h1>
-            </div>
-            <div class="flex flex-wrap items-center gap-1.5">
-                <button onclick="triggerInstall()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase hover:bg-emerald-700">Install</button>
-                <button onclick="openHelp()" class="bg-slate-800 text-white px-3 py-1 rounded-lg font-bold text-[9px] uppercase hover:bg-slate-900">Help</button>
-                <select id="lang-switcher" onchange="setLanguage(this.value)" class="border border-slate-300 rounded-lg px-2 py-1 text-[9px] font-bold uppercase bg-white outline-none">
-                    <option value="en">EN</option>
-                    <option value="bn">BN</option>
-                </select>
-                <div id="nav-user" class="hidden flex items-center gap-2">
-                    <span id="nav-name" class="text-xs font-bold uppercase text-slate-700 truncate max-w-[80px]"></span>
-                    <img id="nav-avatar" onclick="viewProfile(loggedInUser.id)" class="w-8 h-8 rounded-full border-2 border-blue-500 cursor-pointer object-cover" src="">
-                    <button onclick="openEditProfile()" class="text-slate-700 font-bold text-[8px] uppercase">Edit</button>
-                    <button onclick="logout()" class="text-red-500 font-bold text-[8px] uppercase">Exit</button>
-                </div>
-                <button id="nav-login" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1 rounded-lg font-bold text-[9px] uppercase">Login</button>
-            </div>
+  <!-- কম্পিউটার প্রশিক্ষণে আপনাকে স্বাগতম স্ক্রিন (লোডিং সম্পন্ন হওয়ার পর দৃশ্যমান হবে) -->
+  <div id="trainerWelcomeScreen" class="trainer-intro-overlay" style="display: none;">
+    <div class="trainer-card">
+      <div class="trainer-header">
+        <div class="academy-welcome-tag">Welcome to Rayhan's English Academy</div>
+        <div class="trainer-avatar">
+          <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#ffffff"/>
+            <path d="M12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#ffffff"/>
+          </svg>
         </div>
-    </nav>
-
-    <div class="max-w-5xl mx-auto px-3 py-4">
+        <div class="trainer-title">কম্পিউটার ট্রেইনার প্যানেল</div>
+        <p class="trainer-intro-text">🖥️ কম্পিউটার প্রশিক্ষণে ট্রেইনার আপনাকে সম্পূর্ণ গাইড করবে।</p>
+      </div>
+      <div class="trainer-body">
         
-        <!-- Banner with Crown -->
-        <div id="banner" class="golden-banner mb-4">
-            <span class="crown" id="banner-crown">👑</span>
-            <div class="flex flex-col md:flex-row items-center gap-3">
-                <div class="flex-1 text-center md:text-left">
-                    <h2 class="text-sm md:text-base font-black uppercase text-slate-900">🏆 Top Typists</h2>
-                    <p class="text-xs font-bold text-red-700">$1,000 Prize Pool</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="relative">
-                        <img id="banner-avatar" class="banner-avatar" src="">
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-1">
-                            <span id="banner-rank" class="bg-black text-white text-[8px] px-1.5 py-0.5 rounded font-bold">#--</span>
-                            <span id="banner-level" class="lvl-badge">LVL 1</span>
-                        </div>
-                        <p id="banner-name" class="text-sm font-black uppercase text-slate-900">Loading...</p>
-                        <p id="banner-id" class="text-[8px] font-bold text-slate-600">ID: --</p>
-                        <p id="banner-points" class="text-xs font-black text-blue-600">0 pts</p>
-                    </div>
-                </div>
-            </div>
+        <!-- সুদৃশ্য আইকনিক দিকনির্দেশনা ফিচার কার্ডসমূহ -->
+        <div class="guideline-item-card">
+          <div class="guideline-icon">⌨️</div>
+          <div class="guideline-info">
+            <h5>ইংরেজি কীবোর্ড ইনপুট</h5>
+            <p>কীবোর্ড মোড পরিবর্তন না করে সরাসরি সাধারণ ইংরেজি কীবোর্ড বাটনেই বাংলা টাইপ করতে পারবেন।</p>
+          </div>
         </div>
 
-        <!-- Typing Controls -->
-        <div class="flex flex-wrap items-center gap-3 mb-3">
-            <div class="flex items-center gap-2">
-                <span class="text-[10px] font-bold uppercase text-slate-500">📝 Mode:</span>
-                <select id="typing-lang" onchange="switchTypingLang(this.value)" class="control-select">
-                    <option value="en">🇬🇧 English</option>
-                    <option value="bn">🇧🇩 বাংলা</option>
-                </select>
-            </div>
-            <div class="flex items-center gap-2 flex-1 min-w-[120px]">
-                <span class="text-[10px] font-bold text-slate-500 flex-shrink-0">📚 Lesson:</span>
-                <select id="lesson-selector" onchange="selectLessonFromDropdown(this.value)" class="control-select flex-1">
-                    <option value="">No lessons available</option>
-                </select>
-            </div>
-            <button onclick="openCustomModal()" class="btn btn-outline text-[10px] whitespace-nowrap">✏️ Custom</button>
+        <div class="guideline-item-card">
+          <div class="guideline-icon">💡</div>
+          <div class="guideline-info">
+            <h5>লাইভ গাইডেন্স</h5>
+            <p>স্ক্রিনের গাইড বক্সে প্রতি বর্ণমালার জন্য কোন বাটন চাপতে হবে তা স্পষ্ট দেখা যাবে।</p>
+          </div>
         </div>
 
-        <!-- Display Box -->
-        <div id="display-box"></div>
-        <textarea id="typing-input" placeholder="Start typing to improve your skills..."></textarea>
-
-        <!-- Stats -->
-        <div class="bg-gradient-to-r from-red-50 to-red-100 mt-[-10px] p-3 rounded-b-2xl border border-red-200 flex flex-wrap items-center justify-between gap-2">
-            <button onclick="resetTyping()" class="bg-black text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-red-600 transition">🔄 Reset</button>
-            <div class="flex flex-wrap gap-2 font-bold text-[10px] uppercase text-slate-700">
-                <span class="stat-pill">⏱ <span id="timer-display" class="num text-red-600">05:00</span></span>
-                <span class="stat-pill">📝 <span id="live-chars" class="num text-blue-600">0</span></span>
-                <span class="stat-pill">❌ <span id="live-mistakes" class="num text-red-600">0</span></span>
-                <span class="stat-pill">🎯 <span id="live-accuracy" class="num text-rose-600">0</span>%</span>
-                <span class="stat-pill">⚡ <span id="live-wpm" class="num text-orange-600">0</span> WPM</span>
-            </div>
-            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-4 py-1.5 rounded-lg font-bold text-[10px] hover:bg-green-700">💾 Save</button>
+        <div class="guideline-item-card">
+          <div class="guideline-icon">⚡</div>
+          <div class="guideline-info">
+            <h5>নির্ভুলতা প্রথম</h5>
+            <p>এখানে কঠোর টাইপিং মোড সক্রিয় রয়েছে। ভুল করলে কার্সার সামনে যাবে না, সঠিক বিজয় বাটনটি চেপেই সামনে এগোতে হবে।</p>
+          </div>
         </div>
 
-        <!-- Leaderboard -->
-        <div class="mt-6 bg-white rounded-2xl shadow-lg p-4 border border-slate-100">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-3">
-                <h2 class="text-sm font-black uppercase border-l-4 border-blue-600 pl-3 text-slate-800">🏆 Leaderboard</h2>
-                <div class="flex gap-2 w-full md:w-auto">
-                    <input id="search-box" oninput="searchPlayers()" placeholder="🔍 Search..." class="flex-1 md:w-48 p-2 rounded-xl border border-slate-300 bg-slate-50 outline-none font-bold text-[11px] text-slate-800 placeholder:text-slate-400 focus:border-blue-500">
-                    <button onclick="openAllUsers()" class="bg-blue-600 text-white px-3 py-1.5 rounded-xl font-bold text-[10px] hover:bg-blue-700">All</button>
-                </div>
-            </div>
-            <div id="monthly-reset-banner" class="mb-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-[10px] font-bold text-slate-700">
-                <span id="monthly-reset-text">Monthly leaderboard resets on 1st of every month.</span>
-                <span id="monthly-reset-countdown" class="ml-3 text-blue-600">Next reset in -- days --:--:--</span>
-            </div>
-            <div id="monthly-reset-alert" class="mb-3 rounded-2xl bg-red-600 text-white p-3 text-[10px] font-bold">
-                <span>সতর্কতা: মাসিক রিসেট শুধুমাত্র মাসিক পয়েন্ট রিসেট করে। টোটাল পয়েন্ট আজীবন থাকবে এবং কখনও 00 হবে না।</span>
-            </div>
-        <div class="overflow-x-auto">
-                <table class="w-full text-[10px]">
-                    <thead class="bg-slate-900 text-white uppercase tracking-wider">
-                        <tr><th class="p-2 text-center">#</th><th class="p-2 text-left">Player</th><th class="p-2 text-center">LVL</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Monthly</th><th class="p-2 text-center">WPM</th></tr>
-                    </thead>
-                    <tbody id="leaderboard-body" class="divide-y divide-slate-100 font-bold"></tbody>
-                </table>
-            </div>
-        </div>
+        <button class="btn-start-training" onclick="startTrainerSession()">
+          <span>অনুশীলন শুরু করুন</span> ➔
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="academy-tag">Rayhan's English Academy</div>
+      <h1>Strict Typing Master</h1>
+    </header>
+
+    <!-- ওপরে ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার -->
+    <div class="flag-landscape-banner">
+      <div class="flag-banner-text">RAYHAN'S ENGLISH ACADEMY</div>
+      <div class="flag-red-circle"></div>
+      <div class="flag-banner-text">BANGLADESH</div>
     </div>
 
-    <!-- ===== MODALS ===== -->
-
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>🔐 Login / Register</h2>
-            <input id="auth-id" class="slim-input mb-2 uppercase" placeholder="User ID">
-            <input id="auth-pass" class="slim-input mb-3" placeholder="Password" type="password">
-            <button onclick="handleAuth()" class="btn btn-primary w-full">Login / Register</button>
-            <button onclick="closeAuth()" class="w-full mt-2 text-slate-400 text-[10px] font-bold uppercase">Close</button>
-        </div>
+    <!-- Language Mode Toggle Button -->
+    <div class="mode-container">
+      <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
+      <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বিজয় ৫২ টাইপিং মোড</button>
+      
+      <!-- নতুন TYPING MASTER PRO বাটন -->
+      <a href="typing_pro.html" class="lang-btn btn-pro-version">
+        <span>👑</span> TYPING MASTER PRO
+      </a>
     </div>
 
-    <!-- Edit Profile Modal -->
-    <div id="edit-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>✏️ Edit Profile</h2>
-            <img id="edit-preview" class="w-20 h-20 rounded-full border-2 border-blue-500 mx-auto object-cover mb-3" src="">
-            <input type="file" id="edit-avatar-file" accept="image/*" onchange="handleAvatarUpload(event)" class="w-full text-[10px] mb-2 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:font-bold">
-            <input id="edit-id" class="slim-input mb-2 uppercase" placeholder="User ID">
-            <input id="edit-name" class="slim-input mb-2" placeholder="Display Name">
-            <input id="edit-pic" class="slim-input mb-2" placeholder="Avatar URL" oninput="document.getElementById('edit-preview').src=this.value||DEFAULT_AVATAR">
-            <textarea id="edit-bio" class="slim-input mb-3 h-16 resize-none" placeholder="Bio..."></textarea>
-            <button onclick="saveProfile()" class="btn btn-primary w-full">Update Profile</button>
-            <button onclick="closeEdit()" class="w-full mt-2 text-slate-400 text-[10px] font-bold uppercase">Close</button>
+    <!-- Dashboard Panel -->
+    <div class="dashboard">
+      <div class="stat-box">
+        <div class="stat-label">Level Select</div>
+        <div class="controls">
+          <select id="levelSelect" onchange="populateLessonsDropdown(); loadLesson()">
+            <option value="basic">Basic Level</option>
+            <option value="level1">Level 1</option>
+            <option value="level2">Level 2</option>
+            <option value="level3">Level 3</option>
+            <option value="advanced">Advanced Level</option>
+          </select>
         </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Lesson Select</div>
+        <div class="controls">
+          <select id="lessonSelect" onchange="loadLesson()">
+            <!-- Dynamic Content Load via JS depending on Selected Language -->
+          </select>
+          <button class="btn-reset" onclick="openCustomModal()" style="background-color: #3b82f6; margin-right: 5px;">Custom Text</button>
+          <button class="btn-reset" onclick="resetExercise()">Reset</button>
+        </div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Progress (অগ্রগতি)</div>
+        <div id="progressVal" class="stat-val highlight">0 / 0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">WPM (Speed)</div>
+        <div id="wpmVal" class="stat-val highlight">00</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Accuracy</div>
+        <div id="accuracyVal" class="stat-val">100%</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Time</div>
+        <div id="timeVal" class="stat-val">00:00</div>
+      </div>
     </div>
 
-    <!-- Help Modal -->
-    <div id="help-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>💬 Digital Help Line</h2>
-            <p class="text-[11px] text-slate-500 mb-3">Your name and user ID are automatically included with every message. Choose a ready message or type your own.</p>
-            <div class="grid grid-cols-2 gap-2 mb-3 text-[10px]">
-                <button onclick="setHelpTemplate('password')" class="btn btn-outline py-2 text-left">Forgot Password</button>
-                <button onclick="setHelpTemplate('lesson')" class="btn btn-outline py-2 text-left">Request Lesson Change</button>
-                <button onclick="setHelpTemplate('competition')" class="btn btn-outline py-2 text-left">Competition Participation</button>
-                <button onclick="setHelpTemplate('other')" class="btn btn-outline py-2 text-left">Other Inquiry</button>
-            </div>
-            <div id="help-chat" class="bg-slate-50 rounded-xl p-3 mb-3 text-sm"></div>
-            <textarea id="help-msg" class="slim-input mb-2 h-24 resize-none" placeholder="Write your support request here..."></textarea>
-            <div class="flex gap-2 mb-2">
-                <button onclick="sendHelp()" class="btn btn-primary flex-1">Send to Admin</button>
-                <button onclick="sendWhatsApp()" class="btn btn-success flex-1">Send via WhatsApp</button>
-            </div>
-            <div id="help-status" class="text-[10px] text-slate-500 mt-2"></div>
-            <button onclick="closeHelp()" class="w-full mt-3 text-slate-400 text-[10px] font-bold uppercase">Close</button>
-        </div>
+    <!-- রিয়েল-টাইম লাইভ গাইড ও কিবোর্ড সতর্কবার্তা বক্স -->
+    <div id="statusFeedback" class="status-feedback">
+      <span style="color: var(--text-muted)">টাইপিং শুরু করতে কীবোর্ডের যেকোনো কী চাপুন...</span>
     </div>
 
-    <!-- Custom Text Modal -->
-    <div id="custom-modal" class="modal-overlay">
-        <div class="modal-box">
-            <h2>✏️ Custom Text</h2>
-            <p class="text-xs text-slate-500 mb-3">Write your own text to practice typing.</p>
-            <textarea id="custom-text" class="slim-input mb-3 h-32 resize-none" placeholder="Type your custom text here..."></textarea>
-            <div class="flex gap-2">
-                <button onclick="applyCustomText()" class="btn btn-primary flex-1">Start Practice</button>
-                <button onclick="closeCustomModal()" class="btn btn-outline flex-1">Cancel</button>
-            </div>
-        </div>
+    <!-- Typing Interactive Area -->
+    <div id="typingPanel" class="typing-panel" tabindex="0">
+      <div id="textDisplay" class="text-display"></div>
     </div>
 
-    <!-- All Users Modal -->
-    <div id="all-users-modal" class="modal-overlay">
-        <div class="modal-box">
-            <div class="flex justify-between items-center mb-3">
-                <h2>👥 All Players</h2>
-                <button onclick="closeAllUsers()" class="text-2xl font-bold text-red-500">×</button>
-            </div>
-            <div class="overflow-x-auto max-h-96 overflow-y-auto">
-                <table class="w-full text-[10px]">
-                    <thead class="bg-slate-900 text-white uppercase sticky top-0"><tr><th class="p-2 text-center">#</th><th class="p-2 text-left">Player</th><th class="p-2 text-center">LVL</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">WPM</th></tr></thead>
-                    <tbody id="all-users-body" class="divide-y divide-slate-100 font-bold"></tbody>
-                </table>
-            </div>
-        </div>
+    <!-- Virtual Keyboard Area -->
+    <div class="keyboard-container">
+      <!-- Row 1 -->
+      <div class="keyboard-row">
+        <div class="key" id="key-`" data-key="`">`</div>
+        <div class="key" id="key-1" data-key="1">1</div>
+        <div class="key" id="key-2" data-key="2">2</div>
+        <div class="key" id="key-3" data-key="3">3</div>
+        <div class="key" id="key-4" data-key="4">4</div>
+        <div class="key" id="key-5" data-key="5">5</div>
+        <div class="key" id="key-6" data-key="6">6</div>
+        <div class="key" id="key-7" data-key="7">7</div>
+        <div class="key" id="key-8" data-key="8">8</div>
+        <div class="key" id="key-9" data-key="9">9</div>
+        <div class="key" id="key-0" data-key="10">10</div>
+        <div class="key" id="key--" data-key="11">11</div>
+        <div class="key" id="key-=" data-key="12">12</div>
+        <div class="key backspace" id="key-backspace" data-key="Backspace">Backspace</div>
+      </div>
+      <!-- Row 2 -->
+      <div class="keyboard-row">
+        <div class="key tab" id="key-tab" data-key="Tab">Tab</div>
+        <div class="key" id="key-q" data-key="q">Q</div>
+        <div class="key" id="key-w" data-key="w">W</div>
+        <div class="key" id="key-e" data-key="e">E</div>
+        <div class="key" id="key-r" data-key="r">R</div>
+        <div class="key" id="key-t" data-key="t">T</div>
+        <div class="key" id="key-y" data-key="y">Y</div>
+        <div class="key" id="key-u" data-key="u">U</div>
+        <div class="key" id="key-i" data-key="i">I</div>
+        <div class="key" id="key-o" data-key="o">O</div>
+        <div class="key" id="key-p" data-key="p">P</div>
+        <div class="key" id="key-[" data-key="[">[</div>
+        <div class="key" id="key-]" data-key="]">]</div>
+          <div class="key" id="key-backslash" data-key="&#92;">&#92;</div>
+      </div>
+      <!-- Row 3 -->
+      <div class="keyboard-row">
+        <div class="key caps" id="key-capslock" data-key="CapsLock">Caps Lock</div>
+        <div class="key" id="key-a" data-key="a">A</div>
+        <div class="key" id="key-s" data-key="s">S</div>
+        <div class="key" id="key-d" data-key="d">D</div>
+        <div class="key" id="key-f" data-key="f">F</div>
+        <div class="key" id="key-g" data-key="g">G</div>
+        <div class="key" id="key-h" data-key="h">H</div>
+        <div class="key" id="key-j" data-key="j">J</div>
+        <div class="key" id="key-k" data-key="k">K</div>
+        <div class="key" id="key-l" data-key="l">L</div>
+        <div class="key" id="key-;" data-key=";">;</div>
+        <div class="key" id="key-'" data-key="'">'</div>
+        <div class="key enter" id="key-enter" data-key="Enter">Enter</div>
+      </div>
+      <!-- Row 4 -->
+      <div class="keyboard-row">
+        <div class="key shift" id="key-shift" data-key="Shift">Shift</div>
+        <div class="key" id="key-z" data-key="z">Z</div>
+        <div class="key" id="key-x" data-key="x">X</div>
+        <div class="key" id="key-c" data-key="c">C</div>
+        <div class="key" id="key-v" data-key="v">V</div>
+        <div class="key" id="key-b" data-key="b">B</div>
+        <div class="key" id="key-n" data-key="n">N</div>
+        <div class="key" id="key-m" data-key="m">M</div>
+        <div class="key" id="key-," data-key=",">,</div>
+        <div class="key" id="key-." data-key=".">.</div>
+        <div class="key" id="key-/" data-key="/">/</div>
+        <div class="key shift" id="key-shiftright" data-key="Shift">Shift</div>
+      </div>
+      <!-- Row 5 -->
+      <div class="keyboard-row">
+        <div class="key" id="key-control" style="min-width: 60px;">Ctrl</div>
+        <div class="key" id="key-meta" style="min-width: 60px;">Win</div>
+        <div class="key" id="key-alt" style="min-width: 60px;">Alt</div>
+        <div class="key space" id="key- " data-key=" ">Space</div>
+        <div class="key" id="key-altright" style="min-width: 60px;">Alt</div>
+        <div class="key" id="key-metaright" style="min-width: 60px;">Win</div>
+        <div class="key" id="key-controlright" style="min-width: 60px;">Ctrl</div>
+      </div>
     </div>
+  </div>
 
-    <!-- Profile Preview Modal -->
-    <div id="preview-modal" class="modal-overlay">
-        <div class="modal-box relative overflow-hidden">
-            <button onclick="closePreview()" class="absolute right-4 top-4 text-2xl font-bold text-slate-400 hover:text-red-500">×</button>
-            <div class="bg-gradient-to-br from-slate-900 to-blue-700 text-white rounded-3xl p-6">
-                <div class="flex flex-col md:flex-row items-center gap-4">
-                    <img id="preview-avatar" class="w-24 h-24 rounded-full border-4 border-white object-cover" src="">
-                    <div class="flex-1">
-                        <p class="text-[10px] uppercase tracking-[0.3em] opacity-70">POOL PROFILE</p>
-                        <h3 id="preview-name" class="text-2xl font-black uppercase mt-2">Player</h3>
-                        <p id="preview-id" class="text-xs opacity-80 mt-1">ID: --</p>
-                        <p id="preview-rank" class="mt-3 text-sm font-black text-amber-300">#--</p>
-                    </div>
-                    <div class="text-right">
-                        <span id="preview-badge" class="lvl-badge text-[11px] py-2 px-4 bg-yellow-400 text-slate-900 border-yellow-500">LVL 1</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-3 gap-3 mt-6 text-slate-900">
-                    <div class="bg-white rounded-3xl p-4 text-center">
-                        <p id="preview-points" class="text-2xl font-black">0</p>
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Points</p>
-                    </div>
-                    <div class="bg-white rounded-3xl p-4 text-center">
-                        <p id="preview-wpm" class="text-2xl font-black">0</p>
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Best WPM</p>
-                    </div>
-                    <div class="bg-white rounded-3xl p-4 text-center">
-                        <p id="preview-level" class="text-2xl font-black">1</p>
-                        <p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 mt-1">Level</p>
-                    </div>
-                </div>
-                <div class="mt-6 bg-white/10 border border-white/20 rounded-3xl p-4">
-                    <p id="preview-progress" class="text-[10px] uppercase tracking-[0.3em] text-white/80 mb-2">Level Progress</p>
-                    <div class="h-2 rounded-full bg-white/20 overflow-hidden">
-                        <div id="preview-progress-bar" class="h-full bg-gradient-to-r from-amber-300 to-yellow-400 w-0"></div>
-                    </div>
-                    <p id="preview-progress-text" class="text-[11px] opacity-80 mt-2">Next level target information.</p>
-                </div>
-                <div class="mt-5 bg-white/10 p-4 rounded-3xl border border-white/15">
-                    <p class="text-[10px] uppercase tracking-[0.3em] text-white/70 mb-2">Bio</p>
-                    <p id="preview-bio" class="text-[13px] italic opacity-90">"No bio"</p>
-                </div>
-            </div>
-        </div>
+  <!-- Custom Text Input Modal -->
+  <div id="customTextModal">
+    <div class="modal-content" style="border: 2px solid var(--primary);">
+      <h3 style="color: var(--primary);">Custom Lesson</h3>
+      <p style="color: var(--text-muted); font-size: 13px;">এখানে আপনার টেক্সট পেস্ট করুন:</p>
+      <textarea id="customTextArea" placeholder="আপনার টাইপিং টেক্সট এখানে দিন..."></textarea>
+      <div style="display: flex; gap: 10px;">
+        <button class="modal-btn" style="background-color: var(--success);" onclick="setCustomText()">Start Typing</button>
+        <button class="modal-btn" style="background-color: var(--danger);" onclick="closeCustomModal()">Cancel</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        // ============================================
-        // FIREBASE CONFIG
-        // ============================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
-            authDomain: "eirnbooster.firebaseapp.com",
-            databaseURL: "https://eirnbooster-default-rtdb.firebaseio.com",
-            projectId: "eirnbooster",
-            storageBucket: "eirnbooster.firebasestorage.app",
-            messagingSenderId: "1062288115898",
-            appId: "1:1062288115898:web:952df73a31a3acdc2e5a83"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+  <!-- Summary Modal Popup -->
+  <div id="summaryModal" class="modal">
+    <div class="modal-content">
+      <h2>Exercise Complete!</h2>
+      <div class="modal-stats">
+        <div class="modal-stat-line">
+          <span>Typing Speed:</span>
+          <strong><span id="modalWpm">0</span> WPM</strong>
+        </div>
+        <div class="modal-stat-line" style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 10px;">
+          <span>Accuracy Rate:</span>
+          <strong><span id="modalAccuracy">100</span>%</strong>
+        </div>
+        <div class="modal-stat-line">
+          <span>Time Taken:</span>
+          <strong><span id="modalTime">00:00</span></strong>
+        </div>
+        <div class="modal-stat-line">
+          <span>Wrong Key Presses:</span>
+          <strong><span id="modalErrors" style="color:var(--danger)">0</span></strong>
+        </div>
+      </div>
+      <div class="trainer-tip">💡 না পারলে ট্রেইনারকে নক করো, ট্রেইনার তোমাকে দেখিয়ে দিবে!</div>
+      
+      <!-- পরবর্তী লেসনে যাওয়ার নেক্সট বাটন -->
+      <button class="modal-btn" onclick="loadNextLesson()" style="margin-top: 15px; background-color: var(--success);">পরবর্তী লেসন শুরু করুন (Next Lesson) ➔</button>
+      <button class="modal-btn" onclick="closeSummary()" style="margin-top: 10px; background-color: var(--key-bg);">আবার চেষ্টা করুন (Try Again)</button>
+    </div>
+  </div>
 
-        const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
-        const ADMIN_WHATSAPP = '8801877902991';
+  <script>
+    // English & Bengali Dynamic Lessons grouped by level
+    const englishLessonsByLevel = {
+      basic: [
+        "asdfghjkl;' asdfghjkl;' asdfghjkl;' asdfghjkl;'adgjl';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa asdfghjkl;'asdfghjkl;''",
+        "fdsa jkl; fdsa jkl; fdsa jkl; fdsa jkl; lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa dlg;jgsa dghdl;' gjkfdlfk jhsgak kfjks",
+        "asdfgh jkl; asdfgh jkl; asdfgh jkl; asdfgh jkl; shfkLdh skhak;fj jhghs;j H dlkg slkjhd S kgjg j;d S'dljgld jklskgk Alhlf slkGlfj",
+        "qwer tyui qwer tyui qwer tyui qwer tyui qwertyuiop poiuytrewq qwertyuiop poiuytrewq uqypwpqp yuqppo owqypqoru pqurpwu iey[",
+        "qwertyuiop poiuytrewq qwertyuiop poiuytrewq ipwp[qupriutw qiwirotpwu ie[oietou] eiu[woi[weotroiui wuoeuttp]pwu uoeueiootuw",
+        "Qwertyuiop OiuytrPewq qWertyuiop pozIuytrewq ooiriurY oi[q[itioruu Uopwiitwiuopwt iwpipoiwu oeEiwpwp Twpoituwoie Rwpui[witii]",
+        "xznm,v mnvbmzm znmzmk /m,bnxnm xxm,zb,mb mnvmmb. ncvbvzb. zncmnbznv, zcxvxvb. ncbvvbnncv. mmcnbn, nxbnxmb. znbcbnb, ncbbncz",
+        "mncbcv ncmnvnb nbcnbxvb, mnbmvn? m,mbnv nvbnc/vnn mcnmcbm, nmncb/ncbbx, ncbxmnb/mn ncbcvb. ncbnxcvb, nb/ncbn/nc ncbnvbmcb.",
+        "Nmn mvbnxb mcZcnmnv B,cnmx/ vmmc mvnbbb/mnv, mbnvbc? nxbcx/mvn computer keyboard computer keyboard computer keyboardn mxbvn, nnxmnvbz/",
+        "typing practice typing practice typing practice basic level lesson basic level lesson basic level lesson Mmcbnnbx cmxnNmxnb bnmc,? "
+      ],
+      level1: [
+        "The quick brown fox jumps over the lazy dog lnfue ncwinanir nanzoir nspwnczm Ejfncc iownlpzcn oawnsfV wjwnc ownipz sdjgwj: soorn? kshc9w",
+        "Learn to type with calm and steady hands. Practice Makes Perfect. Typing Every Day Improves Speed. Keep Your Eyes on the Screen.",
+        "Every day practice helps you improve your speed. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
+        "Your fingers should move smoothly and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
+        "A good rhythm makes typing easier and faster. Start with short lines and grow your confidence. Never Give Up. Keep Practicing. Practice",
+        "Start with short lines and grow your confidence. Keep practicing and enjoy the progress. Accuracy matters more than rushing through the text",
+        "Type with focus and keep your posture straight. The quick brown fox jumps over the lazy dog. lnfue ncwinanir nanzoir eep Practicing. Practice Makes Perfect.",
+        "Accuracy matters more than rushing through the text. Practice Makes Perfect. A good rhythm makes typing easier and faster. Start with short lines and",
+        "Simple words build strong typing habits. and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves Speed",
+        "Keep practicing and enjoy the progress. practicing and enjoy the progress. Practicing. Practice Makes Perfect. Typing Practicing. Practice Makes,"
+      ],
+      level2: [
+        "Bangladesh has a rich and glorious history. The country became independent in 1971 after a long struggle for freedom. Before independence,",
+        "Bangladesh was known as East Pakistan. The people of this land faced political, economic, and cultural discrimination for many years. In 1952, the Language Movement began to protect",
+        "the right to speak the Bengali language. Many brave students sacrificed their lives for their mother tongue.",
+        "Later, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the demand for independence became stronger. On 26 March 1971, the War of Liberation started.",
+        "Millions of people joined the struggle for freedom. After nine months of war and great sacrifice, Bangladesh achieved victory on 16 December 1971. This day is celebrated as Victory Day.",
+        "Today, Bangladesh is a proud and independent country. The spirit of the Liberation War inspires the nation to move forward with unity, courage, and hard work.",
+        "history of Bangladesh teaches us the value of freedom, sacrifice, and love for our country.",
+        "Bangladesh is a country with a proud and glorious history. The people of this land struggled for freedom, justice, and their own identity. In 1947, the region became",
+        "part of Pakistan and was known as East Pakistan. However, the people faced many political, economic, and cultural problems. The Bengali language movement of 1952",
+        "became an important chapter in history. Students and ordinary people demanded the right to speak Bangla, and many brave people sacrificed their lives for the language."
+      ],
+      level3: [
+        "Later, the struggle for rights and equality continued. In 1971, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the people of Bangladesh started the",
+        "Liberation War. Millions of men and women participated in the movement for independence. The war lasted for nine months and many freedom fighters sacrificed their lives. Finally, on 16 December 1971,",
+        "Today, Bangladesh is known for its culture, language, and remarkable progress. The spirit of the Liberation War inspires the nation to move forward with courage and",
+        "unity. The history of Bangladesh teaches us the value of freedom, sacrifice, and national pride.",
+        "A computer is one of the most useful inventions in the modern world. It helps people perform different tasks quickly, accurately, and efficiently. Today, computers are used in schools, colleges, universities, offices,",
+        "hospitals, banks, businesses, and many other places. Students use computers to study, complete assignments, and learn new skills. Teachers use computers to prepare lessons, presentations, and educational",
+        "materials. Office workers use computers to create documents, calculate data, send emails, and manage important information. The more carefully you type, the stronger your habits become.",
+        "Computers have also created many opportunities for online work and freelancing. People can earn money from home by learning graphic design, video editing, web development, programming, digital marketing,",
+        "and other computer skills. A computer also provides access to the internet, where people can communicate with others, watch educational videos, attend online classes, and find useful information from around the world.",
+        "Learning computer skills is becoming more important every day. Regular practice improves typing speed, increases productivity, and builds confidence. Every student should learn basic computer operations such as."
+      ],
+      advanced: [
+        "Microsoft Word, Microsoft Excel, Microsoft PowerPoint, file management, internet browsing, and email communication. With dedication, patience, and continuous practice, anyone can become skilled in using a",
+        "computer. Computer knowledge is the key to success in education, employment, freelancing, and everyday life. Keep practicing every day, and your computer skills will continue to improve.",
+        "Computers have become an essential part of modern life. Almost every home, school, office, hospital, bank, and business organization uses computers to complete daily tasks. They help people save time, improve",
+        "accuracy, and increase productivity. A computer can process large amounts of information within a few seconds, making work easier and more efficient than ever before.",
+        "Students use computers to prepare assignments, attend online classes, conduct research, and improve their knowledge. Teachers use computers to create lesson plans, presentations, question papers, and educational",
+        "materials. Office workers use computers for writing reports, preparing spreadsheets, managing databases, sending emails, and organizing important documents. Hospitals use computers to keep patient records, schedule app",
+        "The internet has made computers even more powerful. People can communicate instantly through email, video calls, and social media. They can also access online libraries, educational websites, digital newspapers,",
+        "and learning platforms. Computers allow people to work remotely from anywhere in the world, creating new opportunities for freelancing and online businesses.",
+        "Learning computer skills is one of the best investments for the future. Skills such as typing, Microsoft Word, Microsoft Excel, Microsoft PowerPoint, graphic design, video editing, web development, programming, and",
+        "artificial intelligence are highly valuable in today's job market. Many successful freelancers and entrepreneurs started their careers by learning these skills step by step."
+      ]
+    };
 
-        let loggedInUser = null;
-        let allUsers = [];
-        let allLessons = [];
-        let currentLessonId = null;
-        let typingLang = 'en';
-        let currentLanguage = 'en';
-        let isStarted = false, startTime = null, sessionMistakes = 0, correctChars = 0;
-        let timeLeft = 300, timerInterval = null, isTimeOver = false;
-        let helpListener = null;
-        let isCustomMode = false;
-        let customTextContent = '';
-        let rotateIdx = 0;
-        let rotationTimer = null;
+    const bengaliLessonsByLevel = {
+      basic: [
+        "ক ক ক ক ক ক",
+        "খ গ ঘ ক খ গ ঘ",
+        "ড প ট চ জ হ গ",
+        "কতদচজ হগড়টপ",
+        "যমবনস রলস জহগ",
+        "কম্পিউটার টাইপিং",
+        "বেসিক লেভেল অনুশীলন",
+        "কীবোর্ড অনুশীলন",
+        "সঠিক টাইপিং শিখি",
+        "প্রতিদিন অনুশীলন করি"
+      ],
+      level1: [
+        "কতদচজ হগড়টপ",
+        "কীবোর্ডে সঠিকভাবে চাপুন",
+        "প্রথম লেভেলের অনুশীলন",
+        "স্মুথলি টাইপ করুন",
+        "ধীরে ধীরে দক্ষতা বাড়ান",
+        "শুরুতে সহজ শব্দ ব্যবহার করুন",
+        "সতর্কতার সাথে টাইপ করুন",
+        "ভুল এড়িয়ে চলুন",
+        "অভ্যাস গড়ে তোলুন",
+        "পুরো মনোযোগ দিন"
+      ],
+      level2: [
+        "কম্পিউটার ব্যবহার করে কাজ করা সহজ",
+        "টাইপিং দক্ষতা বাড়ায় সাফল্য",
+        "নিয়মিত অনুশীলন দরকার",
+        "ধীর গতিতে শুরু করে দ্রুত হোন",
+        "দক্ষতা বাড়াতে মনোযোগ দিন",
+        "ভুল কমাতে সতর্ক থাকুন",
+        "সঠিক postura বজায় রাখুন",
+        "কী বোর্ডে স্বাভাবিক চালনা করুন",
+        "প্রতিদিন কিছু সময় দিন",
+        "টেকনিক শিখে এগিয়ে যান"
+      ],
+      level3: [
+        "টেকনোলজি শিক্ষায় কাজের ধরন বদলে দিয়েছে",
+        "দক্ষ টাইপিং আজকের সময়ের একটি গুরুত্বপূর্ণ skill",
+        "নিয়মিত অভ্যাসে দ্রুততা ও নির্ভুলতা বাড়ে",
+        "সঠিক পদ্ধতিতে টাইপ করলে কম ভুল হয়",
+        "দীর্ঘ পাঠ দিয়ে নিজের দক্ষতা যাচাই করুন",
+        "প্রতিদিনের অনুশীলন আপনাকে উন্নত করবে",
+        "সুশৃঙ্খলতা এবং মনোযোগ বাড়ায় ফলাফল",
+        "প্রফেশনাল লাইফে টাইপিং খুব দরকারি",
+        "চ্যালেঞ্জ গ্রহণ করে নিজের সীমা বাড়ান",
+        "অনুশীলন চালিয়ে যান, সফলতা আসবেই"
+      ],
+      advanced: [
+        "এডভান্সড টাইপিস্টরা গতি, নির্ভুলতা ও মনোযোগ একসাথে ব্যবহার করে জটিল পাঠও সহজে টাইপ করতে পারে",
+        "পেশাগত কাজের অনেক সময় দ্রুত ও নির্ভুল টাইপিং প্রয়োজন হয়",
+        "একটি disip্লিনড অনুশীলনের রুটিন আপনার ধৈর্য ও আত্মবিশ্বাস বাড়ায়",
+        "সঠিক কীবোর্ড অভ্যাস ভুল কমায় এবং উৎপাদনশীলতা বাড়ায়",
+        "অভিজ্ঞ টাইপিস্টরা দীর্ঘ পাঠেও স্থির তাল বজায় রাখতে পারে",
+        "রিপোর্ট, ইমেইল ও ডকুমেন্ট লেখা নিয়মিত প্রশিক্ষণে সহজ হয়ে যায়",
+        "এডভান্সড অনুশীলনে বিরাম চিহ্ন ও ফরম্যাটিংয়ের দিকেও সতর্ক থাকা লাগে",
+        "সেরা শিক্ষার্থীরা ভুলগুলো দেখেও সেগুলো ধৈর্য ধরে ঠিক করে",
+        "জটিল বাক্য আপনার সমন্বয় ও প্রতিক্রিয়া ক্ষমতা বাড়ায়",
+        "অব্যাহত উন্নতি সাধারণ টাইপিংকে পেশাদার সুবিধায় পরিণত করে"
+      ]
+    };
 
-        // ============================================
-        // LEVEL SYSTEM
-        // ============================================
-        function getTarget(level) { return level <= 3 ? 200 : (level - 2) * 200; }
-        function pointsForLevel(level) {
-            if (level <= 1) return 0;
-            let total = 0;
-            for (let l = 2; l <= level; l++) total += getTarget(l);
-            return total;
+    // কীবোর্ড বাটনগুলোতে বাংলা বর্ণমালা ম্যাপিং
+    const bengaliKeyLabelMap = {
+      "q": "ঙ", "w": "য", "e": "ড", "r": "প", "t": "ট", "y": "চ", "u": "জ", "i": "হ", "o": "গ", "p": "ড়",
+      "a": "ৃ", "s": "ু", "d": "ি", "f": "া", "g": "্", "h": "অ", "j": "ক", "k": "ত", "l": "দ",
+      "z": "্র", "x": "ও", "c": "এ", "v": "র", "b": "ন", "n": "স", "m": "ম"
+    };
+
+    // বিজয় ৫২ অনুযায়ী প্রতিটি বর্ণমালার ইংরেজি কীবোর্ড ম্যাপিং এবং গাইড লেবেল
+    const bijoyToEnglishGuide = {
+      "ক": { key: "j", label: "j" },
+      "খ": { key: "J", label: "Shift + j" },
+      "গ": { key: "o", label: "o" },
+      "ঘ": { key: "O", label: "Shift + o" },
+      "ঙ": { key: "q", label: "q" },
+      "চ": { key: "y", label: "y" },
+      "ছ": { key: "Y", label: "Shift + y" },
+      "জ": { key: "u", label: "u" },
+      "ঝ": { key: "U", label: "Shift + u" },
+      "ঞ": { key: "I", label: "Shift + i" },
+      "ট": { key: "t", label: "t" },
+      "ঠ": { key: "T", label: "Shift + t" },
+      "ড": { key: "e", label: "e" },
+      "ঢ": { key: "E", label: "Shift + e" },
+      "ত": { key: "k", label: "k" },
+      "থ": { key: "K", label: "Shift + k" },
+      "দ": { key: "l", label: "l" },
+      "ধ": { key: "L", label: "Shift + l" },
+      "ন": { key: "b", label: "b" },
+      "ণ": { key: "B", label: "Shift + b" },
+      "প": { key: "r", label: "r" },
+      "ফ": { key: "R", label: "Shift + r" },
+      "ব": { key: "h", label: "h" },
+      "ভ": { key: "H", label: "Shift + h" },
+      "ম": { key: "m", label: "m" },
+      "য": { key: "w", label: "w" },
+      "র": { key: "v", label: "v" },
+      "ল": { key: "V", label: "Shift + v" },
+      "শ": { key: "M", label: "Shift + m" },
+      "ষ": { key: "N", label: "Shift + n" },
+      "স": { key: "n", label: "n" },
+      "হ": { key: "i", label: "i" },
+      "ড়": { key: "p", label: "p" },
+      "ঢ়": { key: "P", label: "Shift + p" },
+      "য়": { key: "Y", label: "Shift + ;" },
+      
+      "অ": { key: "F", label: "Shift + f" },
+      "আ": { key: "H", label: "Shift + h" },
+      "ই": { key: "D", label: "Shift + d" },
+      "উ": { key: "S", label: "Shift + s" },
+      "ঋ": { key: "A", label: "Shift + a" },
+      "এ": { key: "c", label: "c" },
+      "ঐ": { key: "C", label: "Shift + c" },
+      "ও": { key: "x", label: "x" },
+      "ঔ": { key: "X", label: "Shift + x" },
+      
+      "া": { key: "f", label: "f" },
+      "ি": { key: "d", label: "d" },
+      "ী": { key: "D", label: "Shift + d" },
+      "ু": { key: "s", label: "s" },
+      "ূ": { key: "S", label: "Shift + s" },
+      "ে": { key: "c", label: "c" },
+      "ৈ": { key: "C", label: "Shift + c" },
+      "ো": { key: "x", label: "x" },
+      "ৌ": { key: "X", label: "Shift + x" },
+      "ৃ": { key: "a", label: "a" },
+      "্": { key: "g", label: "g" }, 
+      "ং": { key: "Q", label: "Shift + q" },
+      "ঃ": { key: "S", label: "Shift + s" },
+      "ঁ": { key: "^", label: "Shift + 6" },
+      "্য": { key: "W", label: "Shift + w" },
+      "্র": { key: "z", label: "z" },
+      "র্": { key: "A", label: "Shift + a" },
+      "।": { key: "G", label: "Shift + g" }
+    };
+
+    let currentLanguage = 'en'; 
+    let targetText = "";
+    let userInputs = [];
+    let currentIndex = 0;
+    let startTime = null;
+    let timerInterval = null;
+    let totalSeconds = 0;
+    let isStarted = false;
+    let totalKeystrokes = 0;
+    let totalErrors = 0;
+    let hasErrorAtCurrent = false;
+    let completedLessonsInSession = [];
+    let audioCtx = null;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+    }
+
+    function playKeySound(isCorrect) {
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        if (isCorrect) {
+          osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        } else {
+          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
         }
-        function calcLevel(pts) {
-            let level = 1;
-            while (pts >= pointsForLevel(level + 1)) level++;
-            return level;
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+      } catch (e) {}
+    }
+
+    function startTrainerSession() { 
+      document.getElementById("trainerWelcomeScreen").style.display = "none";
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
+    }
+
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.getElementById("langEnBtn").classList.toggle("active", lang === 'en');
+      document.getElementById("langBnBtn").classList.toggle("active", lang === 'bn');
+      populateLessonsDropdown();
+      updateKeyboardLayoutDisplay();
+      loadLesson();
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
+    }
+
+    function populateLessonsDropdown() {
+      const lessonSelect = document.getElementById("lessonSelect");
+      const levelSelect = document.getElementById("levelSelect");
+      const levelKey = levelSelect.value || "basic";
+      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+      lessonSelect.innerHTML = "";
+      const grp = document.createElement("optgroup");
+      grp.label = currentLanguage === 'en'
+        ? `${levelSelect.options[levelSelect.selectedIndex].text} Lessons`
+        : `${levelSelect.options[levelSelect.selectedIndex].text} লেসন`;
+      lessons.forEach((_lesson, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i + 1);
+        grp.appendChild(opt);
+      });
+      lessonSelect.appendChild(grp);
+      lessonSelect.value = 0;
+    }
+
+    function updateKeyboardLayoutDisplay() {
+      document.querySelectorAll(".key").forEach(keyEl => {
+        const keyChar = keyEl.getAttribute("data-key");
+        if (keyChar && keyChar.length === 1) {
+          if (currentLanguage === 'bn') {
+            const bnChar = bengaliKeyLabelMap[keyChar.toLowerCase()];
+            keyEl.innerHTML = bnChar ? `<span style="font-size: 14px;">${keyChar.toUpperCase()}</span><span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px;">${bnChar}</span>` : keyChar.toUpperCase();
+          } else keyEl.innerHTML = keyChar.toUpperCase();
         }
+      });
+    }
 
-        function calcLevelProgress(points) {
-            const level = calcLevel(points);
-            const currentLevelPoints = pointsForLevel(level);
-            const nextLevelPoints = pointsForLevel(level + 1);
-            if (nextLevelPoints <= currentLevelPoints) return 100;
-            return Math.min(100, Math.max(0, Math.round((points - currentLevelPoints) / (nextLevelPoints - currentLevelPoints) * 100)));
+    function loadLesson() {
+      const levelSelect = document.getElementById("levelSelect");
+      const lessonSelect = document.getElementById("lessonSelect");
+      const levelKey = levelSelect.value || "basic";
+      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+      targetText = lessons[lessonSelect.value] || lessons[0];
+      resetExercise();
+    }
+
+    function resetExercise() {
+      if (timerInterval) clearInterval(timerInterval);
+      currentIndex = 0; isStarted = false; totalSeconds = 0; totalKeystrokes = 0; totalErrors = 0; hasErrorAtCurrent = false;
+      document.getElementById("progressVal").innerText = `0 / ${targetText.length} (0%)`;
+      document.getElementById("wpmVal").innerText = "00";
+      document.getElementById("accuracyVal").innerText = "100%";
+      document.getElementById("timeVal").innerText = "00:00";
+      renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
+      const feedbackEl = document.getElementById("statusFeedback");
+      feedbackEl.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
+      const panel = document.getElementById("typingPanel");
+      if (panel) panel.focus();
+    }
+
+    function renderText() {
+      const container = document.getElementById("textDisplay");
+      container.innerHTML = "";
+      targetText.split("").forEach((char, i) => {
+        const span = document.createElement("span");
+        span.innerText = char;
+        if (i < currentIndex) span.className = "char-correct";
+        else if (i === currentIndex) span.className = hasErrorAtCurrent ? "char-current char-wrong" : "char-current";
+        container.appendChild(span);
+      });
+    }
+
+    function highlightKeyboardKey() {
+      document.querySelectorAll(".key").forEach(k => k.classList.remove("target-highlight"));
+      if (currentIndex >= targetText.length) return;
+      const targetChar = targetText[currentIndex];
+      let keyId = "";
+      if (currentLanguage === 'en') keyId = targetChar.toLowerCase() === " " ? " " : targetChar.toLowerCase();
+      else {
+        const guide = bijoyToEnglishGuide[targetChar];
+        if (guide) keyId = guide.key.toLowerCase();
+      }
+      // Map some special characters to safe element ids
+      let lookupKey = keyId;
+      if (keyId === "\\") lookupKey = 'backslash';
+      const el = document.getElementById(`key-${lookupKey}`);
+      if (el) el.classList.add("target-highlight");
+      
+      // If the target requires Shift (uppercase letters or shifted symbols), highlight Shift keys too
+      if (currentLanguage === 'en' && currentIndex < targetText.length) {
+        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
+        const needsUpper = /[A-Z]/.test(targetChar);
+        const needsShiftSymbol = shiftChars.includes(targetChar);
+        if (needsUpper || needsShiftSymbol) {
+          const leftShift = document.getElementById('key-shift');
+          const rightShift = document.getElementById('key-shiftright');
+          if (leftShift) leftShift.classList.add('target-highlight');
+          if (rightShift) rightShift.classList.add('target-highlight');
         }
+      }
+    }
 
-        function getNextLevelTargetText(points) {
-            const level = calcLevel(points);
-            const nextLevel = level + 1;
-            const nextThreshold = pointsForLevel(nextLevel);
-            const remaining = Math.max(0, nextThreshold - points);
-            return `Next target: ${nextThreshold} pts for LVL ${nextLevel} (${remaining} more)`;
+    function updateFeedbackPrompt() {
+      const feedbackEl = document.getElementById("statusFeedback");
+      if (currentIndex >= targetText.length) return;
+      const targetChar = targetText[currentIndex];
+      if (currentLanguage === 'bn') {
+        const guide = bijoyToEnglishGuide[targetChar];
+        feedbackEl.innerHTML = guide ? `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ ইংরেজি কীবোর্ডের [ <strong style="color: #facc15;">${guide.label.toUpperCase()}</strong> ] চাপুন।` : "";
+      } else feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+      
+      // For English mode, show Shift hint when uppercase or shifted symbols are required
+      if (currentLanguage === 'en') {
+        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
+        const needsUpper = /[A-Z]/.test(targetChar);
+        const needsShiftSymbol = shiftChars.includes(targetChar);
+        if (needsUpper || needsShiftSymbol) {
+          const displayChar = targetChar.toUpperCase();
+          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">Shift + "${displayChar}"</strong>`;
+        } else {
+          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
         }
+      }
+    }
 
-        // ============================================
-        // BANNER ROTATION - FIXED
-        // ============================================
-        function getLevelGlow(level) {
-            const intensity = Math.min(level * 0.12, 1);
-            const color = level >= 8 ? '255, 183, 0' : level >= 5 ? '34, 197, 94' : '59, 130, 246';
-            const blur = 14 + level * 4;
-            const opacity = 0.18 + intensity * 0.44;
-            return `0 0 ${blur}px rgba(${color}, ${opacity})`;
+    function triggerErrorEffect() {
+        const panel = document.getElementById('typingPanel');
+        const feedback = document.getElementById('statusFeedback');
+        
+        // Shake Panel
+        panel.classList.add('panel-shake');
+        
+        // Highlight Feedback box red temporarily
+        feedback.style.backgroundColor = "rgba(239, 68, 68, 0.4)";
+        feedback.innerHTML = `<span style="color: #fff; font-size: 18px;">❌ ভুল হয়েছে! সঠিক কী (Key) টি চাপুন।</span>`;
+        
+        setTimeout(() => {
+            panel.classList.remove('panel-shake');
+            feedback.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
+            updateFeedbackPrompt();
+        }, 400);
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        totalSeconds++;
+        const mins = Math.floor(totalSeconds / 60); const secs = totalSeconds % 60;
+        document.getElementById("timeVal").innerText = `${mins < 10 ? "0":""}${mins}:${secs < 10 ? "0":""}${secs}`;
+        const wpm = Math.round((currentIndex / 5) / (totalSeconds / 60)) || 0;
+        document.getElementById("wpmVal").innerText = wpm < 10 ? "0" + wpm : wpm;
+      }, 1000);
+    }
+
+    document.addEventListener("keydown", function(event) {
+      // Ignore modifier-only combos
+      const activeElement = document.activeElement;
+      if (activeElement && (activeElement.tagName === 'SELECT' || activeElement.tagName === 'OPTION' || activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+        return;
+      }
+
+      if (event.ctrlKey || event.altKey) return;
+
+      // Prevent default actions for navigation and editing keys so the page doesn't move focus/scroll
+      const navKeys = ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Tab","Backspace"];
+      if (navKeys.includes(event.key)) { event.preventDefault(); return; }
+
+      // Ignore keys that are purely modifiers
+      if (["Shift", "CapsLock", "Control"].includes(event.key)) return;
+
+      // Only process printable single-character keys and space
+      const isPrintable = (event.key.length === 1) || event.key === " ";
+      if (!isPrintable) return;
+
+      // Prevent space from scrolling the page
+      if (event.key === " ") event.preventDefault();
+
+      if (!isStarted) { isStarted = true; startTimer(); }
+
+      const typedChar = event.key;
+      const targetChar = targetText[currentIndex];
+      totalKeystrokes++;
+
+      let isMatch = (typedChar === targetChar);
+      if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
+        if (bijoyToEnglishGuide[targetChar].key === typedChar) isMatch = true;
+      }
+
+      if (isMatch) {
+        playKeySound(true);
+        currentIndex++;
+        hasErrorAtCurrent = false;
+      } else {
+        playKeySound(false);
+        hasErrorAtCurrent = true;
+        totalErrors++;
+        triggerErrorEffect();
+      }
+
+      renderText();
+      highlightKeyboardKey();
+      updateFeedbackPrompt();
+
+      document.getElementById("accuracyVal").innerText = Math.round(((totalKeystrokes - totalErrors) / totalKeystrokes) * 100) + "%";
+      document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${Math.round((currentIndex / targetText.length) * 100)}%)`;
+
+      if (currentIndex === targetText.length) {
+        clearInterval(timerInterval);
+        document.getElementById("modalWpm").innerText = document.getElementById("wpmVal").innerText;
+        document.getElementById("modalAccuracy").innerText = document.getElementById("accuracyVal").innerText;
+        document.getElementById("modalTime").innerText = document.getElementById("timeVal").innerText;
+        document.getElementById("modalErrors").innerText = totalErrors;
+        document.getElementById("summaryModal").style.display = "flex";
+      }
+    });
+
+    function openCustomModal() { document.getElementById("customTextModal").style.display = "flex"; }
+    function closeCustomModal() { document.getElementById("customTextModal").style.display = "none"; }
+    function setCustomText() {
+      const txt = document.getElementById("customTextArea").value.trim();
+      if (txt) { targetText = txt; resetExercise(); closeCustomModal(); }
+    }
+    
+    function loadNextLesson() {
+        const levelSelect = document.getElementById("levelSelect");
+        const lessonSelect = document.getElementById("lessonSelect");
+        const levelKey = levelSelect.value || "basic";
+        const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
+        const nextLessonIndex = Number(lessonSelect.value) + 1;
+
+        if (nextLessonIndex < lessons.length) {
+            lessonSelect.value = nextLessonIndex;
+            loadLesson();
+            document.getElementById("summaryModal").style.display = "none";
+        } else {
+            const levelOrder = ["basic", "level1", "level2", "level3", "advanced"];
+            const currentLevelIndex = levelOrder.indexOf(levelKey);
+            const nextLevelKey = levelOrder[(currentLevelIndex + 1) % levelOrder.length];
+            levelSelect.value = nextLevelKey;
+            populateLessonsDropdown();
+            lessonSelect.value = 0;
+            loadLesson();
+            document.getElementById("summaryModal").style.display = "none";
         }
+    }
 
-        function getLevelFrameColor(level) {
-            return level >= 8 ? 'rgba(252, 211, 77, 0.85)' : level >= 5 ? 'rgba(34, 197, 94, 0.85)' : 'rgba(96, 165, 250, 0.95)';
-        }
+    function closeSummary() { document.getElementById("summaryModal").style.display = "none"; resetExercise(); }
 
-        function updateBannerRotation() {
-            const sorted = [...allUsers].sort((a, b) => {
-                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
-                if (mb !== ma) return mb - ma;
-                return (b.points || 0) - (a.points || 0);
-            }).slice(0, 10);
-            
-            if (sorted.length === 0) {
-                document.getElementById('banner-rank').textContent = '#--';
-                document.getElementById('banner-name').textContent = 'No players';
-                document.getElementById('banner-id').textContent = 'ID: --';
-                document.getElementById('banner-points').textContent = '0 pts';
-                document.getElementById('banner-avatar').src = DEFAULT_AVATAR;
-                document.getElementById('banner-avatar').style.boxShadow = 'none';
-                document.getElementById('banner-avatar').style.borderColor = '#e2e8f0';
-                document.getElementById('banner-level').textContent = 'LVL 1';
-                document.getElementById('banner-crown').style.display = 'none';
-                return;
-            }
-            
-            const idx = rotateIdx % sorted.length;
-            const user = sorted[idx];
-            const rank = idx + 1;
-            const level = calcLevel(user.points || 0);
-            
-            document.getElementById('banner-rank').textContent = '#' + rank;
-            document.getElementById('banner-name').textContent = user.name || user.id;
-            document.getElementById('banner-id').textContent = 'ID: ' + (user.id || '').toUpperCase();
-            document.getElementById('banner-points').textContent = (user.points || 0) + ' pts';
-            document.getElementById('banner-avatar').src = user.pic || DEFAULT_AVATAR;
-            document.getElementById('banner-avatar').style.boxShadow = getLevelGlow(level);
-            document.getElementById('banner-avatar').style.borderColor = getLevelFrameColor(level);
-            document.getElementById('banner-level').textContent = 'LVL ' + level;
-            document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
-        }
+    window.onload = () => {
+      // Simulate loader progress and then show trainer screen
+      try {
+        document.getElementById("loaderProgress").style.width = "0%";
+        document.getElementById("loadingScreen").style.display = "flex";
+        document.getElementById("trainerWelcomeScreen").style.display = "none";
 
-        function startBannerRotation() {
-            if (rotationTimer) {
-                clearInterval(rotationTimer);
-                rotationTimer = null;
-            }
-            
-            // প্রথমবার আপডেট
-            updateBannerRotation();
-            
-            // প্রতি 5 সেকেন্ডে রোটেট
-            rotationTimer = setInterval(() => {
-                rotateIdx = (rotateIdx + 1) % 10;
-                updateBannerRotation();
-            }, 5000);
-        }
-
-        function getCurrentMonthKey() {
-            const now = new Date();
-            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        }
-
-        function getNextMonthlyResetDate() {
-            const now = new Date();
-            const year = now.getFullYear();
-            const month = now.getMonth();
-            const nextMonth = new Date(year, month + 1, 1, 0, 0, 0, 0);
-            return nextMonth;
-        }
-
-        function updateMonthlyCountdown() {
-            const nextReset = getNextMonthlyResetDate();
-            const now = new Date();
-            let diff = Math.floor((nextReset - now) / 1000);
-            if (diff <= 0) {
-                performMonthlyReset();
-                diff = Math.floor((getNextMonthlyResetDate() - new Date()) / 1000);
-            }
-            diff = Math.max(0, diff);
-            const days = Math.floor(diff / 86400);
-            diff %= 86400;
-            const hours = String(Math.floor(diff / 3600)).padStart(2, '0');
-            diff %= 3600;
-            const minutes = String(Math.floor(diff / 60)).padStart(2, '0');
-            const seconds = String(diff % 60).padStart(2, '0');
-            document.getElementById('monthly-reset-countdown').textContent = `Next reset in ${days}d ${hours}:${minutes}:${seconds}`;
-        }
-
-        function performMonthlyReset() {
-            const currentMonth = getCurrentMonthKey();
-            const updates = {};
-            allUsers.forEach(user => {
-                if (user.monthlyPointsMonth !== currentMonth) {
-                    updates[`users/${user.id}/monthlyPoints`] = 0;
-                    updates[`users/${user.id}/monthlyPointsMonth`] = currentMonth;
-                }
-            });
-            if (Object.keys(updates).length > 0) {
-                db.ref().update(updates).catch(err => console.error('Monthly reset failed:', err));
-            }
-        }
-
-        // ============================================
-        // FIREBASE OPERATIONS
-        // ============================================
-        function syncUsers() {
-            db.ref('users').on('value', snap => {
-                const data = snap.val() || {};
-                const currentMonth = getCurrentMonthKey();
-                const updates = {};
-                allUsers = Object.keys(data).map(k => {
-                    const user = { id: k, ...data[k] };
-                    if (user.monthlyPointsMonth !== currentMonth) {
-                        updates[`users/${k}/monthlyPoints`] = 0;
-                        updates[`users/${k}/monthlyPointsMonth`] = currentMonth;
-                        user.monthlyPoints = 0;
-                        user.monthlyPointsMonth = currentMonth;
-                        if (loggedInUser && loggedInUser.id === k) {
-                            loggedInUser.monthlyPoints = 0;
-                            loggedInUser.monthlyPointsMonth = currentMonth;
-                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                        }
-                    }
-                    return user;
-                });
-                if (Object.keys(updates).length > 0) {
-                    db.ref().update(updates).catch(err => console.error('Monthly reset failed:', err));
-                }
-                renderLeaderboard(allUsers);
-                updateBannerRotation();
-                updateMonthlyCountdown();
-                if (loggedInUser) updateNav();
-            });
-        }
-
-        function loadLessons() {
-            db.ref('lessons').on('value', snap => {
-                const data = snap.val() || {};
-                allLessons = Object.keys(data).map(k => ({ id: k, ...data[k] }));
-                console.log('📚 Lessons loaded:', allLessons.length);
-                populateLessonDropdown();
-                if (!currentLessonId && allLessons.length > 0) {
-                    const filtered = getFilteredLessons();
-                    if (filtered.length > 0) {
-                        currentLessonId = filtered[0].id;
-                        document.getElementById('lesson-selector').value = currentLessonId;
-                    }
-                }
-                generateDisplay();
-            });
-        }
-
-        function getFilteredLessons() {
-            return allLessons.filter(l => (l.language || 'en') === typingLang);
-        }
-
-        function populateLessonDropdown() {
-            const select = document.getElementById('lesson-selector');
-            const filtered = getFilteredLessons();
-            
-            if (filtered.length === 0) {
-                select.innerHTML = `<option value="">No lessons available</option>`;
-                return;
-            }
-            
-            const langLabel = typingLang === 'bn' ? 'লেসন' : 'Lesson';
-            select.innerHTML = filtered.map((l, i) => {
-                const label = typingLang === 'bn' ? `${langLabel} ${i + 1}` : `${langLabel} ${i + 1}`;
-                return `<option value="${l.id}">${label}</option>`;
-            }).join('');
-            
-            if (!currentLessonId || !filtered.some(l => l.id === currentLessonId)) {
-                currentLessonId = filtered[0].id;
-                select.value = currentLessonId;
-            } else {
-                select.value = currentLessonId;
-            }
-        }
-
-        function selectLessonFromDropdown(lessonId) {
-            if (!lessonId) return;
-            currentLessonId = lessonId;
-            isCustomMode = false;
-            customTextContent = '';
-            resetTyping();
-        }
-
-        function getCurrentLesson() {
-            if (isCustomMode && customTextContent) {
-                return { text: customTextContent, isCustom: true };
-            }
-            const filtered = getFilteredLessons();
-            const lesson = filtered.find(l => l.id === currentLessonId);
-            return lesson || null;
-        }
-
-        function getNextLessonId() {
-            const filtered = getFilteredLessons();
-            if (filtered.length === 0) return null;
-            if (isCustomMode) return currentLessonId;
-            const currentIndex = filtered.findIndex(l => l.id === currentLessonId);
-            if (currentIndex === -1 || currentIndex === filtered.length - 1) {
-                return filtered[0].id;
-            }
-            return filtered[currentIndex + 1].id;
-        }
-
-        // ============================================
-        // CUSTOM TEXT
-        // ============================================
-        function openCustomModal() {
-            document.getElementById('custom-modal').classList.add('active');
-            document.getElementById('custom-text').value = '';
-            document.getElementById('custom-text').focus();
-        }
-
-        function closeCustomModal() {
-            document.getElementById('custom-modal').classList.remove('active');
-        }
-
-        function applyCustomText() {
-            const text = document.getElementById('custom-text').value.trim();
-            if (!text) {
-                alert('Please write some text to practice!');
-                return;
-            }
-            isCustomMode = true;
-            customTextContent = text;
-            closeCustomModal();
-            resetTyping();
-            const select = document.getElementById('lesson-selector');
-            // Add custom option if not exists
-            if (!select.querySelector('option[value="custom"]')) {
-                const opt = document.createElement('option');
-                opt.value = 'custom';
-                opt.textContent = '✏️ Custom Text';
-                select.appendChild(opt);
-            }
-            select.value = 'custom';
-            generateDisplay();
-        }
-
-        // ============================================
-        // DISPLAY GENERATION
-        // ============================================
-        function splitGraphemes(str) {
-            try {
-                if (typeof Intl !== 'undefined' && Intl.Segmenter) {
-                    const seg = new Intl.Segmenter(typingLang, { granularity: 'grapheme' });
-                    return Array.from(seg.segment(str), s => s.segment);
-                }
-            } catch (e) {}
-            return Array.from(str);
-        }
-
-        function generateDisplay() {
-            const lesson = getCurrentLesson();
-            let text;
-            if (lesson) {
-                text = lesson.text;
-            } else {
-                text = typingLang === 'bn' ? 'বাংলা টাইপিং অনুশীলন করুন' : 'Practice typing in English';
-            }
-            
-            if (isCustomMode) {
-                const select = document.getElementById('lesson-selector');
-                if (!select.querySelector('option[value="custom"]')) {
-                    const opt = document.createElement('option');
-                    opt.value = 'custom';
-                    opt.textContent = '✏️ Custom Text';
-                    select.appendChild(opt);
-                }
-                select.value = 'custom';
-            }
-            
-            const repeat = typingLang === 'bn' ? 20 : 28;
-            const full = (text + ' ').repeat(repeat).trim();
-            
-            const chars = splitGraphemes(full);
-            const lineLen = typingLang === 'bn' ? 40 : 50;
-            let html = `<div class="text-right text-xs text-slate-400 font-bold uppercase mb-1">
-                ${isCustomMode ? '✏️ Custom Text' : (typingLang === 'bn' ? '📖 বাংলা' : '📖 English')}
-            </div>`;
-            for (let i = 0; i < chars.length; i += lineLen) {
-                const chunk = chars.slice(i, i + lineLen);
-                html += `<div>${chunk.map(c => `<span class="char">${c}</span>`).join('')}</div>`;
-            }
-            document.getElementById('display-box').innerHTML = html;
-        }
-
-        // ============================================
-        // TYPING ENGINE
-        // ============================================
-        function switchTypingLang(lang) {
-            typingLang = lang;
-            localStorage.setItem('typingLanguage', lang);
-            document.getElementById('typing-lang').value = lang;
-            isCustomMode = false;
-            customTextContent = '';
-            populateLessonDropdown();
-            const filtered = getFilteredLessons();
-            if (filtered.length > 0) {
-                currentLessonId = filtered[0].id;
-                document.getElementById('lesson-selector').value = currentLessonId;
-            } else {
-                currentLessonId = null;
-            }
-            const input = document.getElementById('typing-input');
-            if (input) {
-                input.setAttribute('lang', lang);
-                input.setAttribute('dir', 'ltr');
-                input.style.imeMode = 'active';
-            }
-            resetTyping();
-        }
-
-        function resetTyping() {
-            const input = document.getElementById('typing-input');
-            if (!isCustomMode) {
-                const nextLessonId = getNextLessonId();
-                if (nextLessonId) {
-                    currentLessonId = nextLessonId;
-                    const select = document.getElementById('lesson-selector');
-                    if (select) select.value = currentLessonId;
-                }
-            }
-            input.value = '';
-            input.disabled = false;
-            isStarted = false;
-            isTimeOver = false;
-            startTime = null;
-            timeLeft = 300;
-            sessionMistakes = 0;
-            correctChars = 0;
-            clearInterval(timerInterval);
-            document.getElementById('timer-display').textContent = '05:00';
-            document.getElementById('live-chars').textContent = '0';
-            document.getElementById('live-mistakes').textContent = '0';
-            document.getElementById('live-accuracy').textContent = '0';
-            document.getElementById('live-wpm').textContent = '0';
-            document.getElementById('submit-btn').classList.add('hidden');
-            generateDisplay();
-            document.getElementById('display-box').scrollTop = 0;
-        }
-
-        function startTimer() {
-            clearInterval(timerInterval);
-            timeLeft = 300;
-            isTimeOver = false;
-            startTime = Date.now();
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
-                const s = String(timeLeft % 60).padStart(2, '0');
-                document.getElementById('timer-display').textContent = `${m}:${s}`;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    isTimeOver = true;
-                    document.getElementById('typing-input').disabled = true;
-                    document.getElementById('submit-btn').classList.remove('hidden');
-                    alert('⏰ Time is up! Save your result.');
-                }
-            }, 1000);
-        }
-
-        // ============================================
-        // AUTH
-        // ============================================
-        function openAuth() { document.getElementById('auth-modal').classList.add('active'); }
-        function closeAuth() { document.getElementById('auth-modal').classList.remove('active'); }
-
-        function findUser(identity) {
-            const norm = String(identity).trim().toLowerCase();
-            if (!norm) return Promise.resolve(null);
-            const cached = allUsers.find(u => 
-                String(u.id).toLowerCase() === norm || 
-                String(u.name || '').toLowerCase() === norm
-            );
-            if (cached) return Promise.resolve(cached);
-            return db.ref('users').once('value').then(snap => {
-                const data = snap.val() || {};
-                const exactKey = Object.keys(data).find(k => String(k).toLowerCase() === norm);
-                if (exactKey) return { id: exactKey, ...data[exactKey] };
-                const entry = Object.entries(data).find(([k, v]) => 
-                    v && String(v.name || '').toLowerCase() === norm
-                );
-                return entry ? { id: entry[0], ...entry[1] } : null;
-            });
-        }
-
-        function handleAuth() {
-            const rawId = document.getElementById('auth-id').value.trim();
-            const pass = document.getElementById('auth-pass').value.trim();
-            const id = rawId.toLowerCase();
-            if (!rawId || !pass) return alert('Fill all fields');
-
-            findUser(rawId).then(user => {
-                if (!user) {
-                    const currentMonth = getCurrentMonthKey();
-                    const newUser = { id, name: rawId, password: pass, points: 0, monthlyPoints: 0, monthlyPointsMonth: currentMonth, mistakes: 0, bestWpm: 0, pic: '', bio: '' };
-                    db.ref('users/' + id).set(newUser).then(() => {
-                        loggedInUser = newUser;
-                        localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                        afterLogin();
-                        alert('✅ Welcome ' + rawId + '!');
-                    }).catch(() => alert('❌ সেভ করা যায়নি, আবার চেষ্টা করুন।'));
-                    return;
-                }
-                if (user.password !== pass) return alert('❌ ভুল পাসওয়ার্ড');
-                loggedInUser = { id: user.id, ...user };
-                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                afterLogin();
-                alert('✅ স্বাগতম ফিরে ' + (loggedInUser.name || loggedInUser.id) + '!');
-            }).catch(err => {
-                console.error('Auth error:', err);
-                alert('❌ লগইন ব্যর্থ হয়েছে, আবার চেষ্টা করুন।');
-            });
-        }
-
-        function afterLogin() {
-            closeAuth();
-            updateNav();
-            trackOnline();
-            resetTyping();
-            listenHelp();
-        }
-
-        function logout() {
-            if (loggedInUser) {
-                db.ref('online_users/' + loggedInUser.id).set({ uid: loggedInUser.id, online: false, lastSeen: Date.now() });
-            }
-            localStorage.removeItem('currentUser');
-            loggedInUser = null;
-            updateNav();
-            location.reload();
-        }
-
-        function updateNav() {
-            if (loggedInUser) {
-                document.getElementById('nav-user').classList.remove('hidden');
-                document.getElementById('nav-login').classList.add('hidden');
-                document.getElementById('nav-name').textContent = loggedInUser.name || loggedInUser.id;
-                document.getElementById('nav-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
-            } else {
-                document.getElementById('nav-user').classList.add('hidden');
-                document.getElementById('nav-login').classList.remove('hidden');
-            }
-        }
-
-        function getRank(userId) {
-            const sorted = [...allUsers].sort((a, b) => {
-                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
-                if (mb !== ma) return mb - ma;
-                return (b.points || 0) - (a.points || 0);
-            });
-            const idx = sorted.findIndex(u => String(u.id).toLowerCase() === String(userId).toLowerCase());
-            return idx === -1 ? null : idx + 1;
-        }
-
-        function trackOnline() {
-            if (!loggedInUser) return;
-            const ref = db.ref('online_users/' + loggedInUser.id);
-            ref.set({ uid: loggedInUser.id, name: loggedInUser.name || loggedInUser.id, online: true, lastSeen: Date.now() });
-            ref.onDisconnect().set({ uid: loggedInUser.id, name: loggedInUser.name || loggedInUser.id, online: false, lastSeen: Date.now() });
-        }
-
-        // ============================================
-        // LEADERBOARD
-        // ============================================
-        function renderLeaderboard(users) {
-            const sorted = [...users].sort((a, b) => {
-                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
-                if (mb !== ma) return mb - ma;
-                return (b.points || 0) - (a.points || 0);
-            });
-            const top = sorted.slice(0, 10);
-            const tbody = document.getElementById('leaderboard-body');
-            if (top.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-400">No players yet</td></tr>';
-                return;
-            }
-            tbody.innerHTML = top.map((u, i) => {
-                const rank = i + 1;
-                const isMe = loggedInUser && u.id === loggedInUser.id;
-                const medal = rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-                return `<tr class="clickable-row ${isMe ? 'bg-blue-50' : ''}" onclick="viewProfile('${u.id}')">
-                    <td class="p-2 text-center font-bold text-slate-600">${medal}</td>
-                    <td class="p-2 flex items-center gap-2">
-                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img">
-                        <div><p class="font-black text-slate-800 text-[11px] truncate max-w-[120px]">${u.name || u.id}</p>
-                        <p class="text-[7px] text-slate-400">${u.id}</p></div>
-                    </td>
-                    <td class="p-2 text-center"><span class="lvl-badge">${calcLevel(u.points || 0)}</span></td>
-                    <td class="p-2 text-center font-black">${u.points || 0}</td>
-                    <td class="p-2 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
-                    <td class="p-2 text-center font-bold text-orange-600">${u.bestWpm || 0}</td>
-                </tr>`;
-            }).join('');
-        }
-
-        function searchPlayers() {
-            const q = document.getElementById('search-box').value.toLowerCase();
-            const filtered = allUsers.filter(u => 
-                String(u.id).toLowerCase().includes(q) || 
-                String(u.name).toLowerCase().includes(q)
-            );
-            renderLeaderboard(filtered);
-        }
-
-        function openAllUsers() {
-            const modal = document.getElementById('all-users-modal');
-            modal.classList.add('active');
-            const sorted = [...allUsers].sort((a, b) => {
-                const ma = a.monthlyPoints || 0, mb = b.monthlyPoints || 0;
-                if (mb !== ma) return mb - ma;
-                return (b.points || 0) - (a.points || 0);
-            });
-            document.getElementById('all-users-body').innerHTML = sorted.map((u, i) => {
-                const isMe = loggedInUser && u.id === loggedInUser.id;
-                return `<tr class="clickable-row ${isMe ? 'bg-blue-50' : ''}" onclick="viewProfile('${u.id}'); closeAllUsers();">
-                    <td class="p-2 text-center font-bold">${i + 1}</td>
-                    <td class="p-2 flex items-center gap-2">
-                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img">
-                        <span class="font-black text-[11px]">${u.name || u.id}</span>
-                    </td>
-                    <td class="p-2 text-center"><span class="lvl-badge">${calcLevel(u.points || 0)}</span></td>
-                    <td class="p-2 text-center font-black">${u.points || 0}</td>
-                    <td class="p-2 text-center font-bold text-orange-600">${u.bestWpm || 0}</td>
-                </tr>`;
-            }).join('');
-        }
-        function closeAllUsers() { document.getElementById('all-users-modal').classList.remove('active'); }
-
-        function viewProfile(userId) {
-            const user = allUsers.find(u => u.id === userId);
-            if (!user) return;
-            const points = user.points || 0;
-            const level = calcLevel(points);
-            const progress = calcLevelProgress(points);
-            const progressText = getNextLevelTargetText(points);
-            document.getElementById('preview-avatar').src = user.pic || DEFAULT_AVATAR;
-            document.getElementById('preview-name').textContent = user.name || user.id;
-            document.getElementById('preview-id').textContent = 'ID: ' + user.id.toUpperCase();
-            const rank = getRank(user.id);
-            document.getElementById('preview-rank').textContent = rank ? '#' + rank : '#--';
-            document.getElementById('preview-points').textContent = points;
-            document.getElementById('preview-wpm').textContent = user.bestWpm || 0;
-            document.getElementById('preview-level').textContent = level;
-            document.getElementById('preview-badge').textContent = 'LVL ' + level;
-            document.getElementById('preview-progress-bar').style.width = progress + '%';
-            document.getElementById('preview-progress-text').textContent = progressText;
-            document.getElementById('preview-bio').textContent = user.bio ? '"' + user.bio + '"' : '"No bio"';
-            document.getElementById('preview-modal').classList.add('active');
-        }
-        function closePreview() { document.getElementById('preview-modal').classList.remove('active'); }
-
-        // ============================================
-        // PROFILE
-        // ============================================
-        function openEditProfile() {
-            if (!loggedInUser) return openAuth();
-            document.getElementById('edit-id').value = loggedInUser.id || '';
-            document.getElementById('edit-name').value = loggedInUser.name || '';
-            document.getElementById('edit-pic').value = loggedInUser.pic || '';
-            document.getElementById('edit-bio').value = loggedInUser.bio || '';
-            document.getElementById('edit-preview').src = loggedInUser.pic || DEFAULT_AVATAR;
-            document.getElementById('edit-modal').classList.add('active');
-        }
-        function closeEdit() { document.getElementById('edit-modal').classList.remove('active'); }
-
-        function handleAvatarUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                document.getElementById('edit-preview').src = ev.target.result;
-                document.getElementById('edit-pic').value = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function saveProfile() {
-            if (!loggedInUser) return;
-            const oldId = loggedInUser.id;
-            const oldIdNorm = String(oldId || '').trim().toLowerCase();
-            const rawId = document.getElementById('edit-id').value.trim();
-            const newId = String(rawId).trim().toLowerCase();
-            const name = document.getElementById('edit-name').value.trim();
-            const pic = document.getElementById('edit-pic').value.trim();
-            const bio = document.getElementById('edit-bio').value.trim();
-            if (!newId || !name) return alert('Required fields missing');
-            if (newId !== oldIdNorm && allUsers.some(u => String(u.id).toLowerCase() === newId)) return alert('ID already taken');
-
-            const updated = { ...loggedInUser, id: newId, name, pic, bio };
-
-            const finish = () => {
-                loggedInUser = updated;
-                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                closeEdit();
-                updateNav();
-                syncUsers();
-                alert('✅ Profile updated!');
-            };
-
-            if (newId !== oldIdNorm) {
-                db.ref('users/' + newId).set(updated).then(() => {
-                    db.ref('users/' + oldId).remove().then(finish).catch(err => {
-                        console.error('Remove old user failed:', err);
-                        finish();
-                    });
-                }).catch(err => {
-                    console.error('Profile save failed:', err);
-                    alert('❌ প্রোফাইল আপডেট করতে পারিনি, আবার চেষ্টা করুন।');
-                });
-            } else {
-                db.ref('users/' + oldId).update({ name, pic, bio }).then(finish).catch(err => {
-                    console.error('Profile save failed:', err);
-                    alert('❌ প্রোফাইল আপডেট করতে পারিনি, আবার চেষ্টা করুন।');
-                });
-            }
-        }
-
-        // ============================================
-        // HELP / CHAT
-        // ============================================
-        function openHelp() {
-            if (!loggedInUser) return openAuth();
-            document.getElementById('help-modal').classList.add('active');
-            document.getElementById('help-status').textContent = '';
-            if (helpListener) {
-                try { helpListener.off(); } catch(e) {}
-                helpListener = null;
-            }
-            listenHelp();
-        }
-
-        function closeHelp() { 
-            document.getElementById('help-modal').classList.remove('active');
-            if (helpListener) {
-                try { helpListener.off(); } catch(e) {}
-                helpListener = null;
-            }
-        }
-
-        function setHelpTemplate(type) {
-            const templates = {
-                password: 'I think I forgot my password. Please help me reset it.',
-                lesson: 'I would like to change my lesson. Please assist with the correct lesson selection.',
-                competition: 'I want to participate in the competition. Please provide the details and how to join.',
-                other: 'I need help with something else. Please check my account and respond.'
-            };
-            document.getElementById('help-msg').value = templates[type] || templates.other;
-        }
-
-        function listenHelp() {
-            if (!loggedInUser) return;
-            if (helpListener) {
-                try { helpListener.off(); } catch(e) {}
-                helpListener = null;
-            }
-            
-            const ref = db.ref('chat_messages');
-            helpListener = ref.on('value', snap => {
-                const data = snap.val() || {};
-                const msgs = Object.values(data)
-                    .filter(m => (m.from === loggedInUser.id && m.to === 'admin') || 
-                                 (m.from === 'admin' && m.to === loggedInUser.id))
-                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                
-                const container = document.getElementById('help-chat');
-                if (msgs.length === 0) {
-                    container.innerHTML = '<div class="text-slate-400 text-sm">No messages yet. Send a message to admin.</div>';
-                } else {
-                    container.innerHTML = msgs.map(m => {
-                        const isAdmin = m.from === 'admin';
-                        return `<div class="chat-bubble ${isAdmin ? 'admin' : 'user'}">
-                            ${!isAdmin ? `<span class="sender">👤 You</span>` : `<span class="sender">👤 Admin</span>`}
-                            ${m.message}
-                            <span class="time">${new Date(m.timestamp).toLocaleTimeString()}</span>
-                        </div>`;
-                    }).join('');
-                }
-                container.scrollTop = container.scrollHeight;
-            });
-        }
-
-        function sendHelp() {
-            if (!loggedInUser) return openAuth();
-            const msg = document.getElementById('help-msg').value.trim();
-            if (!msg) return alert('Write a message');
-            const status = document.getElementById('help-status');
-            status.textContent = 'Sending...';
-            const fullMessage = `Name: ${loggedInUser.name || loggedInUser.id}\nID: ${loggedInUser.id}\nMessage: ${msg}`;
-            
-            db.ref('chat_messages').push({
-                from: loggedInUser.id,
-                to: 'admin',
-                message: fullMessage,
-                timestamp: Date.now(),
-                type: 'help',
-                senderName: loggedInUser.name || loggedInUser.id,
-                senderId: loggedInUser.id
-            }).then(() => {
-                status.textContent = '✅ Sent!';
-                document.getElementById('help-msg').value = '';
-                setTimeout(() => status.textContent = '', 3000);
-                const safeId = String(loggedInUser.id).replace(/\./g, '_');
-                db.ref('help_tickets/' + safeId).push({
-                    senderId: loggedInUser.id,
-                    senderName: loggedInUser.name || loggedInUser.id,
-                    text: msg,
-                    timestamp: Date.now(),
-                    status: 'open'
-                });
-                listenHelp();
-            }).catch(err => {
-                console.error('Send error:', err);
-                status.textContent = '❌ Failed to send';
-            });
-        }
-
-        function sendWhatsApp() {
-            const msg = document.getElementById('help-msg').value.trim() || 'Help needed';
-            const url = `https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent('From: ' + loggedInUser.id + '\n' + msg)}`;
-            window.open(url, '_blank');
-        }
-
-        // ============================================
-        // SCORE SUBMIT
-        // ============================================
-        function submitScore() {
-            if (!loggedInUser) {
-                openAuth();
-                return;
-            }
-            const wpm = parseInt(document.getElementById('live-wpm').textContent) || 0;
-            const typedLength = parseInt(document.getElementById('live-chars').textContent) || 0;
-            const earned = Math.floor(correctChars / 5);
-            if (earned === 0 && wpm === 0 && typedLength === 0) return alert('প্রথমে টাইপ করুন, তারপর সেভ করুন।');
-
-            const currentMonth = getCurrentMonthKey();
-            if (loggedInUser.monthlyPointsMonth !== currentMonth) {
-                loggedInUser.monthlyPoints = 0;
-                loggedInUser.monthlyPointsMonth = currentMonth;
-            }
-
-            loggedInUser.points = (loggedInUser.points || 0) + earned;
-            loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earned;
-            loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
-            loggedInUser.bestWpm = Math.max(loggedInUser.bestWpm || 0, wpm);
-
-            db.ref('users/' + loggedInUser.id).update({
-                points: loggedInUser.points,
-                monthlyPoints: loggedInUser.monthlyPoints,
-                monthlyPointsMonth: loggedInUser.monthlyPointsMonth,
-                mistakes: loggedInUser.mistakes,
-                bestWpm: loggedInUser.bestWpm
-            }).then(() => {
-                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                document.getElementById('submit-btn').classList.add('hidden');
-                resetTyping();
-                alert('🎉 অভিনন্দন! সেভ সম্পন্ন হয়েছে। +' + earned + ' পয়েন্ট, WPM: ' + wpm);
-            }).catch(err => {
-                console.error('Save failed:', err);
-                alert('❌ সেভ করতে পারিনি, আবার চেষ্টা করুন।');
-            });
-        }
-
-        // ============================================
-        // LANGUAGE
-        // ============================================
-        function setLanguage(lang) {
-            currentLanguage = lang;
-            localStorage.setItem('preferredLanguage', lang);
-            document.getElementById('lang-switcher').value = lang;
-            const t = lang === 'bn' ? {
-                typingPlaceholder: 'বাংলা টাইপ করা শুরু করুন...'
-            } : {
-                typingPlaceholder: 'Start typing to improve your skills...'
-            };
-            document.getElementById('typing-input').placeholder = t.typingPlaceholder;
-        }
-
-        // ============================================
-        // PWA INSTALL
-        // ============================================
-        let installPrompt = null;
-        window.addEventListener('beforeinstallprompt', e => {
-            e.preventDefault();
-            installPrompt = e;
-        });
-        function triggerInstall() {
-            if (installPrompt) {
-                installPrompt.prompt();
-            } else {
-                alert('Use browser menu → Add to Home Screen');
-            }
-        }
-
-        // ============================================
-        // INIT
-        // ============================================
-        function init() {
-            console.log('🚀 App starting...');
-            setLanguage(localStorage.getItem('preferredLanguage') || 'en');
-            typingLang = localStorage.getItem('typingLanguage') || 'en';
-            document.getElementById('typing-lang').value = typingLang;
-            
-            syncUsers();
-            loadLessons();
-            resetTyping();
-            updateMonthlyCountdown();
-            setInterval(updateMonthlyCountdown, 1000);
-
-            // Start banner rotation
-            startBannerRotation();
-
-            const stored = localStorage.getItem('currentUser');
-            if (stored) {
-                try {
-                    loggedInUser = JSON.parse(stored);
-                    updateNav();
-                    db.ref('users/' + loggedInUser.id).once('value').then(snap => {
-                        if (snap.exists()) {
-                            loggedInUser = { id: loggedInUser.id, ...snap.val() };
-                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
-                            afterLogin();
-                            console.log('👤 Logged in:', loggedInUser.id);
-                        } else {
-                            localStorage.removeItem('currentUser');
-                            loggedInUser = null;
-                            updateNav();
-                        }
-                    });
-                } catch(e) {
-                    localStorage.removeItem('currentUser');
-                    loggedInUser = null;
-                    updateNav();
-                }
-            } else {
-                updateNav();
-            }
-
-            // Typing input
-            document.getElementById('typing-input').addEventListener('input', function() {
-                if (!loggedInUser) {
-                    this.value = '';
-                    openAuth();
-                    return;
-                }
-                if (isTimeOver) {
-                    this.value = this.value.substring(0, 0);
-                    return;
-                }
-                if (!isStarted) {
-                    isStarted = true;
-                    startTimer();
-                }
-                const chars = document.querySelectorAll('#display-box .char');
-                const typed = splitGraphemes(this.value);
-                sessionMistakes = 0;
-                correctChars = 0;
-                chars.forEach((s, i) => {
-                    const expected = s.textContent;
-                    const actual = typed[i];
-                    if (actual == null) {
-                        s.className = 'char';
-                    } else if (actual === expected) {
-                        s.className = 'char correct';
-                        correctChars++;
-                    } else {
-                        s.className = 'char incorrect';
-                        sessionMistakes++;
-                    }
-                    if (i === typed.length) s.classList.add('current');
-                });
-                const time = (Date.now() - startTime) / 60000;
-                const wpm = time > 0 ? Math.round((correctChars / 5) / time) : 0;
-                const accuracy = typed.length > 0 ? Math.max(0, Math.round((correctChars / typed.length) * 100)) : 0;
-                document.getElementById('live-chars').textContent = typed.length;
-                document.getElementById('live-mistakes').textContent = sessionMistakes;
-                document.getElementById('live-accuracy').textContent = accuracy;
-                document.getElementById('live-wpm').textContent = wpm;
-                if (typed.length > 0 && typed.length === chars.length) {
-                    document.getElementById('submit-btn').classList.remove('hidden');
-                }
-                chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            });
-
-            document.getElementById('auth-pass').addEventListener('keypress', e => {
-                if (e.key === 'Enter') handleAuth();
-            });
-            
-            console.log('✅ App initialized');
-        }
-
-        window.onload = init;
-    </script>
+        let progress = 0;
+        const iv = setInterval(() => {
+          progress += 10;
+          document.getElementById("loaderProgress").style.width = progress + "%";
+          if (progress >= 100) {
+            clearInterval(iv);
+            setTimeout(() => {
+              document.getElementById("loadingScreen").style.display = "none";
+              document.getElementById("trainerWelcomeScreen").style.display = "flex";
+              // Initialize language and UI after loader
+              setTimeout(() => setLanguage('en'), 50);
+            }, 180);
+          }
+        }, 80);
+      } catch (e) {}
+    };
+  </script>
 </body>
 </html>
