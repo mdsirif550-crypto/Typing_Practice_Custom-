@@ -1,1399 +1,2150 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IELTS Rayhan's English Academy - Strict Typing Mastery</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TYPING MASTER PRO - SLIM ELITE</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0ea5e9">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <style>
+        @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+        .scrolling-content { display: inline-block; white-space: nowrap; animation: marquee 20s linear infinite; }
+        
+        .golden-banner {
+            background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
+            border: 2px solid #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.5s ease;
+            color: #111827;
+        }
+        .viewing-mode { background: linear-gradient(110deg, #1e40af, #3b82f6, #1e3a8a); color: white !important; }
+        @keyframes shine { to { background-position: 200% center; } }
+
+        .crown {
+            position: absolute; top: -14px; left: 50%; transform: translateX(-50%); font-size: 22px;
+            filter: drop-shadow(0 0 3px gold); animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% { top: -14px; } 50% { top: -20px; } }
+
+        .char { color: #94a3b8; font-family: 'Noto Sans Bengali', 'Courier New', monospace; font-size: 1.5rem; }
+        .correct { color: #10b981; font-weight: bold; }
+        .incorrect { background-color: #ef4444; color: white; border-radius: 4px; }
+        .current { border-bottom: 3px solid #1e293b; background-color: #f1f5f9; }
+        
+        .topic-header { width: 100%; text-align: right; margin-bottom: 6px; }
+        .topic-title { font-size: 1.6rem; font-weight: 900; color: #0f172a; letter-spacing: 0.5px; display: inline-block; }
+        .topic-sub { font-size: 1rem; color: #475569; font-weight: 700; margin-top: 6px; display: block; }
+        .display-text { font-size: 1.15rem; line-height: 1.6; text-align: left; font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif; white-space: pre-wrap; }
+
+        #display-box { height: 180px; overflow-y: auto; scroll-behavior: smooth; scroll-padding: 20px 0; padding: 20px; background: white; border-radius: 15px; border: 1px solid #e2e8f0; }
+
+        .countdown-banner {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 40%, #ef4444 100%);
+            border: 1px solid #fca5a5;
+            color: #7f1d1d;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.14);
+        }
+        .countdown-banner #timer-display { color: #b91c1c !important; }
+        /* Ensure live WPM is visible on colored banners */
+        #live-wpm { color: #ff7a18 !important; font-weight: 800; }
+        /* When WPM value is inside the dark value pill, force white text */
+        .wpm-value-banner #live-wpm { color:  #7f1d1d !important; }
+        #wpm-label { color: #7f1d1d !important; font-weight: 800; }
+        /* Small WPM banner under the WPM stat */
+        .wpm-block { display:flex; flex-direction:column; align-items:center; }
+        .wpm-value-banner { background: #ffffff; color: #ffffff; font-weight: 900; font-size: 12px; padding: 6px 10px; border-radius: 999px; box-shadow: 0 8px 20px rgba(11,18,32,0.26); display: inline-flex; gap: 8px; align-items: center; }
+        .wpm-banner { background: linear-gradient(90deg,#0ea5e9,#2563eb); color: white; font-weight: 800; font-size: 11px; padding: 4px 8px; border-radius: 999px; margin-top: 6px; box-shadow: 0 6px 18px rgba(37,99,235,0.18); }
+        
+        #typing-input {
+            border: 2px solid #2563eb !important;
+            border-radius: 0 0 34px 34px;
+            outline: none;
+            padding: 24px;
+            height: 160px;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            font-family: 'Noto Sans Bengali', 'Segoe UI', sans-serif;
+        }
+
+        .lvl-badge { background: #1e293b; color: #ffd700; padding: 1px 4px; border-radius: 4px; font-size: 8px; font-weight: 800; border: 1px solid #ffd700; }
+        .clickable-row { cursor: pointer; transition: 0.2s; }
+        .clickable-row:hover { background-color: #f0f7ff !important; transform: scale(1.01); }
+        /* Larger leaderboard avatar */
+        .leader-img { width: 56px !important; height: 56px !important; }
+        .profile-preview-avatar { width: 140px; height: 140px; border-radius: 30px; border: 4px solid rgba(255,255,255,0.12); background: #0f172a; }
+        .profile-frame { display: inline-block; border-radius: 999px; transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+        .profile-frame img { display: block; border-radius: 999px; }
+        .profile-preview-card { max-width: 1040px; }
+        .profile-preview-meta h3 { font-size: 2rem; }
+        .profile-preview-stat span { font-size: 1.5rem; }
+        .profile-preview-hero { gap: 28px; }
+        .message-action-btn {
+            background: linear-gradient(90deg, #2563eb, #38bdf8);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 999px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 15px 30px rgba(15,23,42,0.18);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+        .message-action-btn:hover { transform: translateY(-1px); opacity: 0.95; }
+        .help-send-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(90deg,#0ea5e9,#6366f1);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            border: 1px solid rgba(255,255,255,0.12);
+            box-shadow: 0 12px 30px rgba(59,130,246,0.14), inset 0 -6px 18px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .help-send-btn:active { transform: translateY(1px); }
+        .help-send-btn.digital {
+            background: linear-gradient(90deg,#06b6d4,#3b82f6);
+            border-radius: 999px;
+            padding: 12px 22px;
+            letter-spacing: 0.6px;
+        }
+        .lesson-manager-button {
+            background: #111827;
+            color: #f8fafc;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+        /* Emphasize leaderboard rows */
+        #leaderboard-body tr { transition: transform 0.18s ease; }
+        #leaderboard-body tr:hover { transform: translateY(-2px); }
+
+        .slim-input {
+            width: 100%; padding: 8px 12px; background-color: #f8fafc; border: 1px solid #e2e8f0;
+            border-radius: 10px; font-size: 13px; font-weight: 600; outline: none;
+        }
+        #leaderboard-reset-info {
+            color: #f8fafc !important;
+            font-weight: 800 !important;
+            background: linear-gradient(135deg, #111827, #000000);
+            border: 1px solid #374151;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            border-radius: 999px;
+            padding: 8px 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.3;
+        }
+        #search-box {
+            font-weight: 800;
+            color: #0f172a;
+        }
+        #search-box::placeholder {
+            color: #475569;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+        }
+        .search-icon {
+            color: #0f172a;
+            opacity: 0.85;
+        }
+        /* All Users Modal */
+        #all-users-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        #all-users-modal.active {
+            display: flex;
+        }
+        .all-users-modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .all-users-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .all-users-modal-header h2 {
+            font-size: 18px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin: 0;
+        }
+        .all-users-modal-close {
+            background: #ef4444;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .all-users-modal-close:hover {
+            background: #dc2626;
+        }
+        .view-all-btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .view-all-btn:hover {
+            background: #1e3a8a;
+            transform: scale(1.05);
+        }
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            background: linear-gradient(135deg,#facc15,#f59e0b);
+            color: #111827;
+            font-weight: 800;
+            border-radius: 999px;
+            padding: 4px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+        }
+        .profile-preview-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.92);
+            z-index: 7000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            backdrop-filter: blur(8px);
+        }
+        .profile-preview-modal.hidden {
+            display: none;
+        }
+        .profile-preview-card {
+            width: 100%;
+            max-width: 980px;
+            border-radius: 32px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(30,58,138,0.95));
+            box-shadow: 0 25px 80px rgba(15,23,42,0.7);
+            position: relative;
+        }
+        .profile-preview-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top left, rgba(59,130,246,0.24), transparent 35%), radial-gradient(circle at bottom right, rgba(14,165,233,0.18), transparent 30%);
+            pointer-events: none;
+        }
+        .profile-preview-close {
+            position: absolute;
+            right: 18px;
+            top: 18px;
+            z-index: 10;
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            line-height: 36px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+        .profile-preview-close:hover { transform: scale(1.08); background: rgba(255,255,255,0.28); }
+        .profile-preview-content { position: relative; z-index: 1; padding: 32px; }
+        .profile-preview-hero { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; justify-content: space-between; }
+        .profile-preview-avatar { width: 120px; height: 120px; border-radius: 30px; border: 3px solid rgba(255,255,255,0.35); box-shadow: 0 20px 50px rgba(0,0,0,0.25); object-fit: cover; background: #fff; }
+        .profile-preview-meta { color: #f8fafc; }
+        .profile-preview-meta h3 { margin: 0; font-size: 1.8rem; font-weight: 900; letter-spacing: 0.5px; }
+        .profile-preview-meta p { margin: 6px 0 0; color: rgba(248,250,252,0.78); font-size: 0.9rem; }
+        .profile-preview-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-top: 24px; }
+        .profile-preview-stat { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 18px; color: white; text-align: center; }
+        .profile-preview-stat span { display: block; font-size: 1.3rem; font-weight: 900; margin-top: 6px; }
+        .profile-preview-levelbar { margin-top: 18px; }
+        .profile-preview-levelbar-label { color: rgba(255,255,255,0.8); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.12em; margin-bottom: 10px; }
+        .profile-preview-progress { width: 100%; height: 12px; border-radius: 999px; background: rgba(255,255,255,0.12); overflow: hidden; }
+        .profile-preview-progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #fde68a, #f97316); transition: width 0.25s ease; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pt-10">
+
+    <!-- Header Marquee -->
+    <div class="fixed top-0 left-0 w-full bg-slate-900 text-white py-1 z-[5000] border-b border-yellow-500 overflow-hidden text-[9px] font-bold uppercase tracking-widest">
+        <div class="scrolling-content">
+             🏆 JOIN THE CHALLENGE • PRACTICE DAILY • WIN GREAT PRIZES • 5 CHARS = 1 PT • $1,000 POOL LIVE!
+        </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="bg-white shadow-sm p-2 sticky top-6 z-50">
+        <div class="container mx-auto flex justify-between items-center px-4">
+            <div class="flex items-center gap-2">
+                <a id="nav-home-link" href="typing_pro.html" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-black transition">Home</a>
+                <h1 class="text-base font-black text-slate-800 italic uppercase">Typing<span class="text-blue-600">Master</span></h1>
+            </div>
+            <div id="user-area" class="flex items-center gap-2">
+                <a id="install-btn" href="#" onclick="event.preventDefault(); triggerInstallPrompt();" class="bg-emerald-600 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-emerald-700 transition">Install App</a>
+                <button id="help-btn" onclick="openHelpLine()" class="bg-slate-800 text-white px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-slate-900 transition">Help</button>
+                <button id="admin-lesson-btn" onclick="openLessonManager()" class="hidden bg-yellow-500 text-slate-900 px-3 py-1 rounded-md font-bold text-[9px] uppercase hover:bg-yellow-400 transition">Lessons</button>
+                <select id="lang-switcher" onchange="setLanguage(this.value)" class="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-[9px] font-bold uppercase outline-none">
+                    <option value="en">EN</option>
+                    <option value="bn">BN</option>
+                </select>
+                <div id="nav-profile-box" class="hidden flex items-center gap-2">
+                    <div class="text-right leading-tight">
+                        <p id="nav-user-name" class="font-bold text-[10px] uppercase text-slate-700"></p>
+                        <p class="text-[8px] font-bold text-blue-600 uppercase">ID: <span id="nav-user-id-top">--</span></p>
+                        <p class="text-[8px] font-bold text-slate-500 uppercase">Rank: <span id="nav-user-rank">--</span></p>
+                    </div>
+                    <img id="nav-user-avatar" onclick="openEditModal()" class="w-8 h-8 rounded-full border border-blue-500 cursor-pointer object-cover bg-white" src="">
+                    <button onclick="logout()" class="text-red-500 font-bold text-[8px] uppercase">Exit</button>
+                </div>
+                <button id="nav-login-btn" onclick="openAuth()" class="bg-blue-600 text-white px-4 py-1 rounded-md font-bold text-[9px] uppercase">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-4 max-w-5xl">
+        
+        <!-- Banner -->
+        <div id="elite-banner" class="golden-banner rounded-[25px] py-4 px-8 mb-6 flex flex-col md:flex-row justify-between items-center gap-4 relative overflow-hidden">
+            <div class="flex-1 text-center md:text-left">
+                <h2 id="banner-title" class="text-[14px] md:text-[16px] font-black uppercase text-slate-900 leading-tight tracking-tight italic">
+                    **Practice Daily, Improve Your Skills, <br>and Win Great Prizes!**
+                </h2>
+                <div class="flex items-center gap-2 mt-1">
+                    <span class="text-2xl font-black text-red-700">$1,000</span>
+                    <span id="banner-pool" class="text-[10px] font-bold text-slate-800 uppercase bg-white/30 px-1.5 py-0.5 rounded">Pool Live</span>
+                </div>
+            </div>
+
+            <div class="flex flex-row items-center gap-6 justify-end">
+                <div id="profile-display-area" class="flex flex-row items-center gap-3 border-l border-black/10 pl-6">
+                    <div class="relative">
+                        <div class="crown" id="banner-crown">👑</div>
+                        <img id="dash-pic" class="w-14 h-14 rounded-full border-2 border-white shadow-md object-cover bg-white" src="">
+                    </div>
+                    <div class="max-w-[140px]">
+                        <div class="flex items-center gap-1 mb-0.5">
+                            <span id="dash-rank-tag" class="bg-black text-white text-[8px] px-1 rounded font-bold uppercase">#--</span>
+                            <span id="dash-lvl-tag" class="lvl-badge">LVL 1</span>
+                        </div>
+                        <h2 id="dash-name" class="text-base font-black uppercase italic text-slate-900 leading-none truncate">Typist</h2>
+                        <p id="dash-id" class="text-[7px] font-bold opacity-60 uppercase mb-0.5">ID: ----</p>
+                        <p id="dash-my-rank" class="text-[8px] font-bold text-blue-600 uppercase mb-0.5">My Rank: --</p>
+                        <p id="dash-bio" class="text-[8px] font-bold italic opacity-80 leading-none truncate">"No bio."</p>
+                        <p id="dash-next-target" class="text-[8px] font-bold uppercase text-slate-500 mt-1"></p>
+                    </div>
+                </div>
+
+                <div class="flex gap-1.5">
+                    <div class="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-xl text-center min-w-[70px] border border-white/20">
+                        <p class="text-[7px] font-bold uppercase opacity-60 leading-none mb-1">Points</p>
+                        <p id="dash-pts" class="text-sm font-black leading-none">0</p>
+                    </div>
+                    <div class="bg-white/25 backdrop-blur-sm px-3 py-1.5 rounded-xl text-center min-w-[70px] border border-white/20">
+                        <p class="text-[7px] font-bold uppercase opacity-60 leading-none mb-1">Mistakes</p>
+                        <p id="dash-mistakes" class="text-sm font-black text-red-700 leading-none">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Typing Box -->
+        <div class="flex items-center justify-between mb-2">
+            <div class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Typing Mode</div>
+            <select id="typing-language" onchange="switchTypingLanguage(this.value)" class="rounded-lg border border-slate-200 bg-white px-2 py-1 text-[10px] font-bold uppercase outline-none">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+            </select>
+        </div>
+        <div id="display-box"></div>
+        <textarea id="typing-input" class="w-full text-lg bg-white mt-[-20px]" placeholder="Start typing to improve your skills..."></textarea>
+        
+        <!-- Stats Bar -->
+        <div class="countdown-banner mt-4 flex flex-wrap justify-between items-center gap-3 p-4 rounded-xl shadow-sm border">
+            <button id="reset-btn" onclick="resetTyping()" class="bg-black text-white px-4 py-1.5 rounded-lg font-bold uppercase text-[9px] hover:bg-red-600 transition shadow-md">Reset 🔄</button>
+            <div class="flex flex-wrap gap-4 font-black text-slate-700 text-[9px] uppercase tracking-widest">
+                <div><span id="time-label">Time:</span> <span id="timer-display" class="text-red-600 text-sm">05:00</span></div>
+                <div><span id="chars-label">Chars:</span> <span id="live-chars" class="text-blue-700 text-sm">0</span></div>
+                <div><span id="mistakes-label">Mistakes:</span> <span id="live-mistakes" class="text-red-600 text-sm">0</span></div>
+                <div class="wpm-block">
+                    <div class="wpm-value-banner"><span id="wpm-label">WPM:</span> <span id="live-wpm" class="text-orange-600 text-sm">0</span></div>
+                    <div id="wpm-banner" class="wpm-banner" aria-hidden="true"></div>
+                </div>
+            </div>
+            <button id="submit-btn" onclick="submitScore()" class="hidden bg-green-600 text-white px-6 py-1.5 rounded-lg font-bold text-[9px] uppercase shadow-md">Save Result ✅</button>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="mt-8 bg-white rounded-3xl shadow-lg p-6 mb-20 border border-slate-50">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-2">
+                <div>
+                    <h2 id="leaderboard-title" class="text-base font-black italic uppercase border-l-4 border-blue-600 pl-3 text-slate-800 tracking-tight">Global Leaderboard</h2>
+                    <p id="leaderboard-reset-info" class="text-[11px] uppercase tracking-widest mt-2 inline-block">Loading reset timer...</p>
+                </div>
+                <div class="flex gap-2">
+                    <div class="relative flex-1 md:w-56">
+                        <input type="text" id="search-box" oninput="searchPlayer()" placeholder="Search ID..." class="w-full p-3 pl-10 rounded-2xl border border-slate-300 bg-slate-50 outline-none font-black text-[11px] uppercase tracking-wider placeholder:text-slate-500 placeholder:font-black focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition">
+                        <span class="search-icon absolute left-3 top-1/2 -translate-y-1/2 text-[14px] font-black">🔍</span>
+                    </div>
+                    <button class="view-all-btn" onclick="openAllUsersModal()">👥 View All</button>
+                </div>
+            </div>
+            <div class="overflow-hidden rounded-xl border border-slate-50">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
+                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
+                    </thead>
+                    <tbody id="leaderboard-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[6000] hidden p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-[300px] shadow-2xl relative p-5 border border-blue-100">
+            <button onclick="closeEditModal()" class="absolute top-3 right-3 text-xl font-black text-slate-300 hover:text-red-500">&times;</button>
+            <h2 id="profile-title" class="text-sm font-black uppercase text-center mb-4 text-slate-800">Profile Settings</h2>
+            <div class="space-y-2">
+                <img id="edit-preview" class="w-16 h-16 rounded-full border-2 border-blue-500 mx-auto object-cover p-0.5 mb-2" src="">
+                <input type="file" id="edit-avatar-file" accept="image/*" onchange="handleProfileImageUpload(event)" class="w-full text-[10px] file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:bg-blue-600 file:text-white file:font-bold">
+                <input type="text" id="edit-id" class="slim-input uppercase text-[11px]" placeholder="User ID">
+                <input type="text" id="edit-name" class="slim-input text-[11px]" placeholder="Display Name">
+                <input type="text" id="edit-pic" oninput="document.getElementById('edit-preview').src = this.value || DEFAULT_AVATAR" class="slim-input text-[11px]" placeholder="Avatar.jpg">
+                <textarea id="edit-bio" class="slim-input text-[11px] h-12 resize-none" placeholder="Add Bio..."></textarea>
+                <button onclick="saveProfile()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold uppercase text-[10px] mt-2 shadow-md">Update Profile</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-slate-900/90 flex items-center justify-center z-[6000] hidden p-4">
+        <div class="bg-slate-950/95 p-6 rounded-3xl w-full max-w-md text-left shadow-2xl border border-slate-700">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-black uppercase text-white">Help Line</h2>
+                <button onclick="closeHelpLine()" class="text-slate-300 hover:text-white">×</button>
+            </div>
+            <p class="text-slate-300 leading-7">Need help? Send a quick message to the admin and we'll get back to you.</p>
+            <div class="mt-4 space-y-2">
+                <div class="grid grid-cols-1 gap-2">
+                    <input id="help-name" placeholder="Your name" class="slim-input" />
+                    <input id="help-userid" placeholder="Your ID" class="slim-input uppercase" />
+                    <input id="help-mobile" placeholder="Your mobile (e.g. 8801XXXXXXXXX)" class="slim-input" />
+                </div>
+                <label class="text-slate-200 text-sm font-bold">Your message</label>
+                <textarea id="help-message-text" class="w-full mt-2 p-3 rounded-xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Describe the problem or ask for help..."></textarea>
+                <div class="mt-3 flex gap-2">
+                    <button onclick="sendHelpMessage()" class="help-send-btn digital">Send to Admin</button>
+                    <button onclick="sendWhatsAppMessage()" class="help-send-btn" style="background:linear-gradient(90deg,#25D366,#128C7E);">Send via WhatsApp</button>
+                    <button onclick="closeHelpLine()" class="mt-0 ml-auto px-4 py-2 rounded-xl bg-white/5 text-slate-200">Close</button>
+                </div>
+                <p id="help-send-status" class="mt-3 text-xs text-slate-400"></p>
+                <div id="help-replies" class="mt-4 max-h-44 overflow-y-auto text-sm text-slate-200"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="auth-modal" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center z-[6000] hidden p-4">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-[280px] text-center shadow-2xl border-b-4 border-blue-600">
+            <h2 id="auth-title" class="text-xl font-black mb-4 text-slate-800 uppercase italic">Master Login</h2>
+            <div class="space-y-2">
+                <input type="text" id="reg-id" placeholder="USER ID" class="slim-input text-center uppercase">
+                <input type="password" id="reg-pass" placeholder="PASSWORD" class="slim-input text-center">
+                <button id="auth-submit-btn" onclick="handleAuth()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-bold uppercase text-[10px] mt-2 shadow-md">Login Arena</button>
+                <button id="auth-close-btn" onclick="closeAuth()" class="text-slate-300 text-[9px] uppercase mt-2 font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Users Modal -->
+    <div id="all-users-modal" class="fixed inset-0 bg-slate-900/80 z-[5999] hidden p-4">
+        <div class="all-users-modal-content">
+            <div class="all-users-modal-header">
+                <h2>All Players</h2>
+                <button class="all-users-modal-close" onclick="closeAllUsersModal()">✕</button>
+            </div>
+            <div class="overflow-hidden rounded-xl border border-slate-50">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-900 text-white text-[8px] uppercase tracking-widest">
+                        <tr><th class="p-3 text-center">Rank</th><th class="p-3">Player</th><th class="p-3 text-center">LVL</th><th class="p-3 text-center">TOTAL</th><th class="p-3 text-center">MONTHLY</th><th class="p-3 text-center">WPM</th></tr>
+                    </thead>
+                    <tbody id="all-users-body" class="divide-y divide-slate-50 font-bold text-[10px]"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="lesson-manager-modal" class="profile-preview-modal hidden">
+        <div class="profile-preview-card">
+            <button class="profile-preview-close" onclick="closeLessonManager()">×</button>
+            <div class="profile-preview-content">
+                <div class="profile-preview-hero">
+                    <div>
+                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Admin Lesson Manager</p>
+                        <h3 class="text-white">Typing Lessons</h3>
+                        <p class="text-slate-300 mt-2">Add and manage up to 15 practice lessons.</p>
+                    </div>
+                </div>
+                <div class="mt-6 grid gap-4 lg:grid-cols-[1fr_260px]">
+                    <div>
+                        <div id="lesson-list" class="space-y-3 max-h-[420px] overflow-y-auto"></div>
+                    </div>
+                    <div class="p-5 rounded-3xl bg-white/10 border border-white/10">
+                        <p class="text-slate-300 mb-2">New Lesson Text</p>
+                        <textarea id="new-lesson-text" class="w-full p-3 rounded-2xl bg-slate-900 text-white border border-white/10 h-28" placeholder="Enter a typing sentence..."></textarea>
+                        <div class="mt-3 flex gap-2">
+                            <button onclick="addLesson()" class="lesson-manager-button flex-1">Add Lesson</button>
+                        </div>
+                        <p class="mt-4 text-slate-300 text-sm" id="lesson-count"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="profile-preview-modal" class="profile-preview-modal hidden">
+        <div class="profile-preview-card">
+            <button class="profile-preview-close" onclick="closeProfilePreview()">×</button>
+            <div class="profile-preview-content">
+                <div class="profile-preview-hero">
+                    <img id="preview-pic" class="profile-preview-avatar" src="" alt="Profile picture">
+                    <div class="profile-preview-meta">
+                        <p class="text-sm uppercase tracking-[0.35em] text-slate-200">Pool Profile</p>
+                        <h3 id="preview-name">PLAYER NAME</h3>
+                        <p id="preview-id">ID: ----</p>
+                        <p id="preview-rank" class="text-[14px] font-bold text-amber-300 mt-2">#--</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-3">
+                        <span id="preview-level" class="rank-badge">LVL 1</span>
+                    </div>
+                </div>
+                <div class="profile-preview-stats">
+                    <div class="profile-preview-stat">
+                        <span id="preview-points">0</span>
+                        Points
+                    </div>
+                    <div class="profile-preview-stat">
+                        <span id="preview-wpm">0</span>
+                        Best WPM
+                    </div>
+                    <div class="profile-preview-stat">
+                        <span id="preview-mistakes">0</span>
+                        Total Mistakes
+                    </div>
+                </div>
+                <div class="profile-preview-levelbar">
+                    <div class="profile-preview-levelbar-label">Level Progress</div>
+                    <div class="profile-preview-progress">
+                        <div id="preview-level-bar" class="profile-preview-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="mt-4 text-slate-200 text-sm space-y-2">
+                    <p id="preview-next-level" class="font-semibold"></p>
+                    <p id="preview-future-level" class="text-slate-300"></p>
+                </div>
+                <div class="mt-6 p-5 rounded-3xl bg-white/10 border border-white/10 text-slate-100">
+                    <p id="preview-bio" class="text-sm italic leading-6"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // FIREBASE CONFIG (এখানে আপনার config বসান)
+        // ============================================
+        const firebaseConfig = {
+apiKey: "AIzaSyBdg7ULfChhdMSGMy4DiB5AvX0egXgz84E",
+  authDomain: "eirnbooster.firebaseapp.com",
+  databaseURL: "https://eirnbooster-default-rtdb.firebaseio.com",
+  projectId: "eirnbooster",
+  storageBucket: "eirnbooster.firebasestorage.app",
+  messagingSenderId: "1062288115898",
+  appId: "1:1062288115898:web:952df73a31a3acdc2e5a83",
+  measurementId: "G-7YJCXGJVY5"
+};
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("🔥 Firebase initialized successfully!");
+        } catch (error) {
+            console.error("❌ Firebase init error:", error);
+        }
+
+        // ============================================
+        // APP LOGIC
+        // ============================================
+        // Admin WhatsApp number (international format, no + or dashes).
+        // Set to: 01877902991 -> international (Bangladesh) 8801877902991
+        const ADMIN_WHATSAPP_NUMBER = '8801877902991';
+
+        const DEFAULT_AVATAR = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        const TYPING_PROMPTS = {
+            en: [
+                "Computers consist of hardware and software working together to perform tasks.",
+                "Programming languages let developers instruct computers to solve problems.",
+                "Networks connect computers so they can share data and resources securely.",
+                "Cybersecurity protects systems, data, and users from digital threats.",
+                "Algorithms are step-by-step procedures used to solve computational problems."
+            ],
+            bn: [
+                "কম্পিউটার হার্ডওয়্যার এবং সফটওয়্যার একসাথে কাজ করে বিভিন্ন কাজ সম্পন্ন করে।",
+                "প্রোগ্রামিং ভাষা ডেভেলপারদের কম্পিউটারকে সমস্যার সমাধান করতে নির্দেশ দিতে সহায়তা করে।",
+                "নেটওয়ার্ক কম্পিউটারগুলোকে একসাথে যুক্ত করে তথ্য ও সম্পদ ভাগ করে নিতে সাহায্য করে।",
+                "সাইবারসিকিউরিটি সিস্টেম, তথ্য এবং ব্যবহারকারীদের ডিজিটাল হুমকি থেকে রক্ষা করে।",
+                "অ্যালগোরিদম হল গণনামূলক সমস্যা সমাধানের জন্য ধাপে ধাপে নির্ধারিত পদ্ধতি।"
+            ]
+        };
+        let loggedInUser = null;
+        let currentTypingLanguage = localStorage.getItem('typingLanguage') || 'en';
+        let rotateIdx = 0, isStarted = false, startTime = null, sessionMistakes = 0, correctChars = 0;
+        let timeLeft = 300, timerInterval = null, isTimeOver = false;
+        let rotationTimer = null;
+        let allUsers = [];
+        let leaderboardResetInfo = null;
+        let leaderboardResetCountdownInterval = null;
+        const LEADERBOARD_RESET_PATH = 'leaderboardReset';
+        let currentLanguage = localStorage.getItem('preferredLanguage') || 'en';
+
+        function getMonthKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function formatResetDate(timestamp) {
+            const date = new Date(timestamp);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        }
+
+        function formatNextResetText(monthKey) {
+            const [year, month] = monthKey.split('-').map(Number);
+            const next = new Date(year, month, 1);
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            return `${monthNames[next.getMonth()]} ${String(next.getDate()).padStart(2, '0')}`;
+        }
+
+        function getNextResetTimestamp(monthKey) {
+            const [year, month] = monthKey.split('-').map(Number);
+            const nextResetDate = new Date(year, month, 1, 0, 0, 0, 0);
+            return nextResetDate.getTime();
+        }
+
+        function formatRemainingTime(ms) {
+            const totalSeconds = Math.max(Math.floor(ms / 1000), 0);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const parts = [];
+            if (days) parts.push(`${days}d`);
+            if (hours || days) parts.push(`${hours}h`);
+            if (minutes || hours || days) parts.push(`${minutes}m`);
+            parts.push(`${seconds}s`);
+            return parts.join(' ');
+        }
+
+        function updateLeaderboardResetInfoText() {
+            const infoEl = document.getElementById('leaderboard-reset-info');
+            if (!infoEl) return;
+            const now = Date.now();
+            const currentKey = getMonthKey(new Date());
+            const monthKey = leaderboardResetInfo && leaderboardResetInfo.monthKey ? leaderboardResetInfo.monthKey : currentKey;
+            const nextReset = formatNextResetText(monthKey);
+            const nextResetTs = getNextResetTimestamp(monthKey);
+            const remaining = nextResetTs - now;
+            const remainingText = remaining > 0 ? formatRemainingTime(remaining) : 'Reset happening now';
+            const lastReset = leaderboardResetInfo && leaderboardResetInfo.timestamp ? formatResetDate(leaderboardResetInfo.timestamp) : 'Unknown';
+            const prevTopName = leaderboardResetInfo && leaderboardResetInfo.previousTopName ? leaderboardResetInfo.previousTopName : 'No last top';
+            const prevTopPoints = leaderboardResetInfo && leaderboardResetInfo.previousTopPoints ? leaderboardResetInfo.previousTopPoints : 0;
+            infoEl.innerText = `Resets on 1st of month | Last reset: ${lastReset} | Prev top: ${prevTopName} (${prevTopPoints} pts) | Next: ${nextReset} | Remaining: ${remainingText}`;
+        }
+
+        function startLeaderboardResetCountdown() {
+            if (leaderboardResetCountdownInterval) {
+                clearInterval(leaderboardResetCountdownInterval);
+            }
+            updateLeaderboardResetInfoText();
+            leaderboardResetCountdownInterval = setInterval(updateLeaderboardResetInfoText, 1000);
+        }
+
+        function setLeaderboardResetInfo(data) {
+            leaderboardResetInfo = data || {};
+            const infoEl = document.getElementById('leaderboard-reset-info');
+            if (!infoEl) return;
+            startLeaderboardResetCountdown();
+        }
+
+        function resetMonthlyLeaderboard(monthKey) {
+            const timestamp = Date.now();
+            return firebase.database().ref('users').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const users = Object.keys(data).map(key => ({
+                    id: key,
+                    name: data[key].name || key,
+                    monthlyPoints: data[key].monthlyPoints || 0
+                }));
+                const sorted = users.sort((a, b) => b.monthlyPoints - a.monthlyPoints);
+                const topUser = sorted[0] || null;
+                const resetData = {
+                    monthKey,
+                    timestamp,
+                    previousTopName: topUser ? topUser.name : null,
+                    previousTopPoints: topUser ? topUser.monthlyPoints : 0
+                };
+                const updates = {};
+                Object.keys(data).forEach(key => {
+                    updates[`users/${key}/monthlyPoints`] = 0;
+                });
+                const updatePromise = Object.keys(updates).length > 0 ? firebase.database().ref().update(updates) : Promise.resolve();
+                return updatePromise.then(() => firebase.database().ref(LEADERBOARD_RESET_PATH).set(resetData)).then(() => resetData);
+            }).then((resetData) => {
+                setLeaderboardResetInfo(resetData);
+            });
+        }
+
+        function loadLeaderboardResetInfo() {
+            return firebase.database().ref(LEADERBOARD_RESET_PATH).once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const storedKey = data.monthKey;
+                const currentKey = getMonthKey(new Date());
+                if (storedKey !== currentKey) {
+                    return resetMonthlyLeaderboard(currentKey);
+                }
+                setLeaderboardResetInfo(data);
+                return Promise.resolve();
+            }).catch(err => {
+                console.error('❌ Failed to load leaderboard reset info:', err);
+                setLeaderboardResetInfo(null);
+            });
+        }
+
+        const translations = {
+            en: {
+                navHome: 'Home',
+                navLogin: 'Login',
+                navDownload: 'Download',
+                bannerTitle: '**Practice Daily, Improve Your Skills, <br>and Win Great Prizes!**',
+                bannerPool: 'Pool Live',
+                typingPlaceholder: 'Start typing to improve your skills...',
+                reset: 'Reset 🔄',
+                time: 'Time:',
+                chars: 'Chars:',
+                mistakes: 'Mistakes:',
+                wpm: 'WPM:',
+                saveResult: 'Save Result ✅',
+                leaderboardTitle: 'Global Leaderboard',
+                searchPlaceholder: 'Search ID...',
+                profileTitle: 'Profile Settings',
+                profileUpdate: 'Update Profile',
+                authTitle: 'Master Login',
+                authLogin: 'Login Arena',
+                authClose: 'Close',
+                editId: 'User ID',
+                editName: 'Display Name',
+                editPic: 'Avatar.jpg',
+                editBio: 'Add Bio...',
+                noPlayers: 'No players yet. Be the first!',
+                typeSomething: 'Type something first!',
+                submitBlocked: 'Please wait until the 5-minute timer finishes before saving your result.',
+                timeExpired: 'Time is up! Typing has been stopped. Reset to begin a new session.',
+                scoreSubmitted: '🎉 Score submitted!\nPoints earned: ',
+                scoreWpm: '\nWPM: ',
+                highWpmCongrats: '🎊 Congratulations! Your WPM is above 15.'
+            },
+            bn: {
+                navHome: 'হোম',
+                navLogin: 'লগইন',
+                navDownload: 'ডাউনলোড',
+                bannerTitle: '**প্রতিদিন অনুশীলন করুন, আপনার দক্ষতা বাড়ান, <br>এবং বড় পুরস্কার জিতুন!**',
+                bannerPool: 'পুল লাইভ',
+                typingPlaceholder: 'আপনার দক্ষতা বাড়াতে টাইপ করা শুরু করুন...',
+                reset: 'রিসেট 🔄',
+                time: 'সময়:',
+                chars: 'অক্ষর:',
+                mistakes: 'ভুল:',
+                wpm: 'ডব্লিউপিএম:',
+                saveResult: 'ফলাফল সেভ করুন ✅',
+                leaderboardTitle: 'গ্লোবাল লিডারবোর্ড',
+                searchPlaceholder: 'আইডি খুঁজুন...',
+                profileTitle: 'প্রোফাইল সেটিংস',
+                profileUpdate: 'প্রোফাইল আপডেট',
+                authTitle: 'মাস্টার লগইন',
+                authLogin: 'লগইন আরেনা',
+                authClose: 'বন্ধ',
+                editId: 'ইউজার আইডি',
+                editName: 'ডিসপ্লে নাম',
+                editPic: 'অ্যাভাটার.jpg',
+                editBio: 'বায়ো যোগ করুন...',
+                noPlayers: 'এখনো কোনো প্লেয়ার নেই। প্রথমজন হোন!',
+                typeSomething: 'প্রথমে কিছু টাইপ করুন!',
+                submitBlocked: 'ফলাফল সেভ করতে ৫ মিনিটের টাইমার শেষ হওয়া পর্যন্ত অপেক্ষা করুন।',
+                timeExpired: 'সময় শেষ! টাইপিং বন্ধ করা হয়েছে। নতুন সেশনের জন্য রিসেট করুন।',
+                scoreSubmitted: '🎉 স্কোর সাবমিট হয়েছে!\nপ্রাপ্ত পয়েন্ট: ',
+                scoreWpm: '\nডব্লিউপিএম: ',
+                highWpmCongrats: '🎊 অভিনন্দন! আপনার ডব্লিউপিএম ১৫ এর উপরে।'
+            }
+        };
+
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('preferredLanguage', lang);
+            const t = translations[lang] || translations.en;
+            const langSwitcher = document.getElementById('lang-switcher');
+            if (langSwitcher) langSwitcher.value = lang;
+
+            document.documentElement.lang = lang;
+            const navHome = document.getElementById('nav-home-link');
+            if (navHome) navHome.innerText = t.navHome;
+            const navLogin = document.getElementById('nav-login-btn');
+            if (navLogin) navLogin.innerText = t.navLogin;
+            const downloadBtn = document.getElementById('download-btn');
+            if (downloadBtn) downloadBtn.innerText = t.navDownload;
+            const bannerTitle = document.getElementById('banner-title');
+            if (bannerTitle) bannerTitle.innerHTML = t.bannerTitle;
+            const bannerPool = document.getElementById('banner-pool');
+            if (bannerPool) bannerPool.innerText = t.bannerPool;
+            const typingInput = document.getElementById('typing-input');
+            if (typingInput) typingInput.placeholder = t.typingPlaceholder;
+            const resetBtn = document.getElementById('reset-btn');
+            if (resetBtn) resetBtn.innerText = t.reset;
+            const timeLabel = document.getElementById('time-label');
+            if (timeLabel) timeLabel.innerText = t.time;
+            const charsLabel = document.getElementById('chars-label');
+            if (charsLabel) charsLabel.innerText = t.chars;
+            const mistakesLabel = document.getElementById('mistakes-label');
+            if (mistakesLabel) mistakesLabel.innerText = t.mistakes;
+            const wpmLabel = document.getElementById('wpm-label');
+            if (wpmLabel) wpmLabel.innerText = t.wpm;
+            const saveBtn = document.getElementById('submit-btn');
+            if (saveBtn) saveBtn.innerText = t.saveResult;
+            const leaderboardTitle = document.getElementById('leaderboard-title');
+            if (leaderboardTitle) leaderboardTitle.innerText = t.leaderboardTitle;
+            const searchBox = document.getElementById('search-box');
+            if (searchBox) searchBox.placeholder = t.searchPlaceholder;
+            const profileTitle = document.getElementById('profile-title');
+            if (profileTitle) profileTitle.innerText = t.profileTitle;
+            const editId = document.getElementById('edit-id');
+            if (editId) editId.placeholder = t.editId;
+            const editName = document.getElementById('edit-name');
+            if (editName) editName.placeholder = t.editName;
+            const editPic = document.getElementById('edit-pic');
+            if (editPic) editPic.placeholder = t.editPic;
+            const editBio = document.getElementById('edit-bio');
+            if (editBio) editBio.placeholder = t.editBio;
+            const authTitle = document.getElementById('auth-title');
+            if (authTitle) authTitle.innerText = t.authTitle;
+            const authSubmit = document.getElementById('auth-submit-btn');
+            if (authSubmit) authSubmit.innerText = t.authLogin;
+            const authClose = document.getElementById('auth-close-btn');
+            if (authClose) authClose.innerText = t.authClose;
+            const profileSaveBtn = document.querySelector('#edit-modal button[onclick="saveProfile()"]');
+            if (profileSaveBtn) profileSaveBtn.innerText = t.profileUpdate;
+
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            if (leaderboardBody && leaderboardBody.innerHTML.trim()) {
+                const noPlayersRow = leaderboardBody.querySelector('td[colspan="5"]');
+                if (noPlayersRow) noPlayersRow.innerText = t.noPlayers;
+            }
+        }
+
+        function downloadPage() {
+            const previewHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing Master Pro Preview</title>
   <style>
     :root {
-      --bg-color: #041e12; 
-      --panel-bg: #111e16; 
-      --primary: #c026d3;
-      --primary-hover: #a21caf;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg-accent: #143a23;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
-      --key-bg: #22372a;
-      --key-active: #c026d3;
-      --key-border: #111d15;
+      color-scheme: light;
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --accent: #2563eb;
+      --accent2: #06b6d4;
+      --gold: #fbbf24;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-
+    * { box-sizing: border-box; }
     body {
-      background: radial-gradient(circle at 45% 50%, rgba(244, 42, 65, 0.18) 0%, rgba(244, 42, 65, 0) 42%), var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
       min-height: 100vh;
-      padding: 20px;
+      padding: 24px;
     }
-
-    /* নতুন গোল্ডেন বাটন স্টাইল */
-    .btn-pro-version {
-      background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important;
-      color: #000 !important;
-      border: 2px solid #fff !important;
-      box-shadow: 0 4px 15px rgba(184, 134, 11, 0.6) !important;
-      text-decoration: none;
+    .app-shell {
+      width: min(920px, 100%);
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #dbeafe;
+      border-radius: 28px;
+      box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16);
+      padding: 24px;
+      backdrop-filter: blur(16px);
+    }
+    .top-bar {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-    }
-    .btn-pro-version:hover {
-      transform: scale(1.05);
-      filter: brightness(1.2);
-    }
-
-    /* সুন্দর লোডিং সিস্টেম (Pre-loader Overlay) */
-    .loader-overlay {
-      position: fixed;
-      inset: 0;
-      background-color: var(--bg-color);
-      z-index: 300000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
-    }
-    .loader-sun {
-      width: 80px;
-      height: 80px;
-      background-color: #f42a41;
-      border-radius: 50%;
-      box-shadow: 0 0 30px #f42a41;
-      animation: pulseAndGlow 1.5s infinite alternate ease-in-out;
-      margin-bottom: 25px;
-    }
-    @keyframes pulseAndGlow {
-      0% { transform: scale(0.9); box-shadow: 0 0 20px rgba(244, 42, 65, 0.5); }
-      100% { transform: scale(1.1); box-shadow: 0 0 45px rgba(244, 42, 65, 0.9); }
-    }
-    .loader-text {
-      font-size: 18px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      margin-bottom: 12px;
-    }
-    .loader-bar {
-      width: 220px;
-      height: 5px;
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      overflow: hidden;
-      position: relative;
-    }
-    .loader-progress {
-      width: 0%;
-      height: 100%;
-      background-color: var(--success);
-      border-radius: 10px;
-      transition: width 0.1s linear;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 1000px;
-      margin: auto;
-    }
-
-    /* Header Branding */
-    header {
-      text-align: center;
-      margin-bottom: 25px;
-    }
-    .academy-tag {
-      font-size: 15px;
-      font-weight: bold;
-      color: var(--primary);
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: linear-gradient(90deg, #0f172a, #1d4ed8);
+      color: white;
+      border-radius: 16px;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
+      font-size: 12px;
+    }
+    .preview-card {
+      background: var(--panel);
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding: 16px;
+      border-radius: 18px;
+      background: linear-gradient(110deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      color: #111827;
+      font-weight: 900;
+    }
+    .hero h1 { margin: 0 0 6px; font-size: 18px; text-transform: uppercase; }
+    .hero p { margin: 0; font-size: 12px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.7); border-radius: 999px; padding: 6px 10px; font-size: 12px; font-weight: 800; }
+    .typing-area {
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .topic {
+      text-align: right;
+      font-size: 20px;
+      font-weight: 900;
+      color: #0f172a;
       margin-bottom: 8px;
     }
-    header h1 {
-      font-size: 40px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-shadow: 0 4px 10px rgba(0,0,0,0.4);
-      background: linear-gradient(to right, #ffffff, #f472b6, #c026d3);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-
-    /* ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার */
-    .flag-landscape-banner {
-      width: 100%;
-      height: 120px;
-      background-color: #006a4e; 
-      border-radius: 16px;
-      border: 3px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 40px;
-      margin-bottom: 25px;
-      position: relative;
-      overflow: hidden;
-    }
-    .flag-red-circle {
-      width: 80px;
-      height: 80px;
-      background-color: #f42a41; 
-      border-radius: 50%;
-      box-shadow: 0 0 20px rgba(244, 42, 65, 0.6);
-      position: absolute;
-      left: 45%; 
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
-    .flag-banner-text {
+    .prompt {
       font-size: 16px;
-      font-weight: 900;
-      letter-spacing: 3px;
-      color: #ffffff;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-      z-index: 1;
+      line-height: 1.6;
+      color: #334155;
+      margin-bottom: 14px;
     }
-
-    /* Language Mode Selector */
-    .mode-container {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
-    .lang-btn {
-      background-color: var(--panel-bg);
-      color: var(--text-muted);
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      padding: 10px 24px;
-      border-radius: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    .lang-btn.active {
-      background-color: var(--primary);
-      color: white;
-      border-color: var(--primary);
-      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
-    }
-
-    /* Dashboard Stats Card */
-    .dashboard {
-      background-color: var(--panel-bg);
-      border-radius: 12px;
-      padding: 15px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    }
-    .stat-box {
-      text-align: center;
-    }
-    .stat-label {
-      font-size: 12px;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-    .stat-val {
-      font-size: 20px;
-      font-weight: bold;
-      color: var(--text-main);
-    }
-    .stat-val.highlight {
-      color: var(--success);
-    }
-
-    /* Controls Panel */
-    .controls {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-    select {
-      background-color: var(--key-bg);
-      color: var(--text-main);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      cursor: pointer;
-      max-width: 250px;
-    }
-    .btn-reset {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .btn-reset:hover {
-      background-color: var(--primary-hover);
-    }
-
-    /* Real-time Warning & Helper Box */
-    .status-feedback {
-      background-color: rgba(30, 41, 59, 0.5);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.2s;
-    }
-
-    /* Main Typing Box */
-    .typing-panel {
-      background-color: var(--panel-bg);
+    .input-box {
+      border: 2px solid var(--accent);
       border-radius: 16px;
-      padding: 30px;
-      margin-bottom: 25px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-      position: relative;
-      border: 2px solid transparent;
-      transition: border-color 0.2s;
-    }
-
-    /* ভুল টাইপ করলে কাঁপানো এনিমেশন */
-    @keyframes shakeError {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(-8px); }
-      50% { transform: translateX(8px); }
-      75% { transform: translateX(-8px); }
-      100% { transform: translateX(0); }
-    }
-    .panel-shake {
-      animation: shakeError 0.2s ease-in-out;
-      border-color: var(--danger) !important;
-    }
-    
-    .text-display {
-      font-size: 24px;
-      line-height: 1.7;
-      letter-spacing: 1px;
-      min-height: 120px;
-      color: var(--text-muted);
-      font-family: 'Courier New', Courier, monospace;
-      outline: none;
-      word-break: break-word;
-    }
-    
-    /* Character Highlighting Styles */
-    .char-correct {
-      color: var(--success) !important;
-      background-color: rgba(16, 185, 129, 0.1) !important;
-    }
-    .char-wrong {
-      color: var(--danger) !important;
-      background-color: rgba(239, 68, 68, 0.25) !important;
-      border-bottom: 3px solid var(--danger) !important;
-    }
-    .char-current {
-      color: var(--text-main);
-      background-color: rgba(192, 38, 211, 0.25);
-      border-bottom: 3px solid var(--primary);
-    }
-
-    /* 3D Virtual Keyboard Styling */
-    .keyboard-container {
-      background-color: var(--panel-bg);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    .keyboard-row {
-      display: flex;
-      justify-content: center;
-      gap: 6px;
-      margin-bottom: 10px;
-    }
-    .keyboard-row:last-child {
-      margin-bottom: 0;
-    }
-    .key {
-      background-color: var(--key-bg);
-      color: var(--text-main);
-      padding: 10px;
-      min-width: 44px;
-      height: 46px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 13px;
-      font-weight: bold;
-      user-select: none;
-      position: relative;
-      border-bottom: 4px solid var(--key-border);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      transition: all 0.05s ease;
-    }
-    .key.backspace { min-width: 80px; }
-    .key.tab { min-width: 65px; }
-    .key.caps { min-width: 75px; }
-    .key.enter { min-width: 85px; }
-    .key.shift { min-width: 100px; }
-    .key.space { min-width: 320px; }
-    
-    /* 3D Highlight Target Key */
-    .key.target-highlight {
-      background-color: var(--key-active) !important;
-      border-bottom-color: #701a75 !important;
-      box-shadow: 0 0 15px var(--key-active);
-      transform: translateY(-2px);
-    }
-    
-    /* Key Pressed Down 3D Effect */
-    .key.pressed, .key:active {
-      transform: translateY(3px);
-      border-bottom-width: 1px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
-    }
-
-    /* Modern Glassmorphic Welcome/Guidelines Screen */
-    .trainer-intro-overlay {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(4, 30, 18, 0.9);
-      backdrop-filter: blur(10px);
-      z-index: 200000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    .trainer-card {
-      background: linear-gradient(135deg, #111e16, #0c2514);
-      border-radius: 24px;
-      max-width: 600px;
-      width: 100%;
-      border: 2px solid var(--primary);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 38, 211, 0.2);
-      overflow: hidden;
-      animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    @keyframes cardSlideIn {
-      0% { transform: translateY(30px); opacity: 0; }
-      100% { transform: translateY(0); opacity: 1; }
-    }
-    .trainer-header {
-      background: linear-gradient(135deg, #006a4e, #0c2514);
-      padding: 30px 20px;
-      text-align: center;
-      border-bottom: 2px solid rgba(244, 42, 65, 0.3);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      position: relative;
-    }
-    .trainer-header::after {
-      content: "";
-      position: absolute;
-      width: 120px;
-      height: 120px;
-      background: rgba(244, 42, 65, 0.15);
-      filter: blur(25px);
-      border-radius: 50%;
-      top: 10%;
-      left: 45%;
-    }
-    .trainer-intro-text {
-      color: var(--text-main);
+      padding: 14px;
+      min-height: 86px;
+      background: white;
+      color: var(--muted);
       font-size: 15px;
-      font-weight: 500;
-      z-index: 1;
     }
-    .trainer-body {
-      padding: 25px;
-    }
-    .guideline-item-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 14px;
-      padding: 14px 18px;
-      margin-bottom: 12px;
+    .stats {
       display: flex;
-      align-items: center;
-      gap: 15px;
-      transition: transform 0.2s, background-color 0.2s;
-    }
-    .guideline-item-card:hover {
-      background: rgba(255, 255, 255, 0.06);
-      transform: translateX(4px);
-    }
-    .guideline-icon {
-      font-size: 22px;
-      background-color: rgba(192, 38, 211, 0.15);
-      border: 1px solid var(--primary);
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .guideline-info {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .guideline-info h5 {
-      color: #facc15;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    .guideline-info p {
-      color: var(--text-muted);
-      font-size: 12.5px;
-      line-height: 1.4;
-    }
-    .btn-start-training {
-      background: linear-gradient(90deg, var(--primary), var(--primary-hover));
-      color: #fff;
-      border: none;
-      padding: 14px 28px;
-      font-size: 16px;
-      font-weight: 800;
-      border-radius: 12px;
-      cursor: pointer;
-      width: 100%;
-      transition: all 0.3s;
-      box-shadow: 0 0 15px rgba(192, 38, 211, 0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-wrap: wrap;
       gap: 10px;
-    }
-    .btn-start-training:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px rgba(192, 38, 211, 0.7);
-    }
-
-    /* Summary Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 100000;
-      inset: 0;
-      background-color: rgba(15, 23, 42, 0.75);
-      backdrop-filter: blur(5px);
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-content {
-      background-color: var(--panel-bg);
-      padding: 35px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 450px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    }
-    .modal h2 {
-      font-size: 24px;
-      margin-bottom: 15px;
-      color: var(--success);
-    }
-    .modal-stats {
-      margin: 20px 0;
-      background-color: var(--bg-color);
-      padding: 15px;
-      border-radius: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .modal-stat-line {
-      display: flex;
       justify-content: space-between;
-      font-size: 16px;
-    }
-    .modal-stat-line strong {
-      color: var(--primary);
-    }
-    .modal-btn {
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 15px;
-      font-weight: bold;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-    }
-    .modal-btn:hover {
-      background-color: var(--primary-hover);
-    }
-    .trainer-tip {
-      font-size: 13px;
-      color: #fbcfe8;
-      background-color: var(--bg-accent);
-      padding: 8px;
-      border-radius: 6px;
+      align-items: center;
       margin-top: 10px;
-      font-weight: bold;
+      padding: 12px 0 0;
+      border-top: 1px solid #e2e8f0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
-
-    /* Custom Text Modal Specific Styles */
-    #customTextModal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      z-index: 250000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    .pill {
+      background: #eff6ff;
+      border-radius: 999px;
+      padding: 8px 12px;
+      color: var(--accent);
     }
-    #customTextArea {
-      width: 100%;
-      height: 150px;
-      background: var(--bg-color);
-      color: white;
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      padding: 10px;
-      margin: 15px 0;
-      outline: none;
-      font-family: inherit;
+    .footer-note {
+      margin-top: 12px;
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-
-    /* রেসপন্সিভ ল্যান্ডস্কেপ ব্যানার সাইজিং */
-    @media (max-width: 600px) {
-      .flag-landscape-banner {
-        height: 90px;
-        padding: 0 20px;
-        margin-bottom: 15px;
-      }
-      .flag-banner-text {
-        font-size: 11px;
-        letter-spacing: 1.5px;
-      }
-      .flag-red-circle {
-        width: 55px;
-        height: 55px;
-      }
+    @media (max-width: 700px) {
+      .hero { flex-direction: column; align-items: flex-start; }
+      .top-bar { font-size: 10px; }
     }
   </style>
 </head>
 <body>
-
-  <!-- জাতীয় পতাকার ব্যাকগ্রাউন্ড অ্যানিমেশনসহ প্রি-লোডার -->
-  <div id="loadingScreen" class="loader-overlay">
-    <div class="loader-sun"></div>
-    <div class="loader-text">Rayhan's English Academy</div>
-    <div style="color: var(--text-muted); font-size: 12px; margin-bottom: 15px; letter-spacing: 1px;">বিজয় ৫২ টাইপিং মাস্টার লোড হচ্ছে...</div>
-    <div class="loader-bar">
-      <div id="loaderProgress" class="loader-progress"></div>
+  <div class="app-shell">
+    <div class="top-bar">
+      <span>Typing Master Pro</span>
+      <span>Download Preview</span>
+    </div>
+    <div class="preview-card">
+      <div class="hero">
+        <div>
+          <h1>Practice Daily • Improve Faster</h1>
+          <p>Boost your typing speed with a clean, modern experience.</p>
+        </div>
+        <div class="badge">⚡ 5 min challenge</div>
+      </div>
+      <div class="typing-area">
+        <div class="topic">Computer Fundamentals</div>
+        <div class="prompt">Programming languages let developers instruct computers to solve problems.</div>
+        <div class="input-box">Start typing to improve your skills...</div>
+      </div>
+      <div class="stats">
+        <div class="pill">Time: 05:00</div>
+        <div class="pill">Chars: 0</div>
+        <div class="pill">Mistakes: 0</div>
+        <div class="pill">WPM: 0</div>
+      </div>
+      <div class="footer-note">Self-contained typing app preview</div>
     </div>
   </div>
-
-  <!-- কম্পিউটার প্রশিক্ষণে আপনাকে স্বাগতম স্ক্রিন (লোডিং সম্পন্ন হওয়ার পর দৃশ্যমান হবে) -->
-  <div id="trainerWelcomeScreen" class="trainer-intro-overlay" style="display: none;">
-    <div class="trainer-card">
-      <div class="trainer-header">
-        <div class="academy-welcome-tag">Welcome to Rayhan's English Academy</div>
-        <div class="trainer-avatar">
-          <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12Z" fill="#ffffff"/>
-            <path d="M12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z" fill="#ffffff"/>
-          </svg>
-        </div>
-        <div class="trainer-title">কম্পিউটার ট্রেইনার প্যানেল</div>
-        <p class="trainer-intro-text">🖥️ কম্পিউটার প্রশিক্ষণে ট্রেইনার আপনাকে সম্পূর্ণ গাইড করবে।</p>
-      </div>
-      <div class="trainer-body">
-        
-        <!-- সুদৃশ্য আইকনিক দিকনির্দেশনা ফিচার কার্ডসমূহ -->
-        <div class="guideline-item-card">
-          <div class="guideline-icon">⌨️</div>
-          <div class="guideline-info">
-            <h5>ইংরেজি কীবোর্ড ইনপুট</h5>
-            <p>কীবোর্ড মোড পরিবর্তন না করে সরাসরি সাধারণ ইংরেজি কীবোর্ড বাটনেই বাংলা টাইপ করতে পারবেন।</p>
-          </div>
-        </div>
-
-        <div class="guideline-item-card">
-          <div class="guideline-icon">💡</div>
-          <div class="guideline-info">
-            <h5>লাইভ গাইডেন্স</h5>
-            <p>স্ক্রিনের গাইড বক্সে প্রতি বর্ণমালার জন্য কোন বাটন চাপতে হবে তা স্পষ্ট দেখা যাবে।</p>
-          </div>
-        </div>
-
-        <div class="guideline-item-card">
-          <div class="guideline-icon">⚡</div>
-          <div class="guideline-info">
-            <h5>নির্ভুলতা প্রথম</h5>
-            <p>এখানে কঠোর টাইপিং মোড সক্রিয় রয়েছে। ভুল করলে কার্সার সামনে যাবে না, সঠিক বিজয় বাটনটি চেপেই সামনে এগোতে হবে।</p>
-          </div>
-        </div>
-
-        <button class="btn-start-training" onclick="startTrainerSession()">
-          <span>অনুশীলন শুরু করুন</span> ➔
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="container">
-    <header>
-      <div class="academy-tag">Rayhan's English Academy</div>
-      <h1>Strict Typing Master</h1>
-    </header>
-
-    <!-- ওপরে ল্যান্ডস্কেপ (আড়াআড়ি) জাতীয় পতাকা ব্যানার -->
-    <div class="flag-landscape-banner">
-      <div class="flag-banner-text">RAYHAN'S ENGLISH ACADEMY</div>
-      <div class="flag-red-circle"></div>
-      <div class="flag-banner-text">BANGLADESH</div>
-    </div>
-
-    <!-- Language Mode Toggle Button -->
-    <div class="mode-container">
-      <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
-      <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বিজয় ৫২ টাইপিং মোড</button>
-      
-      <!-- নতুন TYPING MASTER PRO বাটন -->
-      <a href="typing_pro.html" class="lang-btn btn-pro-version">
-        <span>👑</span> TYPING MASTER PRO
-      </a>
-    </div>
-
-    <!-- Dashboard Panel -->
-    <div class="dashboard">
-      <div class="stat-box">
-        <div class="stat-label">Level Select</div>
-        <div class="controls">
-          <select id="levelSelect" onchange="populateLessonsDropdown(); loadLesson()">
-            <option value="basic">Basic Level</option>
-            <option value="level1">Level 1</option>
-            <option value="level2">Level 2</option>
-            <option value="level3">Level 3</option>
-            <option value="advanced">Advanced Level</option>
-          </select>
-        </div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Lesson Select</div>
-        <div class="controls">
-          <select id="lessonSelect" onchange="loadLesson()">
-            <!-- Dynamic Content Load via JS depending on Selected Language -->
-          </select>
-          <button class="btn-reset" onclick="openCustomModal()" style="background-color: #3b82f6; margin-right: 5px;">Custom Text</button>
-          <button class="btn-reset" onclick="resetExercise()">Reset</button>
-        </div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Progress (অগ্রগতি)</div>
-        <div id="progressVal" class="stat-val highlight">0 / 0</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">WPM (Speed)</div>
-        <div id="wpmVal" class="stat-val highlight">00</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Accuracy</div>
-        <div id="accuracyVal" class="stat-val">100%</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-label">Time</div>
-        <div id="timeVal" class="stat-val">00:00</div>
-      </div>
-    </div>
-
-    <!-- রিয়েল-টাইম লাইভ গাইড ও কিবোর্ড সতর্কবার্তা বক্স -->
-    <div id="statusFeedback" class="status-feedback">
-      <span style="color: var(--text-muted)">টাইপিং শুরু করতে কীবোর্ডের যেকোনো কী চাপুন...</span>
-    </div>
-
-    <!-- Typing Interactive Area -->
-    <div id="typingPanel" class="typing-panel" tabindex="0">
-      <div id="textDisplay" class="text-display"></div>
-    </div>
-
-    <!-- Virtual Keyboard Area -->
-    <div class="keyboard-container">
-      <!-- Row 1 -->
-      <div class="keyboard-row">
-        <div class="key" id="key-`" data-key="`">`</div>
-        <div class="key" id="key-1" data-key="1">1</div>
-        <div class="key" id="key-2" data-key="2">2</div>
-        <div class="key" id="key-3" data-key="3">3</div>
-        <div class="key" id="key-4" data-key="4">4</div>
-        <div class="key" id="key-5" data-key="5">5</div>
-        <div class="key" id="key-6" data-key="6">6</div>
-        <div class="key" id="key-7" data-key="7">7</div>
-        <div class="key" id="key-8" data-key="8">8</div>
-        <div class="key" id="key-9" data-key="9">9</div>
-        <div class="key" id="key-0" data-key="10">10</div>
-        <div class="key" id="key--" data-key="11">11</div>
-        <div class="key" id="key-=" data-key="12">12</div>
-        <div class="key backspace" id="key-backspace" data-key="Backspace">Backspace</div>
-      </div>
-      <!-- Row 2 -->
-      <div class="keyboard-row">
-        <div class="key tab" id="key-tab" data-key="Tab">Tab</div>
-        <div class="key" id="key-q" data-key="q">Q</div>
-        <div class="key" id="key-w" data-key="w">W</div>
-        <div class="key" id="key-e" data-key="e">E</div>
-        <div class="key" id="key-r" data-key="r">R</div>
-        <div class="key" id="key-t" data-key="t">T</div>
-        <div class="key" id="key-y" data-key="y">Y</div>
-        <div class="key" id="key-u" data-key="u">U</div>
-        <div class="key" id="key-i" data-key="i">I</div>
-        <div class="key" id="key-o" data-key="o">O</div>
-        <div class="key" id="key-p" data-key="p">P</div>
-        <div class="key" id="key-[" data-key="[">[</div>
-        <div class="key" id="key-]" data-key="]">]</div>
-          <div class="key" id="key-backslash" data-key="&#92;">&#92;</div>
-      </div>
-      <!-- Row 3 -->
-      <div class="keyboard-row">
-        <div class="key caps" id="key-capslock" data-key="CapsLock">Caps Lock</div>
-        <div class="key" id="key-a" data-key="a">A</div>
-        <div class="key" id="key-s" data-key="s">S</div>
-        <div class="key" id="key-d" data-key="d">D</div>
-        <div class="key" id="key-f" data-key="f">F</div>
-        <div class="key" id="key-g" data-key="g">G</div>
-        <div class="key" id="key-h" data-key="h">H</div>
-        <div class="key" id="key-j" data-key="j">J</div>
-        <div class="key" id="key-k" data-key="k">K</div>
-        <div class="key" id="key-l" data-key="l">L</div>
-        <div class="key" id="key-;" data-key=";">;</div>
-        <div class="key" id="key-'" data-key="'">'</div>
-        <div class="key enter" id="key-enter" data-key="Enter">Enter</div>
-      </div>
-      <!-- Row 4 -->
-      <div class="keyboard-row">
-        <div class="key shift" id="key-shift" data-key="Shift">Shift</div>
-        <div class="key" id="key-z" data-key="z">Z</div>
-        <div class="key" id="key-x" data-key="x">X</div>
-        <div class="key" id="key-c" data-key="c">C</div>
-        <div class="key" id="key-v" data-key="v">V</div>
-        <div class="key" id="key-b" data-key="b">B</div>
-        <div class="key" id="key-n" data-key="n">N</div>
-        <div class="key" id="key-m" data-key="m">M</div>
-        <div class="key" id="key-," data-key=",">,</div>
-        <div class="key" id="key-." data-key=".">.</div>
-        <div class="key" id="key-/" data-key="/">/</div>
-        <div class="key shift" id="key-shiftright" data-key="Shift">Shift</div>
-      </div>
-      <!-- Row 5 -->
-      <div class="keyboard-row">
-        <div class="key" id="key-control" style="min-width: 60px;">Ctrl</div>
-        <div class="key" id="key-meta" style="min-width: 60px;">Win</div>
-        <div class="key" id="key-alt" style="min-width: 60px;">Alt</div>
-        <div class="key space" id="key- " data-key=" ">Space</div>
-        <div class="key" id="key-altright" style="min-width: 60px;">Alt</div>
-        <div class="key" id="key-metaright" style="min-width: 60px;">Win</div>
-        <div class="key" id="key-controlright" style="min-width: 60px;">Ctrl</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Custom Text Input Modal -->
-  <div id="customTextModal">
-    <div class="modal-content" style="border: 2px solid var(--primary);">
-      <h3 style="color: var(--primary);">Custom Lesson</h3>
-      <p style="color: var(--text-muted); font-size: 13px;">এখানে আপনার টেক্সট পেস্ট করুন:</p>
-      <textarea id="customTextArea" placeholder="আপনার টাইপিং টেক্সট এখানে দিন..."></textarea>
-      <div style="display: flex; gap: 10px;">
-        <button class="modal-btn" style="background-color: var(--success);" onclick="setCustomText()">Start Typing</button>
-        <button class="modal-btn" style="background-color: var(--danger);" onclick="closeCustomModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Summary Modal Popup -->
-  <div id="summaryModal" class="modal">
-    <div class="modal-content">
-      <h2>Exercise Complete!</h2>
-      <div class="modal-stats">
-        <div class="modal-stat-line">
-          <span>Typing Speed:</span>
-          <strong><span id="modalWpm">0</span> WPM</strong>
-        </div>
-        <div class="modal-stat-line" style="display: flex; justify-content: space-between; font-size: 16px; margin-bottom: 10px;">
-          <span>Accuracy Rate:</span>
-          <strong><span id="modalAccuracy">100</span>%</strong>
-        </div>
-        <div class="modal-stat-line">
-          <span>Time Taken:</span>
-          <strong><span id="modalTime">00:00</span></strong>
-        </div>
-        <div class="modal-stat-line">
-          <span>Wrong Key Presses:</span>
-          <strong><span id="modalErrors" style="color:var(--danger)">0</span></strong>
-        </div>
-      </div>
-      <div class="trainer-tip">💡 না পারলে ট্রেইনারকে নক করো, ট্রেইনার তোমাকে দেখিয়ে দিবে!</div>
-      
-      <!-- পরবর্তী লেসনে যাওয়ার নেক্সট বাটন -->
-      <button class="modal-btn" onclick="loadNextLesson()" style="margin-top: 15px; background-color: var(--success);">পরবর্তী লেসন শুরু করুন (Next Lesson) ➔</button>
-      <button class="modal-btn" onclick="closeSummary()" style="margin-top: 10px; background-color: var(--key-bg);">আবার চেষ্টা করুন (Try Again)</button>
-    </div>
-  </div>
-
-  <script>
-    // English & Bengali Dynamic Lessons grouped by level
-    const englishLessonsByLevel = {
-      basic: [
-        "asdfghjkl;' asdfghjkl;' asdfghjkl;' asdfghjkl;'adgjl';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa asdfghjkl;'asdfghjkl;''",
-        "fdsa jkl; fdsa jkl; fdsa jkl; fdsa jkl; lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa ';lkjhgfdsa dlg;jgsa dghdl;' gjkfdlfk jhsgak kfjks",
-        "asdfgh jkl; asdfgh jkl; asdfgh jkl; asdfgh jkl; shfkLdh skhak;fj jhghs;j H dlkg slkjhd S kgjg j;d S'dljgld jklskgk Alhlf slkGlfj",
-        "qwer tyui qwer tyui qwer tyui qwer tyui qwertyuiop poiuytrewq qwertyuiop poiuytrewq uqypwpqp yuqppo owqypqoru pqurpwu iey[",
-        "qwertyuiop poiuytrewq qwertyuiop poiuytrewq ipwp[qupriutw qiwirotpwu ie[oietou] eiu[woi[weotroiui wuoeuttp]pwu uoeueiootuw",
-        "Qwertyuiop OiuytrPewq qWertyuiop pozIuytrewq ooiriurY oi[q[itioruu Uopwiitwiuopwt iwpipoiwu oeEiwpwp Twpoituwoie Rwpui[witii]",
-        "xznm,v mnvbmzm znmzmk /m,bnxnm xxm,zb,mb mnvmmb. ncvbvzb. zncmnbznv, zcxvxvb. ncbvvbnncv. mmcnbn, nxbnxmb. znbcbnb, ncbbncz",
-        "mncbcv ncmnvnb nbcnbxvb, mnbmvn? m,mbnv nvbnc/vnn mcnmcbm, nmncb/ncbbx, ncbxmnb/mn ncbcvb. ncbnxcvb, nb/ncbn/nc ncbnvbmcb.",
-        "Nmn mvbnxb mcZcnmnv B,cnmx/ vmmc mvnbbb/mnv, mbnvbc? nxbcx/mvn computer keyboard computer keyboard computer keyboardn mxbvn, nnxmnvbz/",
-        "typing practice typing practice typing practice basic level lesson basic level lesson basic level lesson Mmcbnnbx cmxnNmxnb bnmc,? "
-      ],
-      level1: [
-        "The quick brown fox jumps over the lazy dog lnfue ncwinanir nanzoir nspwnczm Ejfncc iownlpzcn oawnsfV wjwnc ownipz sdjgwj: soorn? kshc9w",
-        "Learn to type with calm and steady hands. Practice Makes Perfect. Typing Every Day Improves Speed. Keep Your Eyes on the Screen.",
-        "Every day practice helps you improve your speed. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
-        "Your fingers should move smoothly and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves",
-        "A good rhythm makes typing easier and faster. Start with short lines and grow your confidence. Never Give Up. Keep Practicing. Practice",
-        "Start with short lines and grow your confidence. Keep practicing and enjoy the progress. Accuracy matters more than rushing through the text",
-        "Type with focus and keep your posture straight. The quick brown fox jumps over the lazy dog. lnfue ncwinanir nanzoir eep Practicing. Practice Makes Perfect.",
-        "Accuracy matters more than rushing through the text. Practice Makes Perfect. A good rhythm makes typing easier and faster. Start with short lines and",
-        "Simple words build strong typing habits. and correctly. Never Give Up. Keep Practicing. Practice Makes Perfect. Typing Every Day Improves Speed",
-        "Keep practicing and enjoy the progress. practicing and enjoy the progress. Practicing. Practice Makes Perfect. Typing Practicing. Practice Makes,"
-      ],
-      level2: [
-        "Bangladesh has a rich and glorious history. The country became independent in 1971 after a long struggle for freedom. Before independence,",
-        "Bangladesh was known as East Pakistan. The people of this land faced political, economic, and cultural discrimination for many years. In 1952, the Language Movement began to protect",
-        "the right to speak the Bengali language. Many brave students sacrificed their lives for their mother tongue.",
-        "Later, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the demand for independence became stronger. On 26 March 1971, the War of Liberation started.",
-        "Millions of people joined the struggle for freedom. After nine months of war and great sacrifice, Bangladesh achieved victory on 16 December 1971. This day is celebrated as Victory Day.",
-        "Today, Bangladesh is a proud and independent country. The spirit of the Liberation War inspires the nation to move forward with unity, courage, and hard work.",
-        "history of Bangladesh teaches us the value of freedom, sacrifice, and love for our country.",
-        "Bangladesh is a country with a proud and glorious history. The people of this land struggled for freedom, justice, and their own identity. In 1947, the region became",
-        "part of Pakistan and was known as East Pakistan. However, the people faced many political, economic, and cultural problems. The Bengali language movement of 1952",
-        "became an important chapter in history. Students and ordinary people demanded the right to speak Bangla, and many brave people sacrificed their lives for the language."
-      ],
-      level3: [
-        "Later, the struggle for rights and equality continued. In 1971, under the leadership of Bangabandhu Sheikh Mujibur Rahman, the people of Bangladesh started the",
-        "Liberation War. Millions of men and women participated in the movement for independence. The war lasted for nine months and many freedom fighters sacrificed their lives. Finally, on 16 December 1971,",
-        "Today, Bangladesh is known for its culture, language, and remarkable progress. The spirit of the Liberation War inspires the nation to move forward with courage and",
-        "unity. The history of Bangladesh teaches us the value of freedom, sacrifice, and national pride.",
-        "A computer is one of the most useful inventions in the modern world. It helps people perform different tasks quickly, accurately, and efficiently. Today, computers are used in schools, colleges, universities, offices,",
-        "hospitals, banks, businesses, and many other places. Students use computers to study, complete assignments, and learn new skills. Teachers use computers to prepare lessons, presentations, and educational",
-        "materials. Office workers use computers to create documents, calculate data, send emails, and manage important information. The more carefully you type, the stronger your habits become.",
-        "Computers have also created many opportunities for online work and freelancing. People can earn money from home by learning graphic design, video editing, web development, programming, digital marketing,",
-        "and other computer skills. A computer also provides access to the internet, where people can communicate with others, watch educational videos, attend online classes, and find useful information from around the world.",
-        "Learning computer skills is becoming more important every day. Regular practice improves typing speed, increases productivity, and builds confidence. Every student should learn basic computer operations such as."
-      ],
-      advanced: [
-        "Microsoft Word, Microsoft Excel, Microsoft PowerPoint, file management, internet browsing, and email communication. With dedication, patience, and continuous practice, anyone can become skilled in using a",
-        "computer. Computer knowledge is the key to success in education, employment, freelancing, and everyday life. Keep practicing every day, and your computer skills will continue to improve.",
-        "Computers have become an essential part of modern life. Almost every home, school, office, hospital, bank, and business organization uses computers to complete daily tasks. They help people save time, improve",
-        "accuracy, and increase productivity. A computer can process large amounts of information within a few seconds, making work easier and more efficient than ever before.",
-        "Students use computers to prepare assignments, attend online classes, conduct research, and improve their knowledge. Teachers use computers to create lesson plans, presentations, question papers, and educational",
-        "materials. Office workers use computers for writing reports, preparing spreadsheets, managing databases, sending emails, and organizing important documents. Hospitals use computers to keep patient records, schedule app",
-        "The internet has made computers even more powerful. People can communicate instantly through email, video calls, and social media. They can also access online libraries, educational websites, digital newspapers,",
-        "and learning platforms. Computers allow people to work remotely from anywhere in the world, creating new opportunities for freelancing and online businesses.",
-        "Learning computer skills is one of the best investments for the future. Skills such as typing, Microsoft Word, Microsoft Excel, Microsoft PowerPoint, graphic design, video editing, web development, programming, and",
-        "artificial intelligence are highly valuable in today's job market. Many successful freelancers and entrepreneurs started their careers by learning these skills step by step."
-      ]
-    };
-
-    const bengaliLessonsByLevel = {
-      basic: [
-        "ক ক ক ক ক ক",
-        "খ গ ঘ ক খ গ ঘ",
-        "ড প ট চ জ হ গ",
-        "কতদচজ হগড়টপ",
-        "যমবনস রলস জহগ",
-        "কম্পিউটার টাইপিং",
-        "বেসিক লেভেল অনুশীলন",
-        "কীবোর্ড অনুশীলন",
-        "সঠিক টাইপিং শিখি",
-        "প্রতিদিন অনুশীলন করি"
-      ],
-      level1: [
-        "কতদচজ হগড়টপ",
-        "কীবোর্ডে সঠিকভাবে চাপুন",
-        "প্রথম লেভেলের অনুশীলন",
-        "স্মুথলি টাইপ করুন",
-        "ধীরে ধীরে দক্ষতা বাড়ান",
-        "শুরুতে সহজ শব্দ ব্যবহার করুন",
-        "সতর্কতার সাথে টাইপ করুন",
-        "ভুল এড়িয়ে চলুন",
-        "অভ্যাস গড়ে তোলুন",
-        "পুরো মনোযোগ দিন"
-      ],
-      level2: [
-        "কম্পিউটার ব্যবহার করে কাজ করা সহজ",
-        "টাইপিং দক্ষতা বাড়ায় সাফল্য",
-        "নিয়মিত অনুশীলন দরকার",
-        "ধীর গতিতে শুরু করে দ্রুত হোন",
-        "দক্ষতা বাড়াতে মনোযোগ দিন",
-        "ভুল কমাতে সতর্ক থাকুন",
-        "সঠিক postura বজায় রাখুন",
-        "কী বোর্ডে স্বাভাবিক চালনা করুন",
-        "প্রতিদিন কিছু সময় দিন",
-        "টেকনিক শিখে এগিয়ে যান"
-      ],
-      level3: [
-        "টেকনোলজি শিক্ষায় কাজের ধরন বদলে দিয়েছে",
-        "দক্ষ টাইপিং আজকের সময়ের একটি গুরুত্বপূর্ণ skill",
-        "নিয়মিত অভ্যাসে দ্রুততা ও নির্ভুলতা বাড়ে",
-        "সঠিক পদ্ধতিতে টাইপ করলে কম ভুল হয়",
-        "দীর্ঘ পাঠ দিয়ে নিজের দক্ষতা যাচাই করুন",
-        "প্রতিদিনের অনুশীলন আপনাকে উন্নত করবে",
-        "সুশৃঙ্খলতা এবং মনোযোগ বাড়ায় ফলাফল",
-        "প্রফেশনাল লাইফে টাইপিং খুব দরকারি",
-        "চ্যালেঞ্জ গ্রহণ করে নিজের সীমা বাড়ান",
-        "অনুশীলন চালিয়ে যান, সফলতা আসবেই"
-      ],
-      advanced: [
-        "এডভান্সড টাইপিস্টরা গতি, নির্ভুলতা ও মনোযোগ একসাথে ব্যবহার করে জটিল পাঠও সহজে টাইপ করতে পারে",
-        "পেশাগত কাজের অনেক সময় দ্রুত ও নির্ভুল টাইপিং প্রয়োজন হয়",
-        "একটি disip্লিনড অনুশীলনের রুটিন আপনার ধৈর্য ও আত্মবিশ্বাস বাড়ায়",
-        "সঠিক কীবোর্ড অভ্যাস ভুল কমায় এবং উৎপাদনশীলতা বাড়ায়",
-        "অভিজ্ঞ টাইপিস্টরা দীর্ঘ পাঠেও স্থির তাল বজায় রাখতে পারে",
-        "রিপোর্ট, ইমেইল ও ডকুমেন্ট লেখা নিয়মিত প্রশিক্ষণে সহজ হয়ে যায়",
-        "এডভান্সড অনুশীলনে বিরাম চিহ্ন ও ফরম্যাটিংয়ের দিকেও সতর্ক থাকা লাগে",
-        "সেরা শিক্ষার্থীরা ভুলগুলো দেখেও সেগুলো ধৈর্য ধরে ঠিক করে",
-        "জটিল বাক্য আপনার সমন্বয় ও প্রতিক্রিয়া ক্ষমতা বাড়ায়",
-        "অব্যাহত উন্নতি সাধারণ টাইপিংকে পেশাদার সুবিধায় পরিণত করে"
-      ]
-    };
-
-    // কীবোর্ড বাটনগুলোতে বাংলা বর্ণমালা ম্যাপিং
-    const bengaliKeyLabelMap = {
-      "q": "ঙ", "w": "য", "e": "ড", "r": "প", "t": "ট", "y": "চ", "u": "জ", "i": "হ", "o": "গ", "p": "ড়",
-      "a": "ৃ", "s": "ু", "d": "ি", "f": "া", "g": "্", "h": "অ", "j": "ক", "k": "ত", "l": "দ",
-      "z": "্র", "x": "ও", "c": "এ", "v": "র", "b": "ন", "n": "স", "m": "ম"
-    };
-
-    // বিজয় ৫২ অনুযায়ী প্রতিটি বর্ণমালার ইংরেজি কীবোর্ড ম্যাপিং এবং গাইড লেবেল
-    const bijoyToEnglishGuide = {
-      "ক": { key: "j", label: "j" },
-      "খ": { key: "J", label: "Shift + j" },
-      "গ": { key: "o", label: "o" },
-      "ঘ": { key: "O", label: "Shift + o" },
-      "ঙ": { key: "q", label: "q" },
-      "চ": { key: "y", label: "y" },
-      "ছ": { key: "Y", label: "Shift + y" },
-      "জ": { key: "u", label: "u" },
-      "ঝ": { key: "U", label: "Shift + u" },
-      "ঞ": { key: "I", label: "Shift + i" },
-      "ট": { key: "t", label: "t" },
-      "ঠ": { key: "T", label: "Shift + t" },
-      "ড": { key: "e", label: "e" },
-      "ঢ": { key: "E", label: "Shift + e" },
-      "ত": { key: "k", label: "k" },
-      "থ": { key: "K", label: "Shift + k" },
-      "দ": { key: "l", label: "l" },
-      "ধ": { key: "L", label: "Shift + l" },
-      "ন": { key: "b", label: "b" },
-      "ণ": { key: "B", label: "Shift + b" },
-      "প": { key: "r", label: "r" },
-      "ফ": { key: "R", label: "Shift + r" },
-      "ব": { key: "h", label: "h" },
-      "ভ": { key: "H", label: "Shift + h" },
-      "ম": { key: "m", label: "m" },
-      "য": { key: "w", label: "w" },
-      "র": { key: "v", label: "v" },
-      "ল": { key: "V", label: "Shift + v" },
-      "শ": { key: "M", label: "Shift + m" },
-      "ষ": { key: "N", label: "Shift + n" },
-      "স": { key: "n", label: "n" },
-      "হ": { key: "i", label: "i" },
-      "ড়": { key: "p", label: "p" },
-      "ঢ়": { key: "P", label: "Shift + p" },
-      "য়": { key: "Y", label: "Shift + ;" },
-      
-      "অ": { key: "F", label: "Shift + f" },
-      "আ": { key: "H", label: "Shift + h" },
-      "ই": { key: "D", label: "Shift + d" },
-      "উ": { key: "S", label: "Shift + s" },
-      "ঋ": { key: "A", label: "Shift + a" },
-      "এ": { key: "c", label: "c" },
-      "ঐ": { key: "C", label: "Shift + c" },
-      "ও": { key: "x", label: "x" },
-      "ঔ": { key: "X", label: "Shift + x" },
-      
-      "া": { key: "f", label: "f" },
-      "ি": { key: "d", label: "d" },
-      "ী": { key: "D", label: "Shift + d" },
-      "ু": { key: "s", label: "s" },
-      "ূ": { key: "S", label: "Shift + s" },
-      "ে": { key: "c", label: "c" },
-      "ৈ": { key: "C", label: "Shift + c" },
-      "ো": { key: "x", label: "x" },
-      "ৌ": { key: "X", label: "Shift + x" },
-      "ৃ": { key: "a", label: "a" },
-      "্": { key: "g", label: "g" }, 
-      "ং": { key: "Q", label: "Shift + q" },
-      "ঃ": { key: "S", label: "Shift + s" },
-      "ঁ": { key: "^", label: "Shift + 6" },
-      "্য": { key: "W", label: "Shift + w" },
-      "্র": { key: "z", label: "z" },
-      "র্": { key: "A", label: "Shift + a" },
-      "।": { key: "G", label: "Shift + g" }
-    };
-
-    let currentLanguage = 'en'; 
-    let targetText = "";
-    let userInputs = [];
-    let currentIndex = 0;
-    let startTime = null;
-    let timerInterval = null;
-    let totalSeconds = 0;
-    let isStarted = false;
-    let totalKeystrokes = 0;
-    let totalErrors = 0;
-    let hasErrorAtCurrent = false;
-    let completedLessonsInSession = [];
-    let audioCtx = null;
-
-    function initAudio() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-    }
-
-    function playKeySound(isCorrect) {
-      try {
-        initAudio();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        if (isCorrect) {
-          osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        } else {
-          osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+</body>
+</html>`;
+            const blob = new Blob([previewHtml], { type: 'text/html;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'typing-master-pro-preview.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(link.href);
         }
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-      } catch (e) {}
-    }
 
-    function startTrainerSession() { 
-      document.getElementById("trainerWelcomeScreen").style.display = "none";
-      const panel = document.getElementById("typingPanel");
-      if (panel) panel.focus();
-    }
-
-    function setLanguage(lang) {
-      currentLanguage = lang;
-      document.getElementById("langEnBtn").classList.toggle("active", lang === 'en');
-      document.getElementById("langBnBtn").classList.toggle("active", lang === 'bn');
-      populateLessonsDropdown();
-      updateKeyboardLayoutDisplay();
-      loadLesson();
-      const panel = document.getElementById("typingPanel");
-      if (panel) panel.focus();
-    }
-
-    function populateLessonsDropdown() {
-      const lessonSelect = document.getElementById("lessonSelect");
-      const levelSelect = document.getElementById("levelSelect");
-      const levelKey = levelSelect.value || "basic";
-      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
-      lessonSelect.innerHTML = "";
-      const grp = document.createElement("optgroup");
-      grp.label = currentLanguage === 'en'
-        ? `${levelSelect.options[levelSelect.selectedIndex].text} Lessons`
-        : `${levelSelect.options[levelSelect.selectedIndex].text} লেসন`;
-      lessons.forEach((_lesson, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i + 1);
-        grp.appendChild(opt);
-      });
-      lessonSelect.appendChild(grp);
-      lessonSelect.value = 0;
-    }
-
-    function updateKeyboardLayoutDisplay() {
-      document.querySelectorAll(".key").forEach(keyEl => {
-        const keyChar = keyEl.getAttribute("data-key");
-        if (keyChar && keyChar.length === 1) {
-          if (currentLanguage === 'bn') {
-            const bnChar = bengaliKeyLabelMap[keyChar.toLowerCase()];
-            keyEl.innerHTML = bnChar ? `<span style="font-size: 14px;">${keyChar.toUpperCase()}</span><span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px;">${bnChar}</span>` : keyChar.toUpperCase();
-          } else keyEl.innerHTML = keyChar.toUpperCase();
+        // ---------- Firebase Helpers ----------
+        function syncUsersFromFirebase() {
+            try {
+                const dbRef = firebase.database().ref('users');
+                dbRef.on('value', snapshot => {
+                    const data = snapshot.val();
+                    if (data) {
+                        allUsers = Object.keys(data).map(key => ({
+                            id: key,
+                            monthlyPoints: (data[key].monthlyPoints || 0),
+                            ...data[key]
+                        }));
+                        console.log("📊 Users loaded:", allUsers.length);
+                        renderLeaderboard(allUsers);
+                        updateBannerWithRotation();
+                    } else {
+                        allUsers = [];
+                        renderLeaderboard([]);
+                    }
+                });
+            } catch (error) {
+                console.error("❌ Firebase sync error:", error);
+            }
         }
-      });
-    }
 
-    function loadLesson() {
-      const levelSelect = document.getElementById("levelSelect");
-      const lessonSelect = document.getElementById("lessonSelect");
-      const levelKey = levelSelect.value || "basic";
-      const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
-      targetText = lessons[lessonSelect.value] || lessons[0];
-      resetExercise();
-    }
-
-    function resetExercise() {
-      if (timerInterval) clearInterval(timerInterval);
-      currentIndex = 0; isStarted = false; totalSeconds = 0; totalKeystrokes = 0; totalErrors = 0; hasErrorAtCurrent = false;
-      document.getElementById("progressVal").innerText = `0 / ${targetText.length} (0%)`;
-      document.getElementById("wpmVal").innerText = "00";
-      document.getElementById("accuracyVal").innerText = "100%";
-      document.getElementById("timeVal").innerText = "00:00";
-      renderText(); highlightKeyboardKey(); updateFeedbackPrompt();
-      const feedbackEl = document.getElementById("statusFeedback");
-      feedbackEl.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
-      const panel = document.getElementById("typingPanel");
-      if (panel) panel.focus();
-    }
-
-    function renderText() {
-      const container = document.getElementById("textDisplay");
-      container.innerHTML = "";
-      targetText.split("").forEach((char, i) => {
-        const span = document.createElement("span");
-        span.innerText = char;
-        if (i < currentIndex) span.className = "char-correct";
-        else if (i === currentIndex) span.className = hasErrorAtCurrent ? "char-current char-wrong" : "char-current";
-        container.appendChild(span);
-      });
-    }
-
-    function highlightKeyboardKey() {
-      document.querySelectorAll(".key").forEach(k => k.classList.remove("target-highlight"));
-      if (currentIndex >= targetText.length) return;
-      const targetChar = targetText[currentIndex];
-      let keyId = "";
-      if (currentLanguage === 'en') keyId = targetChar.toLowerCase() === " " ? " " : targetChar.toLowerCase();
-      else {
-        const guide = bijoyToEnglishGuide[targetChar];
-        if (guide) keyId = guide.key.toLowerCase();
-      }
-      // Map some special characters to safe element ids
-      let lookupKey = keyId;
-      if (keyId === "\\") lookupKey = 'backslash';
-      const el = document.getElementById(`key-${lookupKey}`);
-      if (el) el.classList.add("target-highlight");
-      
-      // If the target requires Shift (uppercase letters or shifted symbols), highlight Shift keys too
-      if (currentLanguage === 'en' && currentIndex < targetText.length) {
-        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
-        const needsUpper = /[A-Z]/.test(targetChar);
-        const needsShiftSymbol = shiftChars.includes(targetChar);
-        if (needsUpper || needsShiftSymbol) {
-          const leftShift = document.getElementById('key-shift');
-          const rightShift = document.getElementById('key-shiftright');
-          if (leftShift) leftShift.classList.add('target-highlight');
-          if (rightShift) rightShift.classList.add('target-highlight');
+        function saveUserToFirebase(user) {
+            try {
+                const dbRef = firebase.database().ref('users/' + user.id);
+                return dbRef.set({
+                    name: user.name || user.id,
+                    password: user.password || '',
+                    points: user.points || 0,
+                    monthlyPoints: user.monthlyPoints || 0,
+                    mistakes: user.mistakes || 0,
+                    bestWpm: user.bestWpm || 0,
+                    pic: user.pic || '',
+                    bio: user.bio || ''
+                }).then(() => {
+                    console.log("✅ User saved:", user.id);
+                    return true;
+                }).catch(err => {
+                    console.error("❌ Save error:", err);
+                    return false;
+                });
+            } catch (error) {
+                console.error("❌ Save function error:", error);
+                return false;
+            }
         }
-      }
-    }
 
-    function updateFeedbackPrompt() {
-      const feedbackEl = document.getElementById("statusFeedback");
-      if (currentIndex >= targetText.length) return;
-      const targetChar = targetText[currentIndex];
-      if (currentLanguage === 'bn') {
-        const guide = bijoyToEnglishGuide[targetChar];
-        feedbackEl.innerHTML = guide ? `👉 টাইপ করুন: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong> ➔ ইংরেজি কীবোর্ডের [ <strong style="color: #facc15;">${guide.label.toUpperCase()}</strong> ] চাপুন।` : "";
-      } else feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
-      
-      // For English mode, show Shift hint when uppercase or shifted symbols are required
-      if (currentLanguage === 'en') {
-        const shiftChars = '~!@#$%^&*()_+{}|:\\"<>?';
-        const needsUpper = /[A-Z]/.test(targetChar);
-        const needsShiftSymbol = shiftChars.includes(targetChar);
-        if (needsUpper || needsShiftSymbol) {
-          const displayChar = targetChar.toUpperCase();
-          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">Shift + "${displayChar}"</strong>`;
-        } else {
-          feedbackEl.innerHTML = `👉 Press: <strong style="color: var(--success); font-size: 18px;">"${targetChar}"</strong>`;
+        function updateUserInFirebase(user) {
+            try {
+                const dbRef = firebase.database().ref('users/' + user.id);
+                return dbRef.update({
+                    name: user.name,
+                    points: user.points,
+                    monthlyPoints: user.monthlyPoints || 0,
+                    mistakes: user.mistakes,
+                    bestWpm: user.bestWpm,
+                    pic: user.pic,
+                    bio: user.bio
+                }).then(() => {
+                    console.log("✅ User updated:", user.id);
+                    return true;
+                }).catch(err => {
+                    console.error("❌ Update error:", err);
+                    return false;
+                });
+            } catch (error) {
+                console.error("❌ Update function error:", error);
+                return false;
+            }
         }
-      }
-    }
 
-    function triggerErrorEffect() {
-        const panel = document.getElementById('typingPanel');
-        const feedback = document.getElementById('statusFeedback');
-        
-        // Shake Panel
-        panel.classList.add('panel-shake');
-        
-        // Highlight Feedback box red temporarily
-        feedback.style.backgroundColor = "rgba(239, 68, 68, 0.4)";
-        feedback.innerHTML = `<span style="color: #fff; font-size: 18px;">❌ ভুল হয়েছে! সঠিক কী (Key) টি চাপুন।</span>`;
-        
-        setTimeout(() => {
-            panel.classList.remove('panel-shake');
-            feedback.style.backgroundColor = "rgba(30, 41, 59, 0.5)";
-            updateFeedbackPrompt();
-        }, 400);
-    }
+        // ---------- Init ----------
+        let adminLessons = [];
 
-    function startTimer() {
-      timerInterval = setInterval(() => {
-        totalSeconds++;
-        const mins = Math.floor(totalSeconds / 60); const secs = totalSeconds % 60;
-        document.getElementById("timeVal").innerText = `${mins < 10 ? "0":""}${mins}:${secs < 10 ? "0":""}${secs}`;
-        const wpm = Math.round((currentIndex / 5) / (totalSeconds / 60)) || 0;
-        document.getElementById("wpmVal").innerText = wpm < 10 ? "0" + wpm : wpm;
-      }, 1000);
-    }
-
-    document.addEventListener("keydown", function(event) {
-      // Ignore modifier-only combos
-      const activeElement = document.activeElement;
-      if (activeElement && (activeElement.tagName === 'SELECT' || activeElement.tagName === 'OPTION' || activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
-        return;
-      }
-
-      if (event.ctrlKey || event.altKey) return;
-
-      // Prevent default actions for navigation and editing keys so the page doesn't move focus/scroll
-      const navKeys = ["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","PageUp","PageDown","Home","End","Tab","Backspace"];
-      if (navKeys.includes(event.key)) { event.preventDefault(); return; }
-
-      // Ignore keys that are purely modifiers
-      if (["Shift", "CapsLock", "Control"].includes(event.key)) return;
-
-      // Only process printable single-character keys and space
-      const isPrintable = (event.key.length === 1) || event.key === " ";
-      if (!isPrintable) return;
-
-      // Prevent space from scrolling the page
-      if (event.key === " ") event.preventDefault();
-
-      if (!isStarted) { isStarted = true; startTimer(); }
-
-      const typedChar = event.key;
-      const targetChar = targetText[currentIndex];
-      totalKeystrokes++;
-
-      let isMatch = (typedChar === targetChar);
-      if (!isMatch && currentLanguage === 'bn' && bijoyToEnglishGuide[targetChar]) {
-        if (bijoyToEnglishGuide[targetChar].key === typedChar) isMatch = true;
-      }
-
-      if (isMatch) {
-        playKeySound(true);
-        currentIndex++;
-        hasErrorAtCurrent = false;
-      } else {
-        playKeySound(false);
-        hasErrorAtCurrent = true;
-        totalErrors++;
-        triggerErrorEffect();
-      }
-
-      renderText();
-      highlightKeyboardKey();
-      updateFeedbackPrompt();
-
-      document.getElementById("accuracyVal").innerText = Math.round(((totalKeystrokes - totalErrors) / totalKeystrokes) * 100) + "%";
-      document.getElementById("progressVal").innerText = `${currentIndex} / ${targetText.length} (${Math.round((currentIndex / targetText.length) * 100)}%)`;
-
-      if (currentIndex === targetText.length) {
-        clearInterval(timerInterval);
-        document.getElementById("modalWpm").innerText = document.getElementById("wpmVal").innerText;
-        document.getElementById("modalAccuracy").innerText = document.getElementById("accuracyVal").innerText;
-        document.getElementById("modalTime").innerText = document.getElementById("timeVal").innerText;
-        document.getElementById("modalErrors").innerText = totalErrors;
-        document.getElementById("summaryModal").style.display = "flex";
-      }
-    });
-
-    function openCustomModal() { document.getElementById("customTextModal").style.display = "flex"; }
-    function closeCustomModal() { document.getElementById("customTextModal").style.display = "none"; }
-    function setCustomText() {
-      const txt = document.getElementById("customTextArea").value.trim();
-      if (txt) { targetText = txt; resetExercise(); closeCustomModal(); }
-    }
-    
-    function loadNextLesson() {
-        const levelSelect = document.getElementById("levelSelect");
-        const lessonSelect = document.getElementById("lessonSelect");
-        const levelKey = levelSelect.value || "basic";
-        const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey];
-        const nextLessonIndex = Number(lessonSelect.value) + 1;
-
-        if (nextLessonIndex < lessons.length) {
-            lessonSelect.value = nextLessonIndex;
-            loadLesson();
-            document.getElementById("summaryModal").style.display = "none";
-        } else {
-            const levelOrder = ["basic", "level1", "level2", "level3", "advanced"];
-            const currentLevelIndex = levelOrder.indexOf(levelKey);
-            const nextLevelKey = levelOrder[(currentLevelIndex + 1) % levelOrder.length];
-            levelSelect.value = nextLevelKey;
-            populateLessonsDropdown();
-            lessonSelect.value = 0;
-            loadLesson();
-            document.getElementById("summaryModal").style.display = "none";
+        function loadTypingLessons() {
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                adminLessons = Object.values(data).map(item => item.text).filter(Boolean);
+            }).catch(() => {
+                adminLessons = [];
+            });
         }
-    }
 
-    function closeSummary() { document.getElementById("summaryModal").style.display = "none"; resetExercise(); }
+        function init() {
+            console.log("🚀 App initializing...");
+            setLanguage(currentLanguage);
+            // If the user hasn't chosen a typing language, try to auto-detect Bengali from browser
+            if (!localStorage.getItem('typingLanguage')) {
+                try {
+                    const navLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+                    if (navLang && navLang.startsWith('bn')) {
+                        currentTypingLanguage = 'bn';
+                    }
+                } catch (e) {}
+            }
+            switchTypingLanguage(currentTypingLanguage);
+            loadLeaderboardResetInfo().then(() => {
+                syncUsersFromFirebase();
+            });
+            loadTypingLessons();
 
-    window.onload = () => {
-      // Simulate loader progress and then show trainer screen
-      try {
-        document.getElementById("loaderProgress").style.width = "0%";
-        document.getElementById("loadingScreen").style.display = "flex";
-        document.getElementById("trainerWelcomeScreen").style.display = "none";
+            // Load logged in user from localStorage
+            const stored = localStorage.getItem('currentUser');
+            if (stored) {
+                try {
+                    loggedInUser = JSON.parse(stored);
+                    console.log("👤 Logged in from storage:", loggedInUser.id);
+                    updateNav();
+                    closeAuth();
+                } catch (e) {
+                    loggedInUser = null;
+                }
+            }
 
-        let progress = 0;
-        const iv = setInterval(() => {
-          progress += 10;
-          document.getElementById("loaderProgress").style.width = progress + "%";
-          if (progress >= 100) {
-            clearInterval(iv);
-            setTimeout(() => {
-              document.getElementById("loadingScreen").style.display = "none";
-              document.getElementById("trainerWelcomeScreen").style.display = "flex";
-              // Initialize language and UI after loader
-              setTimeout(() => setLanguage('en'), 50);
-            }, 180);
-          }
-        }, 80);
-      } catch (e) {}
-    };
-  </script>
+            if (loggedInUser) {
+                // Verify user still exists in Firebase, but keep UI logged in while checking.
+                try {
+                    firebase.database().ref('users/' + loggedInUser.id).once('value')
+                        .then(snapshot => {
+                            const fbUser = snapshot.val();
+                            if (fbUser) {
+                                loggedInUser = { id: loggedInUser.id, ...fbUser };
+                                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            } else {
+                                console.warn('⚠️ Stored user not found in Firebase, clearing local session');
+                                localStorage.removeItem('currentUser');
+                                loggedInUser = null;
+                            }
+                            updateNav();
+                            updateBannerWithRotation();
+                            startEliteRotation();
+                            resetTyping();
+                            listenForHelpReplies();
+                        }).catch(err => {
+                            console.error('❌ Firebase verification error:', err);
+                            updateNav();
+                            updateBannerWithRotation();
+                            startEliteRotation();
+                            resetTyping();
+                            listenForHelpReplies();
+                        });
+                } catch (e) {
+                    updateNav();
+                    updateBannerWithRotation();
+                    startEliteRotation();
+                    resetTyping();
+                    listenForHelpReplies();
+                }
+            } else {
+                updateNav();
+                updateBannerWithRotation();
+                startEliteRotation();
+                resetTyping();
+                // If no logged in user, ensure any previous help listener is not active
+            }
+
+            // Typing input listener
+            document.getElementById('typing-input').addEventListener('input', function() {
+                if (!loggedInUser) {
+                    this.value = "";
+                    openAuth();
+                    return;
+                }
+                if (isTimeOver) {
+                    this.value = this.value.substring(0, 0);
+                    return;
+                }
+                if (!isStarted) {
+                    isStarted = true;
+                    startTime = new Date();
+                    startTimer();
+                }
+                const chars = document.querySelectorAll('#display-box span');
+                const typed = this.value.split('');
+                sessionMistakes = 0;
+                correctChars = 0;
+                chars.forEach((s, i) => {
+                    if (typed[i] == null) s.className = "char";
+                    else if (typed[i] === s.innerText) {
+                        s.className = "char correct";
+                        correctChars++;
+                    } else {
+                        s.className = "char incorrect";
+                        sessionMistakes++;
+                    }
+                    if (i === typed.length) s.classList.add('current');
+                });
+                let time = (new Date() - startTime) / 60000;
+                let wpm = Math.round((correctChars / 5) / time) || 0;
+                document.getElementById('live-chars').innerText = typed.length;
+                document.getElementById('live-mistakes').innerText = sessionMistakes;
+                document.getElementById('live-wpm').innerText = wpm;
+                try { updateWpmBanner(wpm); } catch (e) {}
+                chars[typed.length]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            });
+        }
+
+        function getTargetIncrement(level) {
+            return level <= 3 ? 200 : (level - 2) * 200;
+        }
+
+        function pointsForLevel(level) {
+            if (level <= 1) return 0;
+            let total = 0;
+            for (let lvl = 2; lvl <= level; lvl += 1) {
+                total += getTargetIncrement(lvl);
+            }
+            return total;
+        }
+
+        function calcLvl(pts) {
+            let level = 1;
+            while (pts >= pointsForLevel(level + 1)) {
+                level += 1;
+            }
+            return level;
+        }
+
+        function calcLvlProgress(points) {
+            const level = calcLvl(points);
+            const start = pointsForLevel(level);
+            const end = pointsForLevel(level + 1);
+            const progress = end > start ? ((points - start) / (end - start)) * 100 : 100;
+            return Math.min(Math.max(Math.round(progress), 0), 100);
+        }
+
+        function getLevelProjection(points, extra) {
+            return calcLvl(points + extra);
+        }
+
+        function getNextTargetText(points) {
+            const currentLevel = calcLvl(points);
+            const nextLevel = currentLevel + 1;
+            const nextThreshold = pointsForLevel(nextLevel);
+            const remaining = Math.max(nextThreshold - points, 0);
+            if (remaining > 0) {
+                return `Next target: ${nextThreshold} pts (${remaining} more to LVL ${nextLevel})`;
+            }
+            return `Already reached LVL ${nextLevel}`;
+        }
+
+        function showInBanner(user, rank) {
+            if (!user) return;
+            const level = calcLvl(user.points || 0);
+            document.getElementById('dash-name').innerText = user.name || user.id;
+            document.getElementById('dash-id').innerText = "ID: " + (user.id || '').toUpperCase();
+            document.getElementById('dash-pts').innerText = user.points || 0;
+            document.getElementById('dash-mistakes').innerText = user.mistakes || 0;
+            document.getElementById('dash-pic').src = user.pic || DEFAULT_AVATAR;
+            document.getElementById('dash-pic').style.boxShadow = getLevelGlow(level);
+            document.getElementById('dash-pic').style.borderColor = getLevelFrameColor(level);
+            document.getElementById('dash-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : "No bio added.";
+            document.getElementById('dash-next-target').innerText = getNextTargetText(user.points || 0);
+            document.getElementById('dash-rank-tag').innerText = "#" + (rank || '--');
+            document.getElementById('dash-lvl-tag').innerText = "LVL " + level;
+            document.getElementById('banner-crown').style.display = (rank === 1) ? 'block' : 'none';
+        }
+
+        function updateBannerWithRotation() {
+            const sorted = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            }).slice(0, 10);
+            if (sorted.length > 0) {
+                const idx = rotateIdx % sorted.length;
+                showInBanner(sorted[idx], idx + 1);
+            }
+        }
+
+        function startEliteRotation() {
+            if (rotationTimer) clearInterval(rotationTimer);
+            document.getElementById('elite-banner').classList.remove('viewing-mode');
+            const update = () => {
+                const sorted = [...allUsers].sort((a, b) => {
+                    const monthlyA = a.monthlyPoints || 0;
+                    const monthlyB = b.monthlyPoints || 0;
+                    if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                    return (b.points || 0) - (a.points || 0);
+                }).slice(0, 10);
+                if (sorted.length > 0) {
+                    showInBanner(sorted[rotateIdx], rotateIdx + 1);
+                    rotateIdx = (rotateIdx + 1) % sorted.length;
+                }
+            };
+            update();
+            rotationTimer = setInterval(update, 5000);
+        }
+
+        function getUserRank(userId) {
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const normId = (userId || '').toString().toLowerCase();
+            const idx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
+            return idx === -1 ? null : idx + 1;
+        }
+
+        function getLevelGlow(level) {
+            const intensity = Math.min(level * 0.12, 1);
+            const color = level >= 8 ? '255, 183, 0' : level >= 5 ? '34, 197, 94' : '59, 130, 246';
+            const blur = 14 + level * 4;
+            const opacity = 0.18 + intensity * 0.44;
+            return `0 0 ${blur}px rgba(${color}, ${opacity})`;
+        }
+
+        function getLevelFrameColor(level) {
+            return level >= 8 ? 'rgba(252, 211, 77, 0.85)' : level >= 5 ? 'rgba(34, 197, 94, 0.85)' : 'rgba(96, 165, 250, 0.95)';
+        }
+
+        function openHelpLine() {
+            // Prefill fields from logged in user if available
+            try {
+                if (loggedInUser) {
+                    const n = document.getElementById('help-name');
+                    const uid = document.getElementById('help-userid');
+                    const mob = document.getElementById('help-mobile');
+                    if (n) n.value = loggedInUser.name || '';
+                    if (uid) uid.value = loggedInUser.id || '';
+                    if (mob) mob.value = loggedInUser.mobile || '';
+                }
+            } catch (e) { /* ignore */ }
+            document.getElementById('help-modal').classList.remove('hidden');
+        }
+
+        function closeHelpLine() {
+            document.getElementById('help-modal').classList.add('hidden');
+        }
+
+        function sendHelpMessage() {
+            const statusEl = document.getElementById('help-send-status');
+            if (!loggedInUser) {
+                openAuth();
+                return;
+            }
+            const text = document.getElementById('help-message-text').value.trim();
+            if (!text) {
+                statusEl.innerText = currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message';
+                return;
+            }
+            statusEl.innerText = currentLanguage === 'bn' ? 'পাঠানো হচ্ছে...' : 'Sending...';
+            try {
+                const safeUserId = String(loggedInUser.id).replace(/\./g, '_');
+                const ticketsRef = firebase.database().ref('help_tickets/' + safeUserId);
+                const ticketRef = ticketsRef.push();
+                const payload = {
+                    senderId: loggedInUser.id,
+                    senderName: loggedInUser.name || loggedInUser.id,
+                    text,
+                    timestamp: Date.now(),
+                    status: 'open'
+                };
+
+                ticketRef.set(payload).then(() => {
+                    console.log('Help ticket written:', ticketRef.key, payload);
+                    // Also write a simple index/notification for admins so they can list new tickets easily
+                    const adminIndexRef = firebase.database().ref('admin_help_index/' + ticketRef.key);
+                    return adminIndexRef.set({ userId: loggedInUser.id, ticketId: ticketRef.key, createdAt: Date.now(), status: 'open' });
+                }).then(() => {
+                    statusEl.innerText = currentLanguage === 'bn' ? 'আপনার মেসেজ পাঠানো হয়েছে।' : 'Your message was sent.';
+                    document.getElementById('help-message-text').value = '';
+                    setTimeout(() => { statusEl.innerText = ''; closeHelpLine(); }, 1400);
+                }).catch(err => {
+                    console.error('Help send error (write):', err);
+                    statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
+                });
+            } catch (err) {
+                console.error('Help send unexpected error', err);
+                statusEl.innerText = currentLanguage === 'bn' ? 'পাঠাতে সমস্যা হয়েছে।' : 'Failed to send message.';
+            }
+        }
+
+        function sendWhatsAppMessage() {
+            const name = (document.getElementById('help-name') && document.getElementById('help-name').value.trim()) || (loggedInUser && loggedInUser.name) || '';
+            const userId = (document.getElementById('help-userid') && document.getElementById('help-userid').value.trim()) || (loggedInUser && loggedInUser.id) || '';
+            const mobile = (document.getElementById('help-mobile') && document.getElementById('help-mobile').value.trim()) || '';
+            const msg = (document.getElementById('help-message-text') && document.getElementById('help-message-text').value.trim()) || '';
+            if (!mobile) return alert('Enter your mobile number');
+            if (!msg) return alert(currentLanguage === 'bn' ? 'মেসেজ লিখুন' : 'Please write a message');
+
+            const full = `Help request from ${name || userId}\nID: ${userId}\nMobile: ${mobile}\nMessage: ${msg}`;
+            const encoded = encodeURIComponent(full);
+            // ADMIN_WHATSAPP_NUMBER should be international format without +
+            const target = ADMIN_WHATSAPP_NUMBER || '';
+            if (!target) return alert('Admin WhatsApp number not configured');
+            const url = `https://wa.me/${target}?text=${encoded}`;
+            window.open(url, '_blank');
+        }
+
+        // Listen for admin replies for the logged-in user and render them in the help modal
+        function safeUserId(id) {
+            if (!id) return '';
+            return String(id).replace(/\./g, '_');
+        }
+
+        function listenForHelpReplies() {
+            if (!loggedInUser || !loggedInUser.id) return;
+            const uid = safeUserId(loggedInUser.id);
+            try {
+                const ref = firebase.database().ref('help_tickets/' + uid);
+                ref.on('value', snap => {
+                    const data = snap.val() || {};
+                    const container = document.getElementById('help-replies');
+                    const parts = [];
+                    let hasAnyReplies = false;
+                    Object.keys(data).forEach(ticketId => {
+                        const t = data[ticketId] || {};
+                        const ticketText = t.text || t.senderText || '';
+                        const created = t.timestamp || t.createdAt || 0;
+                        const replies = t.replies || {};
+                        const repliesList = Object.keys(replies).map(k => replies[k]);
+                        if (repliesList.length) hasAnyReplies = true;
+                        const replyHtml = repliesList.map(r => `<div class="p-2 rounded-md bg-slate-800/60 mb-2"><strong>${escapeHtml(r.responderName||'Admin')}:</strong> ${escapeHtml(r.text)} <div class="text-xs text-slate-400">${new Date(r.ts||r.timestamp||0).toLocaleString()}</div></div>`).join('');
+                        parts.push(`<div class="p-3 rounded-md border border-slate-700 mb-2"><div class="text-slate-300 mb-2">${escapeHtml(ticketText)}</div>${replyHtml || '<div class="text-xs text-slate-400 mt-2">No replies yet.</div>'}<div class="text-xs text-slate-400 mt-2">${created ? new Date(created).toLocaleString() : ''}</div></div>`);
+                    });
+                    if (container) container.innerHTML = parts.join('') || '<div class="text-xs text-slate-400">No tickets yet.</div>';
+                    const statusEl = document.getElementById('help-send-status');
+                    if (statusEl) {
+                        if (hasAnyReplies) statusEl.innerText = currentLanguage === 'bn' ? 'আপনার জন্য অ্যাডমিনের উত্তর আছে।' : 'Admin has replied to your ticket(s).';
+                        else statusEl.innerText = '';
+                    }
+                });
+            } catch (err) {
+                console.error('listenForHelpReplies error', err);
+            }
+        }
+
+        // PWA install prompt handling
+        let deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const btn = document.getElementById('install-btn');
+            if (btn) btn.classList.remove('hidden');
+        });
+
+        function triggerInstallPrompt() {
+            // If there's a saved install prompt, show it
+            if (deferredInstallPrompt) {
+                deferredInstallPrompt.prompt();
+                deferredInstallPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredInstallPrompt = null;
+                    const btn = document.getElementById('install-btn');
+                    if (btn) btn.classList.add('hidden');
+                });
+            } else {
+                // For iOS or unsupported browsers, show manual instructions
+                const isiOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+                if (isiOS) {
+                    alert('To add to Home Screen on iOS: tap Share → Add to Home Screen.');
+                } else {
+                    alert('Add to Home Screen is not supported by your browser. Use browser menu → Install or Add to Home Screen.');
+                }
+            }
+        }
+
+        // Register service worker to improve installability (must be served over HTTPS or localhost)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js').then(function(reg) {
+                    console.log('Service worker registered.', reg);
+                }).catch(function(err) {
+                    console.warn('Service worker registration failed:', err);
+                });
+            });
+        }
+
+        function openProfilePreview(userId) {
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                const pointsA = a.points || 0;
+                const pointsB = b.points || 0;
+                if (pointsB !== pointsA) return pointsB - pointsA;
+                // stable tiebreaker by id
+                return (a.id || '').toString().localeCompare((b.id || '').toString());
+            });
+            const normId = (userId || '').toString().toLowerCase();
+            const userIdx = sortedGlobal.findIndex(u => (u.id || '').toString().toLowerCase() === normId);
+            if (userIdx === -1) return;
+            const user = sortedGlobal[userIdx];
+            showInBanner(user, userIdx + 1);
+            const modal = document.getElementById('profile-preview-modal');
+            if (!modal) return;
+            modal.querySelector('#preview-pic').src = user.pic || DEFAULT_AVATAR;
+            const previewPic = modal.querySelector('#preview-pic');
+            const previewLevel = calcLvl(user.points || 0);
+            previewPic.style.boxShadow = getLevelGlow(previewLevel);
+            previewPic.style.borderColor = getLevelFrameColor(previewLevel);
+            modal.querySelector('#preview-name').innerText = user.name || user.id;
+            modal.querySelector('#preview-id').innerText = "ID: " + (user.id || '').toUpperCase();
+            modal.querySelector('#preview-rank').innerText = "#" + (userIdx + 1);
+            modal.querySelector('#preview-level').innerText = "LVL " + previewLevel;
+            modal.querySelector('#preview-points').innerText = user.points || 0;
+            modal.querySelector('#preview-wpm').innerText = user.bestWpm || 0;
+            modal.querySelector('#preview-mistakes').innerText = user.mistakes || 0;
+            modal.querySelector('#preview-bio').innerText = user.bio && user.bio.trim() !== "" ? `"${user.bio}"` : (currentLanguage === 'bn' ? '"কোনো বায়ো নেই."' : '"No bio added."');
+            const currentPoints = user.points || 0;
+            const currentLevel = calcLvl(currentPoints);
+            const nextLevel = currentLevel + 1;
+            const nextThreshold = pointsForLevel(nextLevel);
+            const pointsToNext = Math.max(nextThreshold - currentPoints, 0);
+            modal.querySelector('#preview-level-bar').style.width = calcLvlProgress(currentPoints) + '%';
+            modal.querySelector('#preview-next-level').innerText = currentLanguage === 'bn'
+                ? `পরবর্তী লেভেলে যেতে ${pointsToNext} পয়েন্ট বাকি।`
+                : `Next level in ${pointsToNext} points.`;
+            modal.querySelector('#preview-future-level').innerText = currentLanguage === 'bn'
+                ? `পরবর্তী টার্গেট: ${nextThreshold} পয়েন্টে LVL ${nextLevel}.`
+                : `Next target: ${nextThreshold} points for LVL ${nextLevel}.`;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+
+        function openLessonManager() {
+            const modal = document.getElementById('lesson-manager-modal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+            loadLessons();
+        }
+
+        function closeLessonManager() {
+            const modal = document.getElementById('lesson-manager-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        function loadLessons() {
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const lessons = Object.keys(data).map(key => ({ id: key, text: data[key].text || '' }));
+                renderLessonList(lessons);
+            });
+        }
+
+        function renderLessonList(lessons) {
+            const lessonList = document.getElementById('lesson-list');
+            const lessonCount = document.getElementById('lesson-count');
+            if (!lessonList || !lessonCount) return;
+            lessonCount.innerText = `${lessons.length} / 15 lessons`;
+            lessonList.innerHTML = lessons.map(lesson => `
+                <div class="p-4 rounded-3xl bg-slate-900 border border-white/10 text-slate-100">
+                    <p class="text-sm leading-6">${lesson.text}</p>
+                    <button onclick="deleteLesson('${lesson.id}')" class="mt-3 text-[10px] font-bold uppercase text-red-400">Delete</button>
+                </div>
+            `).join('') || '<p class="text-slate-400 text-sm">No lessons yet.</p>';
+        }
+
+        function addLesson() {
+            const textEl = document.getElementById('new-lesson-text');
+            const lessonText = textEl.value.trim();
+            if (!lessonText) return alert('Enter lesson text');
+            firebase.database().ref('lessons').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const count = Object.keys(data).length;
+                if (count >= 15) return alert('Lesson limit reached');
+                firebase.database().ref('lessons').push({ text: lessonText }).then(() => {
+                    textEl.value = '';
+                    loadLessons();
+                });
+            });
+        }
+
+        function deleteLesson(lessonId) {
+            if (!confirm('Remove this lesson?')) return;
+            firebase.database().ref('lessons/' + lessonId).remove().then(() => loadLessons());
+        }
+
+        function closeProfilePreview() {
+            const modal = document.getElementById('profile-preview-modal');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+            startEliteRotation();
+        }
+
+        function viewUserProfile(userId) {
+            clearInterval(rotationTimer);
+            document.getElementById('elite-banner').classList.add('viewing-mode');
+            openProfilePreview(userId);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function searchPlayer() {
+            const query = document.getElementById('search-box').value.toLowerCase();
+            const filtered = allUsers.filter(u =>
+                (u.name && u.name.toLowerCase().includes(query)) ||
+                (u.id && u.id.toLowerCase().includes(query))
+            );
+            renderLeaderboard(filtered);
+        }
+
+        function normalizeUserId(id) {
+            return String(id || '').trim().toLowerCase();
+        }
+
+        function findUserByIdentity(identity) {
+            const normalizedValue = normalizeUserId(identity);
+            const cachedUser = allUsers.find(u =>
+                normalizeUserId(u.id) === normalizedValue ||
+                normalizeUserId(u.name) === normalizedValue
+            );
+            if (cachedUser) {
+                console.log('🔍 Found cached user by identity:', identity, cachedUser);
+                return Promise.resolve(cachedUser);
+            }
+
+            console.log('🔍 Looking up user by direct ID path:', normalizedValue);
+            return firebase.database().ref('users/' + normalizedValue).once('value').then(snapshot => {
+                const data = snapshot.val();
+                console.log('📥 Firebase direct path response:', normalizedValue, data);
+                if (data) {
+                    return { id: normalizedValue, ...data };
+                }
+                console.log('🔎 Direct ID lookup failed; scanning by name/ID inside users');
+                return firebase.database().ref('users').once('value').then(snapshotAll => {
+                    const allData = snapshotAll.val() || {};
+                    console.log('📥 Firebase users snapshot keys count:', Object.keys(allData).length);
+                    const matchedEntry = Object.entries(allData).find(([key, value]) => {
+                        const idMatches = normalizeUserId(key) === normalizedValue;
+                        const nameMatches = value && normalizeUserId(value.name) === normalizedValue;
+                        return idMatches || nameMatches;
+                    });
+                    console.log('🔎 Name scan result for', identity, matchedEntry);
+                    if (!matchedEntry) return null;
+                    const [key, value] = matchedEntry;
+                    return { id: key, ...value };
+                });
+            }).catch(err => {
+                console.error('❌ Firebase lookup error for identity:', identity, err);
+                throw err;
+            });
+        }
+
+        function handleAuth() {
+            const identity = normalizeUserId(document.getElementById('reg-id').value);
+            const pass = document.getElementById('reg-pass').value.trim();
+            if (!identity || !pass) return alert("Fill ID & Pass");
+
+            findUserByIdentity(identity).then(user => {
+                if (!user) {
+                    const newUser = {
+                        id: identity,
+                        name: identity,
+                        password: pass,
+                        points: 0,
+                        mistakes: 0,
+                        bestWpm: 0,
+                        pic: "",
+                        bio: ""
+                    };
+                    saveUserToFirebase(newUser).then(success => {
+                        if (success) {
+                            allUsers.push(newUser);
+                            loggedInUser = { ...newUser };
+                            localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                            updateNav();
+                            closeAuth();
+                            syncUsersFromFirebase();
+                            startEliteRotation();
+                            alert("✅ New user created! Welcome " + identity);
+                        }
+                    });
+                    return;
+                }
+
+                if (String(user.password || '') !== pass) {
+                    alert("❌ Wrong Password!");
+                    return;
+                }
+
+                loggedInUser = { ...user, id: user.id };
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                updateNav();
+                closeAuth();
+                syncUsersFromFirebase();
+                startEliteRotation();
+                alert("✅ Welcome back " + (loggedInUser.name || loggedInUser.id) + "!");
+            }).catch(err => {
+                console.error("❌ Login error:", err);
+                alert("❌ Login failed. Please try again. Check your internet or Firebase connection.");
+            });
+        }
+
+        function updateMyRankDisplay() {
+            const rankEl = document.getElementById('dash-my-rank');
+            if (!rankEl || !loggedInUser) return;
+            const userRank = getUserRank(loggedInUser.id);
+            rankEl.innerText = "My Rank: " + (userRank ? '#' + userRank : '--');
+        }
+
+        function updateNav() {
+            if (loggedInUser) {
+                document.getElementById('nav-profile-box').classList.remove('hidden');
+                document.getElementById('nav-login-btn').classList.add('hidden');
+                document.getElementById('nav-user-name').innerText = loggedInUser.name || loggedInUser.id;
+                document.getElementById('nav-user-id-top').innerText = (loggedInUser.id || '').toUpperCase();
+                document.getElementById('nav-user-avatar').src = loggedInUser.pic || DEFAULT_AVATAR;
+                const userRank = getUserRank(loggedInUser.id);
+                const navRankEl = document.getElementById('nav-user-rank');
+                if (navRankEl) navRankEl.innerText = userRank ? '#' + userRank : '--';
+                updateMyRankDisplay();
+                const adminBtn = document.getElementById('admin-lesson-btn');
+                if (adminBtn) adminBtn.style.display = loggedInUser.id === 'admin' ? 'inline-flex' : 'none';
+            } else {
+                document.getElementById('nav-profile-box').classList.add('hidden');
+                document.getElementById('nav-login-btn').classList.remove('hidden');
+            }
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.max(seconds % 60, 0).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function updateTimerDisplay() {
+            document.getElementById('timer-display').innerText = formatTime(timeLeft);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function handleTimeExpired() {
+            stopTimer();
+            isTimeOver = true;
+            document.getElementById('typing-input').disabled = true;
+            document.getElementById('submit-btn').classList.remove('hidden');
+            updateTimerDisplay();
+            const t = translations[currentLanguage] || translations.en;
+            alert(t.timeExpired);
+        }
+
+        function startTimer() {
+            stopTimer();
+            timeLeft = 300;
+            isTimeOver = false;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft -= 1;
+                if (timeLeft <= 0) {
+                    handleTimeExpired();
+                    return;
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function updateWpmBanner(wpm) {
+            const el = document.getElementById('wpm-banner');
+            if (!el) return;
+            if (!wpm || wpm <= 0) {
+                el.innerText = '';
+                el.style.opacity = '0';
+                return;
+            }
+            el.style.opacity = '1';
+            if (wpm >= 60) {
+                el.innerText = 'MASTER';
+            } else if (wpm >= 40) {
+                el.innerText = 'EXCELLENT';
+            } else if (wpm >= 20) {
+                el.innerText = 'GOOD';
+            } else {
+                el.innerText = 'KEEP GOING';
+            }
+        }
+
+        function resetTyping() {
+            const inputBox = document.getElementById('typing-input');
+            inputBox.value = '';
+            inputBox.disabled = false;
+            isStarted = false;
+            isTimeOver = false;
+            startTime = null;
+            timeLeft = 300;
+            sessionMistakes = 0;
+            correctChars = 0;
+            stopTimer();
+            updateTimerDisplay();
+            document.getElementById('live-chars').innerText = '0';
+            document.getElementById('live-mistakes').innerText = '0';
+            document.getElementById('live-wpm').innerText = '0';
+            try { updateWpmBanner(0); } catch (e) {}
+            document.getElementById('submit-btn').classList.add('hidden');
+            generateDisplayContent();
+            document.getElementById('display-box').scrollTop = 0;
+        }
+
+        function submitScore() {
+            if (!loggedInUser) return;
+
+            const t = translations[currentLanguage] || translations.en;
+            const wpm = Math.round(parseInt(document.getElementById('live-wpm').innerText) || 0);
+            const earnedPts = Math.floor(correctChars / 5);
+            loggedInUser.monthlyPoints = (loggedInUser.monthlyPoints || 0) + earnedPts;
+
+            if (earnedPts === 0 && wpm === 0) {
+                alert(t.typeSomething);
+                return;
+            }
+
+            const earlySubmitAllowed = wpm > 15;
+            if (!isTimeOver && timeLeft > 0 && !earlySubmitAllowed) {
+                alert(t.submitBlocked);
+                return;
+            }
+
+            if (!isTimeOver && timeLeft > 0 && earlySubmitAllowed) {
+                console.log('✅ Early submit allowed because WPM w> 15', wpm);
+            }
+
+            loggedInUser.points = (loggedInUser.points || 0) + earnedPts;
+            loggedInUser.mistakes = (loggedInUser.mistakes || 0) + sessionMistakes;
+            loggedInUser.bestWpm = Math.max(loggedInUser.bestWpm || 0, wpm);
+
+            // Update Firebase
+            updateUserInFirebase(loggedInUser).then(success => {
+                if (success) {
+                    localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+                    document.getElementById('submit-btn').classList.add('hidden');
+                    isStarted = false;
+                    startTime = null;
+                    document.getElementById('typing-input').value = '';
+                    document.getElementById('live-chars').innerText = '0';
+                    document.getElementById('live-mistakes').innerText = '0';
+                    document.getElementById('live-wpm').innerText = '0';
+                    try { updateWpmBanner(0); } catch (e) {}
+                    generateDisplayContent();
+                    syncUsersFromFirebase();
+                    let message = t.scoreSubmitted + earnedPts + t.scoreWpm + wpm;
+                    if (wpm > 15) {
+                        message += '\n' + t.highWpmCongrats;
+                    }
+                    alert(message);
+                }
+            });
+        }
+
+        function renderLeaderboard(users) {
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const list = [...users].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            
+            if (list.length === 0) {
+                const t = translations[currentLanguage] || translations.en;
+                document.getElementById('leaderboard-body').innerHTML = 
+                    '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">' + t.noPlayers + '</td></tr>';
+                return;
+            }
+
+            // Show only top 10 in main leaderboard
+            const topTen = list.slice(0, 10);
+            document.getElementById('leaderboard-body').innerHTML = topTen.map((u) => {
+                const rank = sortedGlobal.findIndex(g => g.id === u.id) + 1;
+                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
+                return `
+                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}')">
+                    <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
+                    <td class="p-3 flex items-center gap-2">
+                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img rounded-full border shadow-sm object-cover bg-white">
+                        <div><p class="uppercase text-slate-800 text-sm font-black truncate max-w-[220px]">${u.name || u.id}</p>
+                        <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
+                    </td>
+                    <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
+                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
+                    <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function openAllUsersModal() {
+            const sortedGlobal = [...allUsers].sort((a, b) => {
+                const monthlyA = a.monthlyPoints || 0;
+                const monthlyB = b.monthlyPoints || 0;
+                if (monthlyB !== monthlyA) return monthlyB - monthlyA;
+                return (b.points || 0) - (a.points || 0);
+            });
+            const html = sortedGlobal.map((u, idx) => {
+                const rank = idx + 1;
+                const isCurrentUser = loggedInUser && u.id === loggedInUser.id;
+                return `
+                <tr class="clickable-row ${isCurrentUser ? 'bg-blue-50' : ''}" onclick="viewUserProfile('${u.id}'); closeAllUsersModal();">
+                    <td class="p-3 text-center text-sm font-bold text-slate-500">${rank <= 3 ? ['👑','🥈','🥉'][rank-1] : rank}</td>
+                    <td class="p-3 flex items-center gap-2">
+                        <img src="${u.pic || DEFAULT_AVATAR}" class="leader-img rounded-full border shadow-sm object-cover bg-white" style="width: 40px; height: 40px;">
+                        <div><p class="uppercase text-slate-800 text-sm font-black truncate max-w-[180px]">${u.name || u.id}</p>
+                        <p class="text-[9px] opacity-60 uppercase">ID: ${u.id}</p></div>
+                    </td>
+                    <td class="p-3 text-center"><span class="lvl-badge">LVL ${calcLvl(u.points)}</span></td>
+                    <td class="p-3 text-center text-slate-800 font-black">${u.points || 0}</td>
+                    <td class="p-3 text-center text-blue-600 font-black">${u.monthlyPoints || 0}</td>
+                    <td class="p-3 text-center text-slate-500 text-[11px] font-bold">${u.bestWpm || 0}</td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('all-users-body').innerHTML = html || '<tr><td colspan="5" class="p-4 text-center text-slate-400 text-[10px] uppercase">No players yet</td></tr>';
+            document.getElementById('all-users-modal').classList.add('active');
+        }
+
+        function closeAllUsersModal() {
+            document.getElementById('all-users-modal').classList.remove('active');
+        }
+
+        function openEditModal() {
+            if (!loggedInUser) return openAuth();
+            document.getElementById('edit-id').value = loggedInUser.id || '';
+            document.getElementById('edit-name').value = loggedInUser.name || '';
+            document.getElementById('edit-pic').value = loggedInUser.pic || '';
+            document.getElementById('edit-bio').value = loggedInUser.bio || '';
+            document.getElementById('edit-preview').src = loggedInUser.pic || DEFAULT_AVATAR;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() { document.getElementById('edit-modal').classList.add('hidden'); }
+
+        function handleProfileImageUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                document.getElementById('edit-preview').src = dataUrl;
+                document.getElementById('edit-pic').value = dataUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function saveProfile() {
+            if (!loggedInUser) return;
+            const oldId = loggedInUser.id;
+            const newId = document.getElementById('edit-id').value.trim().toLowerCase();
+            const newName = document.getElementById('edit-name').value.trim();
+            const newPic = document.getElementById('edit-pic').value.trim();
+            const newBio = document.getElementById('edit-bio').value.trim();
+
+            if (!newId || !newName) return alert("Required!");
+            if (newId !== oldId && allUsers.some(u => normalizeUserId(u.id) === normalizeUserId(newId))) return alert("ID taken!");
+
+            const updatedUser = {
+                ...loggedInUser,
+                id: newId,
+                name: newName,
+                pic: newPic,
+                bio: newBio
+            };
+
+            const finishUpdate = () => {
+                loggedInUser = updatedUser;
+                localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
+
+                const existingIndex = allUsers.findIndex(u => normalizeUserId(u.id) === normalizeUserId(oldId));
+                if (existingIndex !== -1) {
+                    allUsers[existingIndex] = { ...updatedUser };
+                }
+
+                closeEditModal();
+                syncUsersFromFirebase();
+                updateNav();
+                updateBannerWithRotation();
+                alert("✅ Profile updated!");
+            };
+
+            if (newId !== oldId) {
+                saveUserToFirebase(updatedUser).then(success => {
+                    if (!success) return alert("❌ Profile update failed. Please try again.");
+                    firebase.database().ref('users/' + oldId).remove().then(() => {
+                        finishUpdate();
+                    }).catch(err => {
+                        console.error('❌ Failed to remove old profile:', err);
+                        alert("❌ Profile updated to new ID, but old record could not be removed.");
+                        finishUpdate();
+                    });
+                }).catch(err => {
+                    console.error('❌ Profile save failed:', err);
+                    alert("❌ Profile update failed. Please try again.");
+                });
+            } else {
+                updateUserInFirebase(updatedUser).then(success => {
+                    if (!success) return alert("❌ Profile update failed. Please try again.");
+                    finishUpdate();
+                }).catch(err => {
+                    console.error('❌ Profile update failed:', err);
+                    alert("❌ Profile update failed. Please try again.");
+                });
+            }
+        }
+
+        function switchTypingLanguage(lang) {
+            currentTypingLanguage = lang;
+            localStorage.setItem('typingLanguage', lang);
+            const selector = document.getElementById('typing-language');
+            if (selector) selector.value = lang;
+            const inputBox = document.getElementById('typing-input');
+            if (inputBox) {
+                inputBox.placeholder = lang === 'bn' ? 'বাংলা টাইপ করা শুরু করুন...' : 'Start typing to improve your skills...';
+                inputBox.setAttribute('lang', lang);
+                // Bengali is left-to-right; always keep LTR direction
+                inputBox.setAttribute('dir', 'ltr');
+            }
+            generateDisplayContent();
+        }
+
+        function generateDisplayContent() {
+            // Prefer built-in prompts for the selected language, then append any admin-provided lessons
+            const prompts = (TYPING_PROMPTS[currentTypingLanguage] || TYPING_PROMPTS.en).concat(adminLessons || []);
+            const prompt = prompts[Math.floor(Math.random() * prompts.length)];
+            const topicLabel = currentTypingLanguage === 'bn' ? 'কম্পিউটার মৌলিক জ্ঞান' : 'Computer Fundamentals';
+            const repeatCount = currentTypingLanguage === 'bn' ? 18 : 25;
+            const fullText = (prompt + ' ').repeat(repeatCount).trim();
+            // split into user-perceived characters (grapheme clusters) to handle Bengali combining marks
+            function splitGraphemes(str) {
+                try {
+                    if (typeof Intl !== 'undefined' && Intl.Segmenter) {
+                        const seg = new Intl.Segmenter(currentTypingLanguage || 'bn', { granularity: 'grapheme' });
+                        return Array.from(seg.segment(str), s => s.segment);
+                    }
+                } catch (e) {
+                    // fallback
+                }
+                return Array.from(str);
+            }
+
+            const chars = splitGraphemes(fullText);
+            const header = `<div class="topic-header"><div class="topic-title">${topicLabel}</div><div class="topic-sub">${prompt}</div></div>`;
+            // Break into lines so text naturally wraps per line and caret moves to next line
+            const lineLength = currentTypingLanguage === 'bn' ? 42 : 56;
+            const lines = [];
+            for (let i = 0; i < chars.length; i += lineLength) {
+                const chunk = chars.slice(i, i + lineLength);
+                lines.push(`<div>${chunk.map(c => `<span class=\\"char\\">${c}</span>`).join('')}</div>`);
+            }
+            const body = `<div class="display-text">${lines.join('')}</div>`;
+            document.getElementById('display-box').innerHTML = header + body;
+        }
+
+        function openAuth() { document.getElementById('auth-modal').classList.remove('hidden'); }
+        function closeAuth() { document.getElementById('auth-modal').classList.add('hidden'); }
+        function logout() {
+            localStorage.removeItem('currentUser');
+            loggedInUser = null;
+            updateNav();
+            location.reload();
+        }
+
+        // Start the app when page loads
+        window.onload = init;
+    </script>
 </body>
 </html>
