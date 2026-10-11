@@ -1,0 +1,13 @@
+{
+  "name": "TypingMaster Pro Online - Earn $$$",
+  "short_name": "Typing Pro",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#041e12",
+  "theme_color": "#041e12",
+  "icons": [{
+    "src": "logo.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }]
+}
