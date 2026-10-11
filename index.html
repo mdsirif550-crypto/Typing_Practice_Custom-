@@ -14,7 +14,7 @@
   <meta property="og:image" content="logo.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#041e12">
-  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="icon" type="logo/png" href="logo.png">
   <style>
     :root {
       --bg-color: #041e12; 
@@ -35,6 +35,8 @@
     body { background: radial-gradient(circle at 45% 50%, rgba(244, 42, 65, 0.18) 0%, rgba(244, 42, 65, 0) 42%), var(--bg-color); color: var(--text-main); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 20px; }
     .btn-pro-version { background: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c) !important; color: #000 !important; border: 2px solid #fff !important; box-shadow: 0 4px 15px rgba(184, 134, 11, 0.6) !important; text-decoration: none; display: flex; align-items: center; gap: 8px; }
     .btn-pro-version:hover { transform: scale(1.05); filter: brightness(1.2); }
+    .install-btn { background: linear-gradient(135deg, #10b981, #34d399); color: #041e12; border: 2px solid rgba(255,255,255,0.25); box-shadow: 0 4px 18px rgba(16, 185, 129, 0.35); }
+    .install-btn.hidden { display: none; }
     .loader-overlay { position: fixed; inset: 0; background-color: var(--bg-color); z-index: 300000; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; }
     .loader-sun { width: 80px; height: 80px; background-color: #f42a41; border-radius: 50%; box-shadow: 0 0 30px #f42a41; animation: pulseAndGlow 1.5s infinite alternate ease-in-out; margin-bottom: 25px; }
     @keyframes pulseAndGlow { 0% { transform: scale(0.9); box-shadow: 0 0 20px rgba(244, 42, 65, 0.5); } 100% { transform: scale(1.1); box-shadow: 0 0 45px rgba(244, 42, 65, 0.9); } }
@@ -141,7 +143,8 @@
       <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
       <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বিজয় ৫২ মোড</button>
       <a class="lang-btn btn-pro-version" href="typing_Master_Pro.html"><span>👑</span>TypingMasterProOnline</a>
-      <a class="lang-btn" href="TypingMasterProOnline.zip" download>⬇ Download App</a>
+      <button id="installAppBtn" class="lang-btn install-btn hidden" type="button" onclick="triggerInstallPrompt()">⬇ Install App</button>
+      <a id="appDownloadLink" class="lang-btn" href="./TypingMasterProOnline.zip" download="TypingMasterProOnline.zip" target="_blank" rel="noopener noreferrer" onclick="event.preventDefault(); downloadApp();">⬇ Download App</a>
     </div>
     <div class="dashboard">
       <div class="stat-box"><div class="stat-label">Level Select</div><div class="controls"><select id="levelSelect" onchange="populateLessonsDropdown(); loadLesson()"><option value="basic">Basic Level</option><option value="level1">Level 1</option><option value="level2">Level 2</option><option value="level3">Level 3</option><option value="advanced">Advanced Level</option></select></div></div>
@@ -185,6 +188,46 @@
     function playKeySound(isCorrect) { try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (isCorrect) { osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.08, audioCtx.currentTime); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime); gain.gain.setValueAtTime(0.12, audioCtx.currentTime); } gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch (e) {} }
     function startTrainerSession() { document.getElementById("trainerWelcomeScreen").style.display = "none"; const panel = document.getElementById("typingPanel"); if (panel) panel.focus(); }
     function setLanguage(lang) { currentLanguage = lang; document.getElementById("langEnBtn").classList.toggle("active", lang === 'en'); document.getElementById("langBnBtn").classList.toggle("active", lang === 'bn'); populateLessonsDropdown(); updateKeyboardLayoutDisplay(); loadLesson(); const panel = document.getElementById("typingPanel"); if (panel) panel.focus(); }
+    let deferredPrompt = null;
+    function triggerInstallPrompt() {
+      const installBtn = document.getElementById('installAppBtn');
+      if (!deferredPrompt) {
+        if (installBtn) installBtn.textContent = 'Use browser menu to install';
+        return;
+      }
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          if (installBtn) installBtn.textContent = 'Installed';
+        } else {
+          if (installBtn) installBtn.textContent = 'Install App';
+        }
+        deferredPrompt = null;
+      });
+    }
+    function downloadApp() {
+      const fileUrl = './TypingMasterProOnline.zip';
+      const statusEl = document.getElementById('statusFeedback');
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = 'TypingMasterProOnline.zip';
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      document.body.appendChild(link);
+      try {
+        link.click();
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color: var(--success);">📥 ডাউনলোড শুরু হয়েছে। ফাইলটি আপনার ডাউনলোড ফোল্ডারে যাবে।</span>';
+        }
+      } catch (error) {
+        window.open(fileUrl, '_blank');
+        if (statusEl) {
+          statusEl.innerHTML = '<span style="color: #facc15;">⚠️ ডাউনলোড ব্লক হয়েছে। ফাইলটি নতুন ট্যাবে খুলে ডাউনলোড করুন।</span>';
+        }
+      } finally {
+        link.remove();
+      }
+    }
     function populateLessonsDropdown() { const lessonSelect = document.getElementById("lessonSelect"); const levelSelect = document.getElementById("levelSelect"); const levelKey = levelSelect.value || "basic"; const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey]; lessonSelect.innerHTML = ""; const grp = document.createElement("optgroup"); grp.label = currentLanguage === 'en' ? `${levelSelect.options[levelSelect.selectedIndex].text} Lessons` : `${levelSelect.options[levelSelect.selectedIndex].text} লেসন`; lessons.forEach((_lesson, i) => { const opt = document.createElement("option"); opt.value = i; opt.text = (currentLanguage === 'en' ? "Lesson " : "লেসন ") + (i + 1); grp.appendChild(opt); }); lessonSelect.appendChild(grp); lessonSelect.value = 0; }
     function updateKeyboardLayoutDisplay() { document.querySelectorAll(".key").forEach(keyEl => { const keyChar = keyEl.getAttribute("data-key"); if (keyChar && keyChar.length === 1) { if (currentLanguage === 'bn') { const bnChar = bengaliKeyLabelMap[keyChar.toLowerCase()]; keyEl.innerHTML = bnChar ? `<span style="font-size: 14px;">${keyChar.toUpperCase()}</span><span style="font-size: 11px; color: var(--primary); position: absolute; top: 2px; right: 6px;">${bnChar}</span>` : keyChar.toUpperCase(); } else keyEl.innerHTML = keyChar.toUpperCase(); } }); }
     function loadLesson() { const levelSelect = document.getElementById("levelSelect"); const lessonSelect = document.getElementById("lessonSelect"); const levelKey = levelSelect.value || "basic"; const lessons = currentLanguage === 'en' ? englishLessonsByLevel[levelKey] : bengaliLessonsByLevel[levelKey]; targetText = lessons[lessonSelect.value] || lessons[0]; resetExercise(); }
@@ -226,8 +269,25 @@
         document.getElementById("trainerWelcomeScreen").style.display = "none";
         let progress = 0; const iv = setInterval(() => { progress += 10; document.getElementById("loaderProgress").style.width = progress + "%"; if (progress >= 100) { clearInterval(iv); setTimeout(() => { document.getElementById("loadingScreen").style.display = "none"; document.getElementById("trainerWelcomeScreen").style.display = "flex"; setTimeout(() => setLanguage('en'), 50); }, 180); } }, 80);
       } catch (e) {}
-      // Register PWA
-      if ('serviceWorker' in navigator) { /* navigator.serviceWorker.register('sw.js'); */ }
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn) {
+          installBtn.classList.remove('hidden');
+          installBtn.textContent = '⬇ Install App';
+        }
+      });
+      window.addEventListener('appinstalled', () => {
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn) {
+          installBtn.textContent = 'Installed';
+          installBtn.classList.add('hidden');
+        }
+      });
     };
   </script>
 </body>
