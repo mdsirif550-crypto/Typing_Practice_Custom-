@@ -1,13 +1,20 @@
 {
-  "name": "TypingMaster Pro Online - Earn $$$",
-  "short_name": "Typing Pro",
-  "start_url": "/",
+  "name": "TypingMaster Pro Online",
+  "short_name": "TypingMaster",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#041e12",
-  "theme_color": "#041e12",
-  "icons": [{
-    "src": "logo.png",
-    "sizes": "512x512",
-    "type": "image/png"
-  }]
+  "background_color": "#ffffff",
+  "theme_color": "#0078d4",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
