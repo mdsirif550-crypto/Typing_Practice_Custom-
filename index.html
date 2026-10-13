@@ -312,8 +312,11 @@ document.addEventListener("DOMContentLoaded", function() {
         mobileInput.style.left = '-9999px';
         document.body.appendChild(mobileInput);
 
-        typingPanel.addEventListener('click', function() {
+       typingPanel.addEventListener('click', function() {
             mobileInput.focus();
+            setTimeout(() => {
+                typingPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
         });
 
         mobileInput.addEventListener('input', function(e) {
