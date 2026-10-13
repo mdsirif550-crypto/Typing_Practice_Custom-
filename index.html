@@ -208,6 +208,22 @@
     50% {
         transform: translateX(6px);
     }
+  @media (max-width: 650px) {
+    /* টাইপিং প্যানেল এবং ইনপুট অংশটি মোবাইলে স্ক্রিনের ওপরে লক ও ভাসমান থাকবে */
+    .typing-panel, #typingPanel {
+        position: fixed !important;
+        top: 10px !important;
+        left: 4%;
+        width: 92% !important;
+        z-index: 99999 !important;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+    }
+    
+    /* নিচের কিবোর্ড গাইড বা অন্যান্য উপাদান যেন ভাসমান বক্সের নিচে ঢাকা না পড়ে তার জন্য জায়গা তৈরি */
+    .dashboard, .keyboard-container {
+        margin-top: 180px !important;
+    }
+}
 }
 </style>
     </a>
