@@ -181,22 +181,39 @@
     background-color: #005a9e !important;
     transform: scale(1.05);
 }
-    @keyframes arrowGlow {
+   .golden-highlight-btn {
+    position: relative;
+    box-shadow: 0 0 10px #ffcc00, 0 0 20px #ffcc00;
+    animation: goldPulse 2s infinite alternate ease-in-out;
+}
+
+@keyframes goldPulse {
+    0% {
+        box-shadow: 0 0 8px #ffcc00, 0 0 15px #ff9900;
+    }
+    100% {
+        box-shadow: 0 0 25px #ffee55, 0 0 40px #ffcc00;
+    }
+}
+
+.moving-arrow {
+    display: inline-block;
+    animation: arrowSlide 1s infinite ease-in-out;
+}
+
+@keyframes arrowSlide {
     0%, 100% {
-        transform: translateY(0);
-        filter: drop-shadow(0 0 5px #ff007f) drop-shadow(0 0 10px #ff007f);
+        transform: translateX(0);
     }
     50% {
-        transform: translateY(6px);
-        filter: drop-shadow(0 0 15px #00ffcc) drop-shadow(0 0 25px #00ffcc);
-        color: #00ffcc;
+        transform: translateX(6px);
     }
-}    
+}
 </style>
     </a>
 </div>
       <div class="brand-wrap">
-       <div class="brand-domain glow-arrow" style="display: inline-block; animation: arrowGlow 1.5s infinite ease-in-out; font-weight: bold;">typingmasterproonline<span>.com</span> ⬇️</div>
+      <div class="brand-domain">typingmasterproonline<span>.com</span></div>
       </div>
       <div class="academy-tag">Type Fast Earn $$$</div>
     </header>
@@ -204,7 +221,7 @@
     <div class="mode-container">
       <button id="langEnBtn" class="lang-btn active" onclick="setLanguage('en')">English Mode</button>
       <button id="langBnBtn" class="lang-btn" onclick="setLanguage('bn')">বাংলা ৫২ মোড</button>
-      <a class="lang-btn btn-pro-version" href="typing_Master_Pro.html"><span>👑</span>TypingMasterProOnline</a>
+  <a class="lang-btn btm-pro-version golden-highlight-btn" href="Typing_Master_Pro.html">👑 TypingMasterProOnline <span class="moving-arrow">➡️</span></a>
     </div>
     <a class="whatsapp-help" href="https://chat.whatsapp.com/Gz3qCwwCXVp6b5mtvxsxxU" target="_blank" rel="noopener noreferrer" aria-label="Open WhatsApp Help">
       <span class="whatsapp-help-icon">💬</span>
