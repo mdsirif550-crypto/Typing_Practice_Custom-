@@ -288,4 +288,35 @@
     };
   </script>
 </body>
+  <!-- মোবাইল কিবোর্ড ট্র্যাকিং কোড -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const typingPanel = document.getElementById('typingPanel');
+    if(typingPanel) {
+        const mobileInput = document.createElement('input');
+        mobileInput.type = 'text';
+        mobileInput.style.position = 'absolute';
+        mobileInput.style.opacity = '0';
+        mobileInput.style.pointerEvents = 'none';
+        mobileInput.style.left = '-9999px';
+        document.body.appendChild(mobileInput);
+
+        typingPanel.addEventListener('click', function() {
+            mobileInput.focus();
+        });
+
+        mobileInput.addEventListener('input', function(e) {
+            const char = e.data;
+            if(char) {
+                const event = new KeyboardEvent('keydown', {
+                    key: char,
+                    bubbles: true
+                });
+                document.dispatchEvent(event);
+            }
+            mobileInput.value = '';
+        });
+    }
+});
+</script>
 </html>
