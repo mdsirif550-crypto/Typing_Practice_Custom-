@@ -150,6 +150,12 @@
     .typing-zoom-controls button { min-width: 36px; height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: var(--key-bg); color: var(--text-main); font-size: 16px; font-weight: 700; cursor: pointer; }
     .typing-zoom-controls button:hover { background: var(--primary); }
     .typing-zoom-controls output { min-width: 48px; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .typing-panel:fullscreen { display: flex; align-items: center; justify-content: center; width: 100vw; max-width: none; height: 100vh; height: 100dvh; min-height: 0; margin: 0; padding: clamp(20px, 5vw, 80px); overflow: auto; border: 0; border-radius: 0; background: var(--bg-color); box-shadow: none; }
+    .typing-panel:fullscreen .typing-zoom-controls, .typing-panel.is-text-fullscreen .typing-zoom-controls { display: none; }
+    .typing-panel:fullscreen .text-display, .typing-panel.is-text-fullscreen .text-display { width: min(100%, 1100px); min-height: 0; margin: auto; text-align: center; }
+    body.typing-text-fullscreen { overflow: hidden; }
+    body.typing-text-fullscreen > :not(#typingPanel) { display: none !important; }
+    .typing-panel.is-text-fullscreen { position: fixed; inset: 0; z-index: 400001; display: flex; align-items: center; justify-content: center; width: 100vw; max-width: none; height: 100vh; height: 100dvh; min-height: 0; margin: 0; padding: clamp(20px, 5vw, 80px); overflow: auto; border: 0; border-radius: 0; background: var(--bg-color); box-shadow: none; }
     .char-correct { color: var(--success) !important; background-color: rgba(16, 185, 129, 0.1) !important; }
     .char-wrong { color: var(--danger) !important; background-color: rgba(239, 68, 68, 0.25) !important; border-bottom: 3px solid var(--danger) !important; }
     .char-current { color: var(--text-main); background-color: rgba(192, 38, 211, 0.25); border-bottom: 3px solid var(--primary); }
@@ -319,7 +325,8 @@
         <button type="button" onclick="changeTypingZoom(-2)" aria-label="Zoom out">−</button>
         <output id="typingZoomLevel" aria-live="polite">100%</output>
         <button type="button" onclick="changeTypingZoom(2)" aria-label="Zoom in">+</button>
-        <button type="button" onclick="resetTypingZoom()" aria-label="Reset zoom">↺</button>
+        <button type="button" onclick="resetTypingZoom()" aria-label="Reset zoom to 100%" title="Reset zoom to 100%">100%</button>
+        <button type="button" id="typingFullscreenButton" onclick="toggleTypingFullscreen()" aria-label="Show typing text fullscreen" title="Fullscreen">⛶</button>
       </div>
       <div id="textDisplay" class="text-display"></div>
     </div>
@@ -354,6 +361,82 @@
     function changeTypingZoom(change) { typingFontSize = Math.max(16, Math.min(40, typingFontSize + change)); applyTypingZoom(); }
     function resetTypingZoom() { typingFontSize = 24; applyTypingZoom(); }
     function applyTypingZoom() { document.getElementById("textDisplay").style.fontSize = `${typingFontSize}px`; document.getElementById("typingZoomLevel").value = `${Math.round(typingFontSize / 24 * 100)}%`; }
+    async function toggleTypingFullscreen() {
+      const panel = document.getElementById("typingPanel");
+      if (document.fullscreenElement === panel || panel.classList.contains("is-text-fullscreen")) {
+        if (document.fullscreenElement === panel) {
+          await document.exitFullscreen();
+          updateTypingFullscreenButton(false);
+        }
+        else exitTypingFullscreenFallback();
+        return;
+      }
+
+      if (panel.requestFullscreen) {
+        try {
+          await panel.requestFullscreen();
+          updateTypingFullscreenButton(true);
+          panel.focus();
+          return;
+        } catch (error) {
+          enterTypingFullscreenFallback();
+          panel.focus();
+          return;
+        }
+      }
+
+      enterTypingFullscreenFallback();
+      panel.focus();
+    }
+    function enterTypingFullscreenFallback() {
+      document.getElementById("typingPanel").classList.add("is-text-fullscreen");
+      document.body.classList.add("typing-text-fullscreen");
+      updateTypingFullscreenButton(true);
+    }
+    function exitTypingFullscreenFallback() {
+      document.getElementById("typingPanel").classList.remove("is-text-fullscreen");
+      document.body.classList.remove("typing-text-fullscreen");
+      updateTypingFullscreenButton(false);
+    }
+    function updateTypingFullscreenButton(isFullscreen) {
+      const button = document.getElementById("typingFullscreenButton");
+      button.setAttribute("aria-label", isFullscreen ? "Exit typing text fullscreen" : "Show typing text fullscreen");
+      button.title = isFullscreen ? "Exit fullscreen (Esc)" : "Fullscreen";
+      button.setAttribute("aria-pressed", String(isFullscreen));
+    }
+    document.addEventListener("fullscreenchange", () => {
+      const panel = document.getElementById("typingPanel");
+      const isFullscreen = document.fullscreenElement === panel;
+      if (!isFullscreen && panel.classList.contains("is-text-fullscreen")) exitTypingFullscreenFallback();
+      updateTypingFullscreenButton(isFullscreen);
+      if (!document.fullscreenElement && !document.body.classList.contains("typing-text-fullscreen")) panel.focus();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key !== "Escape") return;
+      const panel = document.getElementById("typingPanel");
+      if (document.fullscreenElement === panel) {
+        document.exitFullscreen().then(() => {
+          updateTypingFullscreenButton(false);
+          panel.focus();
+        });
+      } else if (document.body.classList.contains("typing-text-fullscreen")) {
+        exitTypingFullscreenFallback();
+      }
+      panel.focus();
+    });
+    document.getElementById("typingPanel").addEventListener("pointerdown", event => {
+      if (event.pointerType !== "touch") return;
+      const panel = document.getElementById("typingPanel");
+      if (document.fullscreenElement === panel) {
+        document.exitFullscreen().then(() => {
+          updateTypingFullscreenButton(false);
+          panel.focus();
+        });
+      } else if (panel.classList.contains("is-text-fullscreen")) {
+        exitTypingFullscreenFallback();
+        panel.focus();
+      }
+    });
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function playKeySound(isCorrect) { try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (isCorrect) { osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.08, audioCtx.currentTime); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime); gain.gain.setValueAtTime(0.12, audioCtx.currentTime); } gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch (e) {} }
     function makeHelpButtonDraggable() {
