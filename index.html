@@ -13,7 +13,7 @@
 
   gtag('config', 'G-0LGMNWJX19');
 </script>
- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TypingMaster Pro Online - Free Typing Practice </title>
  <meta name="google-site-verification" content="q1fo44ipDTHffmhZwriPwwfS4_ClOT5QcvfESIzFPtM" />
   <meta name="description" content="TypingMaster Pro Online is world best free typing master. Practice Bijoy 52 & English typing, increase WPM, and learn how to typing.">
@@ -148,6 +148,12 @@
     #customTextModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 250000; align-items: center; justify-content: center; padding: 20px; }
     #customTextArea { width: 100%; height: 150px; background: var(--bg-color); color: white; border: 1px solid var(--primary); border-radius: 8px; padding: 10px; margin: 15px 0; outline: none; font-family: inherit; }
     @media (max-width: 600px) {
+      .trainer-intro-overlay { align-items: flex-start; overflow-y: auto; }
+      .trainer-card { width: 100%; max-height: calc(100vh - 20px); max-height: calc(100dvh - 20px); margin: auto; overflow-y: auto; }
+      .trainer-header { padding: 22px 14px; }
+      .trainer-body { padding: 16px; }
+      .guideline-item-card { gap: 10px; padding: 12px; }
+      .guideline-info { min-width: 0; }
       .flag-landscape-banner { height: 90px; padding: 0 20px; margin-bottom: 15px; }
       .flag-banner-text { font-size: 11px; letter-spacing: 1.5px; }
       .flag-red-circle { width: 55px; height: 55px; }
@@ -346,12 +352,4 @@
         document.getElementById("loaderProgress").style.width = "0%";
         document.getElementById("loadingScreen").style.display = "flex";
         document.getElementById("trainerWelcomeScreen").style.display = "none";
-        let progress = 0; const iv = setInterval(() => { progress += 10; document.getElementById("loaderProgress").style.width = progress + "%"; if (progress >= 100) { clearInterval(iv); setTimeout(() => { document.getElementById("loadingScreen").style.display = "none"; document.getElementById("trainerWelcomeScreen").style.display = "flex"; setTimeout(() => setLanguage('en'), 50); }, 180); } }, 80);
-      } catch (e) {}
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js').catch(() => {});
-      }
-    };
-  </script>
-</body>
-</html>
+        let progress = 0; const iv = setInterval(() => { progress += 10; document.getElementById("loaderProgress").style.width = progress + "%"; if (progress >= 100) { clearInterval(iv); setTimeout(() => { document.getElemen
