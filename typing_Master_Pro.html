@@ -848,7 +848,7 @@
                 loggedInUser = { ...user, id: user.id };
                 localStorage.setItem('currentUser', JSON.stringify(loggedInUser));
                 afterLogin();
-                alert('✅ স্Welcome back! Thank you for returning ' + (loggedInUser.name || loggedInUser.id) + '!');
+                alert('✅ Welcome back! Thank you for returning ' + (loggedInUser.name || loggedInUser.id) + '!');
             }).catch(err => {
                 console.error('Auth error:', err);
                 alert('❌ লগইন ব্যর্থ হয়েছে, আবার চেষ্টা করুন।');
