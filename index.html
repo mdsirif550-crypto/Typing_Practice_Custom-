@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,6 +71,9 @@
     .brand-mark { width: 110px; height: 110px; object-fit: contain; border-radius: 24px; background: rgba(255,255,255,0.06); box-shadow: 0 18px 40px rgba(0,0,0,0.25); padding: 10px; }
     .brand-domain { font-size: 34px; font-weight: 900; letter-spacing: 1px; color: #f5f7ff; text-shadow: 0 0 24px rgba(255,255,255,0.2); line-height: 1.2; }
     .brand-domain span { color: #7ae6ff; }
+    .facebook-page-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: #1877f2; color: #fff; font-size: 14px; font-weight: 800; text-decoration: none; box-shadow: 0 4px 12px rgba(24,119,242,0.3); transition: background-color 0.2s, transform 0.2s; }
+    .facebook-page-link:hover { background: #0866ff; transform: translateY(-1px); }
+    .facebook-page-link svg { width: 18px; height: 18px; flex-shrink: 0; }
     .brand-hero { display: flex; align-items: center; justify-content: center; gap: 18px; margin: 14px auto 20px; padding: 10px 18px; border-radius: 26px; background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 28px rgba(0,0,0,0.18); }
     .brand-hero-logo { width: 160px; height: 160px; object-fit: contain; filter: drop-shadow(0 16px 22px rgba(0,0,0,0.25)); }
     .brand-hero-text { font-size: clamp(22px, 4vw, 58px); font-weight: 900; line-height: 0.9; letter-spacing: 1px; text-transform: none; background: linear-gradient(180deg, #f3e8ff 0%, #f9a8d4 18%, #f0abfc 38%, #c084fc 58%, #60a5fa 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 6px 14px rgba(192, 132, 252, 0.35)); }
@@ -98,22 +103,26 @@
     .btn-reset { background-color: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s; }
     .btn-reset:hover { background-color: var(--primary-hover); }
     .status-feedback { background-color: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; text-align: center; font-size: 14px; font-weight: bold; margin-bottom: 15px; min-height: 44px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
-    .typing-panel { background-color: var(--panel-bg); border-radius: 16px; padding: 30px; margin-bottom: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); position: relative; border: 2px solid transparent; transition: border-color 0.2s; }
+    .typing-panel { background-color: var(--panel-bg); border-radius: 16px; padding: 54px 30px 30px; margin: 0 auto 25px; width: min(82%, 1000px); min-height: 310px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); position: relative; border: 2px solid transparent; transition: border-color 0.2s; }
     @keyframes shakeError { 0% { transform: translateX(0); } 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-8px); } 100% { transform: translateX(0); } }
     .panel-shake { animation: shakeError 0.2s ease-in-out; border-color: var(--danger) !important; }
     .text-display { font-size: 24px; line-height: 1.7; letter-spacing: 1px; min-height: 120px; color: var(--text-muted); font-family: 'Courier New', Courier, monospace; outline: none; word-break: break-word; }
+    .typing-zoom-controls { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; gap: 6px; }
+    .typing-zoom-controls button { min-width: 36px; height: 32px; padding: 0 8px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; background: var(--key-bg); color: var(--text-main); font-size: 16px; font-weight: 700; cursor: pointer; }
+    .typing-zoom-controls button:hover { background: var(--primary); }
+    .typing-zoom-controls output { min-width: 48px; color: var(--text-muted); font-size: 12px; text-align: center; }
     .char-correct { color: var(--success) !important; background-color: rgba(16, 185, 129, 0.1) !important; }
     .char-wrong { color: var(--danger) !important; background-color: rgba(239, 68, 68, 0.25) !important; border-bottom: 3px solid var(--danger) !important; }
     .char-current { color: var(--text-main); background-color: rgba(192, 38, 211, 0.25); border-bottom: 3px solid var(--primary); }
-    .keyboard-container { background-color: var(--panel-bg); border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
-    .keyboard-row { display: flex; justify-content: center; gap: 6px; margin-bottom: 10px; }
+    .keyboard-container { width: min(100%, 900px); min-width: 0; margin: 0 auto; background-color: var(--panel-bg); border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+    .keyboard-row { display: flex; justify-content: center; gap: 6px; width: 100%; min-width: 0; margin-bottom: 10px; }
     .keyboard-row:last-child { margin-bottom: 0; }
-    .key { background-color: var(--key-bg); color: var(--text-main); padding: 10px; min-width: 44px; height: 46px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: bold; user-select: none; position: relative; border-bottom: 4px solid var(--key-border); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.05s ease; }
+    .key { background-color: var(--key-bg); color: var(--text-main); padding: 10px; min-width: 0; flex: 1 1 0; height: 46px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 13px; font-weight: bold; user-select: none; position: relative; border-bottom: 4px solid var(--key-border); box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); transition: all 0.05s ease; }
     .key.backspace { min-width: 80px; } .key.tab { min-width: 65px; } .key.caps { min-width: 75px; } .key.enter { min-width: 85px; } .key.shift { min-width: 100px; } .key.space { min-width: 320px; }
     .key.target-highlight { background-color: var(--key-active) !important; border-bottom-color: #701a75 !important; box-shadow: 0 0 15px var(--key-active); transform: translateY(-2px); }
     .key.pressed, .key:active { transform: translateY(3px); border-bottom-width: 1px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
-    .trainer-intro-overlay { position: fixed; inset: 0; background-color: rgba(4, 30, 18, 0.9); backdrop-filter: blur(10px); z-index: 200000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .trainer-card { background: linear-gradient(135deg, #111e16, #0c2514); border-radius: 24px; max-width: 600px; width: 100%; border: 2px solid var(--primary); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 38, 211, 0.2); overflow: hidden; animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .trainer-intro-overlay { position: fixed; inset: 0; background-color: rgba(4, 30, 18, 0.9); backdrop-filter: blur(10px); z-index: 200000; display: flex; align-items: center; justify-content: center; padding: 10px; }
+    .trainer-card { background: linear-gradient(135deg, #111e16, #0c2514); border-radius: 24px; max-width: 600px; width: 50%; border: 2px solid var(--primary); box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(192, 38, 211, 0.2); overflow: hidden; animation: cardSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
     @keyframes cardSlideIn { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
     .trainer-header { background: linear-gradient(135deg, #006a4e, #0c2514); padding: 30px 20px; text-align: center; border-bottom: 2px solid rgba(244, 42, 65, 0.3); display: flex; flex-direction: column; align-items: center; gap: 12px; position: relative; }
     .trainer-header::after { content: ""; position: absolute; width: 120px; height: 120px; background: rgba(244, 42, 65, 0.15); filter: blur(25px); border-radius: 50%; top: 10%; left: 45%; }
@@ -138,7 +147,28 @@
     .trainer-tip { font-size: 13px; color: #fbcfe8; background-color: var(--bg-accent); padding: 8px; border-radius: 6px; margin-top: 10px; font-weight: bold; }
     #customTextModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 250000; align-items: center; justify-content: center; padding: 20px; }
     #customTextArea { width: 100%; height: 150px; background: var(--bg-color); color: white; border: 1px solid var(--primary); border-radius: 8px; padding: 10px; margin: 15px 0; outline: none; font-family: inherit; }
-    @media (max-width: 600px) { .flag-landscape-banner { height: 90px; padding: 0 20px; margin-bottom: 15px; } .flag-banner-text { font-size: 11px; letter-spacing: 1.5px; } .flag-red-circle { width: 55px; height: 55px; } }
+    @media (max-width: 600px) {
+      .flag-landscape-banner { height: 90px; padding: 0 20px; margin-bottom: 15px; }
+      .flag-banner-text { font-size: 11px; letter-spacing: 1.5px; }
+      .flag-red-circle { width: 55px; height: 55px; }
+      .brand-wrap { width: 100%; }
+      .brand-domain { max-width: 100%; font-size: clamp(12px, 3.7vw, 16px); letter-spacing: 0.5px; white-space: nowrap; }
+      .facebook-page-link { padding: 8px 12px; font-size: 13px; }
+      .brand-hero { max-width: 100%; gap: 8px; padding: 8px; }
+      .brand-hero-logo { width: 70px; height: 70px; }
+      .dashboard { width: 100%; min-width: 0; justify-content: center; gap: 12px; padding: 12px; }
+      .stat-box { min-width: 0; }
+      .controls { flex-wrap: wrap; justify-content: center; gap: 8px; }
+      select { max-width: 100%; }
+      .typing-panel { width: 100%; padding: 50px 14px 18px; }
+      .typing-zoom-controls { top: 9px; right: 9px; }
+      .keyboard-container { padding: 12px 6px; }
+      .keyboard-row { gap: 2px; }
+      .key { flex: 1; min-width: 0; padding: 10px 2px; font-size: clamp(8px, 2.8vw, 11px); }
+      .key.backspace, .key.tab, .key.caps, .key.enter, .key.shift { min-width: 0; flex-grow: 1.5; }
+      .key.space { min-width: 0; flex-grow: 4; }
+      #key-control, #key-meta, #key-alt, #key-altright, #key-metaright, #key-controlright { min-width: 0 !important; }
+    }
   </style>
 </head>
   <!-- নোটিশ ব্যানার শুরু -->
@@ -207,6 +237,10 @@
 </div>
       <div class="brand-wrap">
         <div class="brand-domain">typingmasterproonline<span>.com</span></div>
+        <a class="facebook-page-link" href="https://www.facebook.com/Shorif.Online.Skill.Center" target="_blank" rel="noopener noreferrer" aria-label="Visit Shorif Online Skill Center on Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M13.5 21v-8.2h2.8l.4-3.2h-3.2v-2c0-.9.3-1.5 1.6-1.5h1.7V3.2c-.3 0-1.4-.2-2.6-.2-2.6 0-4.4 1.6-4.4 4.5v2.1H7v3.2h2.8V21h3.7z"/></svg>
+          <span>Facebook</span>
+        </a>
       </div>
       <div class="academy-tag">You are bound to become an expert in typing</div>
     </header>
@@ -229,7 +263,15 @@
       <div class="stat-box"><div class="stat-label">Time</div><div id="timeVal" class="stat-val">00:00</div></div>
     </div>
     <div id="statusFeedback" class="status-feedback"><span style="color: var(--text-muted)">Press any key to start typing...</span></div>
-    <div id="typingPanel" class="typing-panel" tabindex="0"><div id="textDisplay" class="text-display"></div></div>
+    <div id="typingPanel" class="typing-panel" tabindex="0">
+      <div class="typing-zoom-controls" aria-label="Typing text zoom controls">
+        <button type="button" onclick="changeTypingZoom(-2)" aria-label="Zoom out">−</button>
+        <output id="typingZoomLevel" aria-live="polite">100%</output>
+        <button type="button" onclick="changeTypingZoom(2)" aria-label="Zoom in">+</button>
+        <button type="button" onclick="resetTypingZoom()" aria-label="Reset zoom">↺</button>
+      </div>
+      <div id="textDisplay" class="text-display"></div>
+    </div>
     <div class="keyboard-container">
       <div class="keyboard-row"><div class="key" id="key-`" data-key="`">`</div><div class="key" id="key-1" data-key="1">1</div><div class="key" id="key-2" data-key="2">2</div><div class="key" id="key-3" data-key="3">3</div><div class="key" id="key-4" data-key="4">4</div><div class="key" id="key-5" data-key="5">5</div><div class="key" id="key-6" data-key="6">6</div><div class="key" id="key-7" data-key="7">7</div><div class="key" id="key-8" data-key="8">8</div><div class="key" id="key-9" data-key="9">9</div><div class="key" id="key-0" data-key="10">10</div><div class="key" id="key--" data-key="11">11</div><div class="key" id="key-=" data-key="12">12</div><div class="key backspace" id="key-backspace" data-key="Backspace">Backspace</div></div>
       <div class="keyboard-row"><div class="key tab" id="key-tab" data-key="Tab">Tab</div><div class="key" id="key-q" data-key="q">Q</div><div class="key" id="key-w" data-key="w">W</div><div class="key" id="key-e" data-key="e">E</div><div class="key" id="key-r" data-key="r">R</div><div class="key" id="key-t" data-key="t">T</div><div class="key" id="key-y" data-key="y">Y</div><div class="key" id="key-u" data-key="u">U</div><div class="key" id="key-i" data-key="i">I</div><div class="key" id="key-o" data-key="o">O</div><div class="key" id="key-p" data-key="p">P</div><div class="key" id="key-[" data-key="[">[</div><div class="key" id="key-]" data-key="]">]</div><div class="key" id="key-backslash" data-key="&#92;">&#92;</div></div>
@@ -257,7 +299,10 @@
     };
     const bengaliKeyLabelMap = { "q": "ঙ", "w": "য", "e": "ড", "r": "প", "t": "ট", "y": "চ", "u": "জ", "i": "হ", "o": "গ", "p": "ড়", "a": "ৃ", "s": "ু", "d": "ি", "f": "া", "g": "্", "h": "অ", "j": "ক", "k": "ত", "l": "দ", "z": "্র", "x": "ও", "c": "এ", "v": "র", "b": "ন", "n": "স", "m": "ম" };
     const bijoyToEnglishGuide = { "ক": { key: "j", label: "j" }, "খ": { key: "J", label: "Shift + j" }, "গ": { key: "o", label: "o" }, "ঘ": { key: "O", label: "Shift + o" }, "ঙ": { key: "q", label: "q" }, "চ": { key: "y", label: "y" }, "ছ": { key: "Y", label: "Shift + y" }, "জ": { key: "u", label: "u" }, "ঝ": { key: "U", label: "Shift + u" }, "ঞ": { key: "I", label: "Shift + i" }, "ট": { key: "t", label: "t" }, "ঠ": { key: "T", label: "Shift + t" }, "ড": { key: "e", label: "e" }, "ঢ": { key: "E", label: "Shift + e" }, "ত": { key: "k", label: "k" }, "থ": { key: "K", label: "Shift + k" }, "দ": { key: "l", label: "l" }, "ধ": { key: "L", label: "Shift + l" }, "ন": { key: "b", label: "b" }, "ণ": { key: "B", label: "Shift + b" }, "প": { key: "r", label: "r" }, "ফ": { key: "R", label: "Shift + r" }, "ব": { key: "h", label: "h" }, "ভ": { key: "H", label: "Shift + h" }, "ম": { key: "m", label: "m" }, "য": { key: "w", label: "w" }, "র": { key: "v", label: "v" }, "ল": { key: "V", label: "Shift + v" }, "শ": { key: "M", label: "Shift + m" }, "ষ": { key: "N", label: "Shift + n" }, "স": { key: "n", label: "n" }, "হ": { key: "i", label: "i" }, "ড়": { key: "p", label: "p" }, "ঢ়": { key: "P", label: "Shift + p" }, "য়": { key: "Y", label: "Shift + ;" }, "অ": { key: "F", label: "Shift + f" }, "আ": { key: "H", label: "Shift + h" }, "ই": { key: "D", label: "Shift + d" }, "উ": { key: "S", label: "Shift + s" }, "ঋ": { key: "A", label: "Shift + a" }, "এ": { key: "c", label: "c" }, "ঐ": { key: "C", label: "Shift + c" }, "ও": { key: "x", label: "x" }, "ঔ": { key: "X", label: "Shift + x" }, "া": { key: "f", label: "f" }, "ি": { key: "d", label: "d" }, "ী": { key: "D", label: "Shift + d" }, "ু": { key: "s", label: "s" }, "ূ": { key: "S", label: "Shift + s" }, "ে": { key: "c", label: "c" }, "ৈ": { key: "C", label: "Shift + c" }, "ো": { key: "x", label: "x" }, "ৌ": { key: "X", label: "Shift + x" }, "ৃ": { key: "a", label: "a" }, "্": { key: "g", label: "g" }, "ং": { key: "Q", label: "Shift + q" }, "ঃ": { key: "S", label: "Shift + s" }, "ঁ": { key: "^", label: "Shift + 6" }, "্য": { key: "W", label: "Shift + w" }, "্র": { key: "z", label: "z" }, "র্": { key: "A", label: "Shift + a" }, "।": { key: "G", label: "Shift + g" } };
-    let currentLanguage = 'en'; let targetText = ""; let userInputs = []; let currentIndex = 0; let startTime = null; let timerInterval = null; let totalSeconds = 0; let isStarted = false; let totalKeystrokes = 0; let totalErrors = 0; let hasErrorAtCurrent = false; let completedLessonsInSession = []; let audioCtx = null;
+    let currentLanguage = 'en'; let targetText = ""; let userInputs = []; let currentIndex = 0; let startTime = null; let timerInterval = null; let totalSeconds = 0; let isStarted = false; let totalKeystrokes = 0; let totalErrors = 0; let hasErrorAtCurrent = false; let completedLessonsInSession = []; let audioCtx = null; let typingFontSize = 24;
+    function changeTypingZoom(change) { typingFontSize = Math.max(16, Math.min(40, typingFontSize + change)); applyTypingZoom(); }
+    function resetTypingZoom() { typingFontSize = 24; applyTypingZoom(); }
+    function applyTypingZoom() { document.getElementById("textDisplay").style.fontSize = `${typingFontSize}px`; document.getElementById("typingZoomLevel").value = `${Math.round(typingFontSize / 24 * 100)}%`; }
     function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); if (audioCtx.state === 'suspended') audioCtx.resume(); }
     function playKeySound(isCorrect) { try { initAudio(); const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain(); osc.connect(gain); gain.connect(audioCtx.destination); if (isCorrect) { osc.type = 'sine'; osc.frequency.setValueAtTime(800, audioCtx.currentTime); gain.gain.setValueAtTime(0.08, audioCtx.currentTime); } else { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(130, audioCtx.currentTime); gain.gain.setValueAtTime(0.12, audioCtx.currentTime); } gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); osc.start(); osc.stop(audioCtx.currentTime + 0.1); } catch (e) {} }
     function startTrainerSession() { document.getElementById("trainerWelcomeScreen").style.display = "none"; const panel = document.getElementById("typingPanel"); if (panel) panel.focus(); }
